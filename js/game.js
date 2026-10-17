@@ -1207,9 +1207,9 @@ class PacScene extends SceneBase {
 
     // Ghosts
     const ghostConfigs = [
-      { key: "cng", anim: "cng_run", startX: 8, startY: 5 },
-      { key: "rick", anim: "rick_run", startX: 9, startY: 5 },
-      { key: "crow", anim: "crow_fly", startX: 10, startY: 5 }
+      { key: "cng", anim: "cng_run", startX: 8, startY: 5, startDir: [-1, 0] },
+      { key: "rick", anim: "rick_run", startX: 9, startY: 5, startDir: [0, -1] },
+      { key: "crow", anim: "crow_fly", startX: 10, startY: 5, startDir: [1, 0] }
     ];
 
     this.ghosts = [];
@@ -1223,11 +1223,12 @@ class PacScene extends SceneBase {
         key: gc.key,
         startX: gc.startX,
         startY: gc.startY,
+        startDir: gc.startDir,
         tileX: gc.startX,
         tileY: gc.startY,
         x: this.px(gc.startX),
         y: this.py(gc.startY),
-        dir: [0, -1],
+        dir: [...gc.startDir],
         speed: st.speed
       });
     });
@@ -1271,6 +1272,13 @@ class PacScene extends SceneBase {
     };
 
     if (this.input && this.input.keyboard) {
+      this.cursors = this.input.keyboard.createCursorKeys();
+      this.wasd = {
+        up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+        down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+        left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+      };
       this.input.keyboard.on("keydown-LEFT", () => setDir(-1, 0));
       this.input.keyboard.on("keydown-A", () => setDir(-1, 0));
       this.input.keyboard.on("keydown-RIGHT", () => setDir(1, 0));
@@ -1336,34 +1344,78 @@ class PacScene extends SceneBase {
     const p = this.playerPos;
     const curTileX = Math.round((p.x - PAC_OX - PAC_T / 2) / PAC_T);
     const curTileY = Math.round((p.y - PAC_OY - PAC_T / 2) / PAC_T);
-    const tileCenterX = this.px(curTileX);
-    const tileCenterY = this.py(curTileY);
+    const centerX = this.px(curTileX);
+    const centerY = this.py(curTileY);
 
-    const nearCenter = Math.abs(p.x - tileCenterX) < 4 && Math.abs(p.y - tileCenterY) < 4;
+    if (this.cursors && this.wasd) {
+      if (this.cursors.left.isDown || this.wasd.left.isDown) this.playerNextDir = [-1, 0];
+      else if (this.cursors.right.isDown || this.wasd.right.isDown) this.playerNextDir = [1, 0];
+      else if (this.cursors.up.isDown || this.wasd.up.isDown) this.playerNextDir = [0, -1];
+      else if (this.cursors.down.isDown || this.wasd.down.isDown) this.playerNextDir = [0, 1];
+    }
+
     const [ndx, ndy] = this.playerNextDir;
-    if (nearCenter && (ndx !== 0 || ndy !== 0)) {
-      if (this.free(curTileX + ndx, curTileY + ndy)) {
+    if (ndx !== 0 || ndy !== 0) {
+      if (ndx === -this.playerDir[0] && ndy === -this.playerDir[1]) {
         this.playerDir = [ndx, ndy];
-        p.x = tileCenterX;
-        p.y = tileCenterY;
+        this.playerNextDir = [0, 0];
+      } else if (this.playerDir[0] === 0 && this.playerDir[1] === 0) {
+        if (this.free(curTileX + ndx, curTileY + ndy)) {
+          p.x = centerX;
+          p.y = centerY;
+          this.playerDir = [ndx, ndy];
+          this.playerNextDir = [0, 0];
+        }
+      } else if (this.playerDir[0] !== 0 && ndy !== 0) {
+        if (this.free(curTileX, curTileY + ndy) && Math.abs(p.x - centerX) <= 12) {
+          p.x = centerX;
+          p.y = centerY;
+          this.playerDir = [0, ndy];
+          this.playerNextDir = [0, 0];
+        }
+      } else if (this.playerDir[1] !== 0 && ndx !== 0) {
+        if (this.free(curTileX + ndx, curTileY) && Math.abs(p.y - centerY) <= 12) {
+          p.x = centerX;
+          p.y = centerY;
+          this.playerDir = [ndx, 0];
+          this.playerNextDir = [0, 0];
+        }
       }
     }
 
     const [pdx, pdy] = this.playerDir;
-    if (pdx !== 0 || pdy !== 0) {
-      let nextX = p.x + pdx * this.playerSpeed * dt;
-      let nextY = p.y + pdy * this.playerSpeed * dt;
-
-      if (!this.free(curTileX + pdx, curTileY + pdy)) {
-        if ((pdx > 0 && nextX > tileCenterX) || (pdx < 0 && nextX < tileCenterX)) nextX = tileCenterX;
-        if ((pdy > 0 && nextY > tileCenterY) || (pdy < 0 && nextY < tileCenterY)) nextY = tileCenterY;
+    if (pdx !== 0) {
+      p.y = centerY;
+      const step = pdx * this.playerSpeed * dt;
+      if (!this.free(curTileX + pdx, curTileY)) {
+        if (pdx > 0) {
+          p.x = Math.min(p.x + step, centerX);
+          if (p.x >= centerX) { p.x = centerX; this.playerDir = [0, 0]; }
+        } else {
+          p.x = Math.max(p.x + step, centerX);
+          if (p.x <= centerX) { p.x = centerX; this.playerDir = [0, 0]; }
+        }
+      } else {
+        p.x += step;
       }
-
-      p.x = nextX;
-      p.y = nextY;
       this.chibi.play("chibi_run", true);
       if (pdx < 0) this.chibi.setFlipX(true);
       else if (pdx > 0) this.chibi.setFlipX(false);
+    } else if (pdy !== 0) {
+      p.x = centerX;
+      const step = pdy * this.playerSpeed * dt;
+      if (!this.free(curTileX, curTileY + pdy)) {
+        if (pdy > 0) {
+          p.y = Math.min(p.y + step, centerY);
+          if (p.y >= centerY) { p.y = centerY; this.playerDir = [0, 0]; }
+        } else {
+          p.y = Math.max(p.y + step, centerY);
+          if (p.y <= centerY) { p.y = centerY; this.playerDir = [0, 0]; }
+        }
+      } else {
+        p.y += step;
+      }
+      this.chibi.play("chibi_run", true);
     } else {
       this.chibi.play("chibi_idle", true);
     }
@@ -1413,37 +1465,64 @@ class PacScene extends SceneBase {
 
   updateGhosts(dt) {
     const isScared = this.scaredTimer > 0;
-    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const allDirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
     this.ghosts.forEach(g => {
       const speed = isScared ? g.speed * 0.55 : g.speed;
-      const curTileX = Math.round((g.x - PAC_OX - PAC_T / 2) / PAC_T);
-      const curTileY = Math.round((g.y - PAC_OY - PAC_T / 2) / PAC_T);
-      const tileCenterX = this.px(curTileX);
-      const tileCenterY = this.py(curTileY);
+      let step = speed * dt;
+      let [gdx, gdy] = g.dir;
 
-      if (Math.abs(g.x - tileCenterX) < 3 && Math.abs(g.y - tileCenterY) < 3) {
-        const validDirs = dirs.filter(([dx, dy]) => {
-          if (dx === -g.dir[0] && dy === -g.dir[1]) return false;
-          return this.free(curTileX + dx, curTileY + dy);
-        });
+      while (step > 0 && (gdx !== 0 || gdy !== 0)) {
+        const targetTileX = g.tileX + gdx;
+        const targetTileY = g.tileY + gdy;
+        const targetX = this.px(targetTileX);
+        const targetY = this.py(targetTileY);
 
-        if (validDirs.length > 0) {
-          validDirs.sort((a, b) => {
-            const da = Math.abs(curTileX + a[0] - this.playerTile.x) + Math.abs(curTileY + a[1] - this.playerTile.y);
-            const db = Math.abs(curTileX + b[0] - this.playerTile.x) + Math.abs(curTileY + b[1] - this.playerTile.y);
-            return isScared ? db - da : da - db;
-          });
-          g.dir = Math.random() < 0.15 ? validDirs[Math.floor(Math.random() * validDirs.length)] : validDirs[0];
+        if (gdx !== 0) g.y = this.py(g.tileY);
+        else if (gdy !== 0) g.x = this.px(g.tileX);
+
+        const dist = Math.abs((targetX - g.x) * gdx + (targetY - g.y) * gdy);
+
+        if (step < dist) {
+          g.x += gdx * step;
+          g.y += gdy * step;
+          step = 0;
         } else {
-          g.dir = [-g.dir[0], -g.dir[1]];
+          g.x = targetX;
+          g.y = targetY;
+          g.tileX = targetTileX;
+          g.tileY = targetTileY;
+          step -= dist;
+
+          let targetX_tile = this.playerTile.x;
+          let targetY_tile = this.playerTile.y;
+          if (g.key === "rick" && !isScared) {
+            targetX_tile += this.playerDir[0] * 2;
+            targetY_tile += this.playerDir[1] * 2;
+          }
+
+          const valid = allDirs.filter(([cdx, cdy]) => {
+            if (cdx === -gdx && cdy === -gdy) return false;
+            return this.free(g.tileX + cdx, g.tileY + cdy);
+          });
+
+          if (valid.length > 0) {
+            valid.sort((a, b) => {
+              const da = Math.abs(g.tileX + a[0] - targetX_tile) + Math.abs(g.tileY + a[1] - targetY_tile);
+              const db = Math.abs(g.tileX + b[0] - targetX_tile) + Math.abs(g.tileY + b[1] - targetY_tile);
+              return isScared ? db - da : da - db;
+            });
+            const randChance = isScared ? 0.05 : (g.key === "crow" ? 0.35 : 0.15);
+            g.dir = Math.random() < randChance ? valid[Math.floor(Math.random() * valid.length)] : valid[0];
+          } else if (this.free(g.tileX - gdx, g.tileY - gdy)) {
+            g.dir = [-gdx, -gdy];
+          } else {
+            g.dir = [0, 0];
+          }
+          [gdx, gdy] = g.dir;
         }
-        g.x = tileCenterX;
-        g.y = tileCenterY;
       }
 
-      g.x += g.dir[0] * speed * dt;
-      g.y += g.dir[1] * speed * dt;
       g.sprite.x = g.x;
       g.sprite.y = g.y;
       if (g.dir[0] < 0) g.sprite.setFlipX(true);
@@ -1459,7 +1538,11 @@ class PacScene extends SceneBase {
           sfx.ghost();
           g.x = this.px(g.startX);
           g.y = this.py(g.startY);
-          g.dir = [0, -1];
+          g.tileX = g.startX;
+          g.tileY = g.startY;
+          g.dir = [...g.startDir];
+          g.sprite.x = g.x;
+          g.sprite.y = g.y;
           g.sprite.clearTint();
         } else {
           sfx.hit();
@@ -1478,7 +1561,11 @@ class PacScene extends SceneBase {
               this.ghosts.forEach(gh => {
                 gh.x = this.px(gh.startX);
                 gh.y = this.py(gh.startY);
-                gh.dir = [0, -1];
+                gh.tileX = gh.startX;
+                gh.tileY = gh.startY;
+                gh.dir = [...gh.startDir];
+                gh.sprite.x = gh.x;
+                gh.sprite.y = gh.y;
               });
               this.state = "play";
             });
