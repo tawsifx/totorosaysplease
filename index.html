@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2.2">
+  <link rel="stylesheet" href="css/style.css?v=2.5">
 </head>
 <body>
   <header id="level-bar" class="level-bar">
@@ -230,66 +230,69 @@
         </div>
 
         <!-- Interactive Dhaka Sound & Souvenir Bar -->
-        <div class="dhaka-soundboard">
-          <button id="btn-sfx-rickshaw" class="dhaka-toy-btn" type="button">
+        <div class="dhaka-soundboard" aria-label="Dhaka Souvenir Sounds">
+          <button id="btn-sfx-rickshaw" class="dhaka-toy-btn" type="button" title="Ring Rickshaw Bell">
             <span class="toy-emoji">🔔</span>
-            <div class="toy-text"><b>Rickshaw Bell</b><small>Tring-Tring! Sit closer</small></div>
+            <div class="toy-text"><b>Rickshaw Bell</b><small>Tring-Tring</small></div>
           </button>
-          <button id="btn-sfx-cng" class="dhaka-toy-btn" type="button">
+          <button id="btn-sfx-cng" class="dhaka-toy-btn" type="button" title="Honk CNG Horn">
             <span class="toy-emoji">🛺</span>
-            <div class="toy-text"><b>Dhaka CNG Horn</b><small>Pee-peep! VIP lane</small></div>
+            <div class="toy-text"><b>CNG Horn</b><small>Pee-Peep</small></div>
           </button>
-          <button id="btn-sfx-cha" class="dhaka-toy-btn" type="button">
+          <button id="btn-sfx-cha" class="dhaka-toy-btn" type="button" title="Sip Matir Cha">
             <span class="toy-emoji">🍵</span>
-            <div class="toy-text"><b>TSC Matir Cha</b><small>Sip warm cardamom tea</small></div>
+            <div class="toy-text"><b>TSC Matir Cha</b><small>Cardamom tea</small></div>
           </button>
-          <button id="btn-sfx-petals" class="dhaka-toy-btn" type="button">
-            <span class="toy-emoji">🌺</span>
-            <div class="toy-text"><b>Krishnachura</b><small>Scatter spring petals</small></div>
+          <button id="btn-sfx-petals" class="dhaka-toy-btn" type="button" title="Scatter Spring Petals">
+            <span class="toy-emoji">🌸</span>
+            <div class="toy-text"><b>Krishnachura</b><small>Spring petals</small></div>
           </button>
         </div>
 
-        <!-- Main Desk Workspace: Rubber Stamps + Vintage Aerogramme Letter -->
+        <!-- Main Desk Workspace: Clean Desk Tray + Centered Aerogramme Sheet -->
         <div class="desk-workspace">
-          <!-- Left Sidebar: Collector's Rubber Stamps & DU Gate Pass -->
-          <aside class="desk-sidebar">
+          <!-- Postal Tools & Keepsake Header Tray -->
+          <div class="desk-tray">
+            <!-- Rubber Stamp Station -->
             <div class="desk-card stamp-pad-box">
-              <span class="desk-card-kicker">POSTAL INK PAD • CLICK TO STAMP</span>
-              <p class="desk-card-sub">Press a rubber stamp below to ink an official Dhaka postmark onto your letter:</p>
+              <div class="stamp-pad-header">
+                <span class="desk-card-kicker">POSTMARK INK STAMPS • TAP TO INK</span>
+                <button id="btn-clear-stamps" class="clear-stamps-link" type="button">Clear stamps</button>
+              </div>
               <div class="rubber-stamp-grid">
                 <button class="rubber-stamp-btn" data-stamp="tsc" type="button">
                   <span class="rs-icon">🏛️</span>
-                  <div><b>TSC Post Office</b><small>Est. 1921 • Ramna</small></div>
+                  <div><b>TSC Post</b><small>Est. 1921</small></div>
                 </button>
                 <button class="rubber-stamp-btn" data-stamp="curzon" type="button">
                   <span class="rs-icon">🧱</span>
-                  <div><b>Curzon Hall Arches</b><small>Botanical Wing</small></div>
+                  <div><b>Curzon Hall</b><small>Botanical</small></div>
                 </button>
                 <button class="rubber-stamp-btn" data-stamp="rick" type="button">
                   <span class="rs-icon">🛺</span>
-                  <div><b>Rickshaw Express</b><small>Via Dhanmondi Lake</small></div>
+                  <div><b>Rickshaw</b><small>Express</small></div>
                 </button>
               </div>
-              <button id="btn-clear-stamps" class="clear-stamps-link" type="button">Clear ink stamps</button>
             </div>
 
+            <!-- DU Evening Gate Pass & Pen Sound Keepsake Card -->
             <div class="desk-card du-gate-pass">
               <div class="pass-header">
                 <span>UNIVERSITY OF DHAKA</span>
                 <b>EVENING PASS</b>
               </div>
-              <p class="pass-serial">NO. 143-TOTORO</p>
-              <p class="pass-copy">Admits <b>Moon Walker &amp; Totoro</b> to all campus walkways, Curzon lawns, and late-evening tea stalls.</p>
-              <div class="pass-toggle-row">
-                <label class="pen-sfx-toggle">
-                  <input type="checkbox" id="chk-pen-sound" checked>
-                  <span>Fountain pen sound while typing ✒️</span>
-                </label>
+              <div class="pass-main">
+                <p class="pass-serial">NO. 143-TOTORO</p>
+                <p class="pass-copy">Admits <b>Moon Walker &amp; Totoro</b> across all campus lawns &amp; tea stalls.</p>
               </div>
+              <label class="pen-sfx-toggle">
+                <input type="checkbox" id="chk-pen-sound" checked>
+                <span>Fountain pen sound ✒️</span>
+              </label>
             </div>
-          </aside>
+          </div>
 
-          <!-- Right Area: Redesigned Vintage Letter Folio (Strictly English Salutations) -->
+          <!-- Main Vintage Aerogramme Letter (Spacious & Centered) -->
           <div class="aerogramme-wrap">
             <div id="aerogramme-sheet" class="aerogramme-sheet">
               <!-- Dhaka Folk-Art Terracotta & Mustard Border -->
@@ -323,7 +326,7 @@
 
               <!-- English Salutation & Ruled Writing Area -->
               <p class="aero-salutation">Dearest Totoro,</p>
-              <textarea id="letter-text" rows="6" maxlength="1500" placeholder="Write whatever is in your heart... about our walk through Dhaka, the rickshaw ride, or what you want to tell me when we meet..."></textarea>
+              <textarea id="letter-text" rows="5" maxlength="1500" placeholder="Write whatever is in your heart... about our walk through Dhaka, the rickshaw ride, or what you want to tell me when we meet..."></textarea>
 
               <div class="aero-closing-row">
                 <div class="aero-itinerary-tag">
@@ -788,7 +791,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js"></script>
   <script>if (typeof Phaser === "undefined") { document.write('<script src="js/phaser.min.js"><\/script>'); }</script>
-  <script src="js/game.js?v=2.4"></script>
+  <script src="js/game.js?v=2.5"></script>
   <script>
     const WEB3FORMS_KEY = '167aea1e-2696-4fd6-813c-735856d8ed6b';
 
