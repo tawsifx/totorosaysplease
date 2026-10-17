@@ -191,209 +191,248 @@ body {
 }
 
 /* ==========================================================================
-   Level 9: Dhaka University Illustrated Panorama & Vintage Aerogramme Desk
+   Level 9: Dhaka University Vintage Postcard & Aerogramme Desk
    ========================================================================== */
 .dhaka-desk-folio {
   width: 100%;
-  background: #faf6ee;
-  border: 1px solid #e2d7c5;
+  background: #faf7f0;
+  border: 1px solid #e7ded0;
   border-radius: 20px;
-  box-shadow: 0 18px 44px -18px rgba(50, 36, 24, .14), 0 2px 6px rgba(50, 36, 24, .04);
+  box-shadow: 0 16px 40px -16px rgba(50, 36, 24, .12), 0 2px 6px rgba(50, 36, 24, .04);
   overflow: hidden;
 }
-.dhaka-art-banner {
+
+/* Postcard Stage & Collectible Art */
+.dhaka-postcard-stage {
+  padding: 1.25rem 1.35rem .75rem;
+  background: #fdfbf7;
+}
+@media (max-width: 640px) { .dhaka-postcard-stage { padding: .85rem .85rem .5rem; } }
+
+.vintage-postcard-card {
+  background: #fff;
+  border: 1px solid #e2d7c5;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px -10px rgba(60, 42, 28, .12), 0 2px 6px rgba(60, 42, 28, .04);
+  overflow: hidden;
+}
+
+.postcard-visual {
   position: relative;
   width: 100%;
-  aspect-ratio: 800 / 215;
-  max-height: 220px;
-  background: #b96552;
-  border-bottom: 1.5px solid #d8cab7;
+  aspect-ratio: 16 / 9;
+  background: #f0e6d6;
   overflow: hidden;
 }
-#dhaka-banner-svg { width: 100%; height: 100%; display: block; }
-.svg-interactive {
-  cursor: pointer;
-  transition: filter .15s, transform .2s cubic-bezier(.34, 1.56, .64, 1);
-  transform-box: fill-box;
-  transform-origin: center bottom;
+.postcard-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .6s cubic-bezier(.25, 1, .5, 1);
 }
-.svg-interactive:hover { filter: brightness(1.08); }
-.toy-bounce { animation: toyBounce .4s cubic-bezier(.34, 1.56, .64, 1); }
-@keyframes toyBounce { 0%, 100% { transform: translateY(0) scale(1); } 45% { transform: translateY(-5px) scale(1.03); } }
+.vintage-postcard-card:hover .postcard-img {
+  transform: scale(1.02);
+}
 
-/* Interactive Soundboard Dock */
-.dhaka-soundboard {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: .55rem;
-  padding: .75rem 1.25rem;
-  background: #f1e7d8;
-  border-bottom: 1px solid #ded0be;
+/* Postcard Interactive Hotspots */
+.art-hotspot {
+  position: absolute;
+  z-index: 5;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+  transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
 }
-.dhaka-toy-btn {
+.hotspot-pulse {
   display: inline-flex;
   align-items: center;
-  gap: .45rem;
-  padding: .4rem .8rem;
-  background: #fffdf9;
-  border: 1px solid #d9cbba;
-  border-radius: 999px;
-  text-align: left;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(50, 36, 24, .05);
-  transition: transform .15s cubic-bezier(.34, 1.56, .64, 1), border-color .15s, box-shadow .15s;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 253, 249, 0.88);
+  border: 1.5px solid rgba(185, 101, 82, 0.55);
+  box-shadow: 0 4px 14px rgba(40, 24, 16, 0.22);
+  font-size: 1.15rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: transform .2s, background .2s, border-color .2s;
 }
-.dhaka-toy-btn:hover {
-  transform: translateY(-2px);
+.art-hotspot:hover .hotspot-pulse, .art-hotspot:focus .hotspot-pulse {
+  transform: scale(1.15);
+  background: #fff;
   border-color: #b96552;
-  box-shadow: 0 5px 12px -3px rgba(185, 101, 82, .24);
+  box-shadow: 0 6px 18px rgba(185, 101, 82, 0.35);
 }
-.dhaka-toy-btn:active { transform: translateY(0); }
-.toy-emoji { font-size: 1.15rem; flex: none; }
-.toy-text { display: flex; flex-direction: column; min-width: 0; }
-.toy-text b { font-size: .78rem; color: #2e2420; font-weight: 600; line-height: 1.1; }
-.toy-text small { font-size: .65rem; color: #786859; line-height: 1.1; margin-top: .1rem; }
+.hotspot-rickshaw { right: 18%; bottom: 14%; }
+.hotspot-curzon   { left: 47%; top: 35%; }
+.hotspot-cng      { left: 16%; bottom: 18%; }
+@media (max-width: 600px) {
+  .hotspot-pulse { width: 32px; height: 32px; font-size: .95rem; }
+}
 
-/* Desk Workspace & Tray */
+.toy-bounce { animation: toyBounce .4s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes toyBounce { 0%, 100% { transform: translateY(0) scale(1); } 45% { transform: translateY(-5px) scale(1.05); } }
+
+/* Postcard Caption */
+.postcard-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .6rem 1rem;
+  background: #fcf9f2;
+  border-top: 1px solid #ebd9c5;
+  font-family: 'Outfit', sans-serif;
+  gap: .5rem;
+}
+.caption-text { display: flex; flex-direction: column; text-align: left; }
+.cap-title { font-size: .84rem; font-weight: 600; color: #2e2420; }
+.cap-sub { font-size: .7rem; color: #7d6b5c; margin-top: .05rem; }
+.cap-serial {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  color: #9e3d33;
+  font-weight: 600;
+  white-space: nowrap;
+}
+@media (max-width: 540px) {
+  .postcard-caption { flex-direction: column; align-items: flex-start; gap: .25rem; }
+}
+
+/* Minimalist Dhaka Ambient Souvenir Ribbon */
+.dhaka-sound-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  flex-wrap: wrap;
+  padding: .55rem 1.25rem;
+  background: #f4ecdf;
+  border-top: 1px solid #e5dac9;
+  border-bottom: 1px solid #e5dac9;
+}
+.ribbon-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: #826e5d;
+  text-transform: uppercase;
+  margin-right: .2rem;
+}
+.ribbon-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .7rem;
+  background: #fffdf9;
+  border: 1px solid #dcd1c0;
+  border-radius: 999px;
+  font-size: .76rem;
+  font-weight: 500;
+  color: #3b2c24;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(50, 36, 24, .05);
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.ribbon-chip:hover {
+  transform: translateY(-1px);
+  border-color: #b96552;
+  box-shadow: 0 4px 10px -2px rgba(185, 101, 82, .22);
+}
+.ribbon-chip:active { transform: translateY(0); }
+
+/* Workspace & Streamlined Stamp Toolbar */
 .desk-workspace {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
-  padding: 1.35rem 1.5rem;
+  gap: .85rem;
+  padding: 1.25rem 1.5rem 1.5rem;
   max-width: 760px;
   margin: 0 auto;
   box-sizing: border-box;
   width: 100%;
 }
-@media (max-width: 640px) { .desk-workspace { padding: 1rem; } }
+@media (max-width: 640px) { .desk-workspace { padding: 1rem .85rem 1.25rem; } }
 
-/* Tray (Stamps + DU Evening Pass side-by-side) */
-.desk-tray {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: .85rem;
-}
-@media (max-width: 720px) { .desk-tray { grid-template-columns: 1fr; } }
-
-.desk-card {
-  background: #fdfaf4;
-  border: 1px solid #dcd0be;
-  border-radius: 12px;
-  padding: .85rem .95rem;
-  box-shadow: 0 3px 10px -5px rgba(50, 35, 25, .08);
-  text-align: left;
-}
-
-/* Rubber Stamp Box */
-.stamp-pad-box { display: flex; flex-direction: column; justify-content: space-between; }
-.stamp-pad-header {
+.stamp-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: .45rem;
+  gap: .6rem;
+  flex-wrap: wrap;
+  padding: .45rem .85rem;
+  background: #f7f1e6;
+  border: 1px dashed #d6c7b3;
+  border-radius: 9px;
 }
-.desk-card-kicker {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .62rem;
-  letter-spacing: .1em;
-  color: #9e3d33;
-  font-weight: 600;
-}
-.clear-stamps-link {
-  background: none; border: 0; padding: 0;
-  font-size: .68rem; color: #8c7a6b; text-decoration: underline; cursor: pointer;
-  transition: color .15s;
-}
-.clear-stamps-link:hover { color: #9e3d33; }
-.rubber-stamp-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: .4rem;
-}
-.rubber-stamp-btn {
+.stamp-toolbar-left {
   display: flex;
   align-items: center;
-  gap: .35rem;
-  padding: .35rem .45rem;
-  background: #f7f2e7;
-  border: 1px dashed #bfb09c;
-  border-radius: 7px;
-  text-align: left;
+  gap: .45rem;
+  flex-wrap: wrap;
+}
+.stamp-toolbar-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: #9e3d33;
+  margin-right: .2rem;
+}
+.rubber-stamp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .28rem .6rem;
+  background: #fffdf9;
+  border: 1px solid #d4c5b3;
+  border-radius: 6px;
+  font-size: .74rem;
+  font-weight: 500;
+  color: #382922;
   cursor: pointer;
   transition: background .15s, border-color .15s, transform .12s;
 }
 .rubber-stamp-btn:hover {
-  background: #fbeee9;
+  background: #fcf4f0;
   border-color: #9e3d33;
   transform: translateY(-1px);
 }
 .rubber-stamp-btn:active { transform: translateY(1px); }
-.rs-icon { font-size: 1.05rem; flex: none; }
-.rubber-stamp-btn b { display: block; font-size: .74rem; color: #2e2420; line-height: 1.1; }
-.rubber-stamp-btn small { font-size: .62rem; color: #7a6c5d; line-height: 1.1; }
-
-/* DU Evening Gate Pass */
-.du-gate-pass {
-  background: #faf4e6;
-  border: 1px dashed #d5be9b;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.pass-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-bottom: .3rem; border-bottom: 1px dashed #dec9ab;
-  font-family: 'JetBrains Mono', monospace; font-size: .62rem; color: #7d4e2d;
-}
-.pass-header b { background: #9e3d33; color: #fff; padding: .1rem .35rem; border-radius: 4px; font-size: .58rem; }
-.pass-main { margin: .35rem 0; }
-.pass-serial { font-family: 'JetBrains Mono', monospace; font-size: .66rem; color: #9e3d33; font-weight: 600; }
-.pass-copy { font-size: .74rem; color: #5c4b3b; margin-top: .15rem; line-height: 1.35; }
-.pen-sfx-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
-  font-size: .72rem;
-  color: #634d3b;
+.rs-icon { font-size: .95rem; }
+.rubber-stamp-btn b { font-weight: 500; }
+.clear-stamps-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: .7rem;
+  color: #8c7a6b;
+  text-decoration: underline;
   cursor: pointer;
-  padding-top: .3rem;
-  border-top: 1px dashed #dec9ab;
+  transition: color .15s;
 }
-.pen-sfx-toggle input { accent-color: #9e3d33; }
+.clear-stamps-link:hover { color: #9e3d33; }
 
-/* Redesigned Vintage Aerogramme Letter */
+/* Authentic Airmail Aerogramme Sheet */
 .aerogramme-wrap { display: flex; flex-direction: column; width: 100%; }
 .aerogramme-sheet {
   position: relative;
-  background: #fdfbf5;
-  border: 1px solid #d8c8b2;
-  border-radius: 12px;
-  padding: 1.5rem 1.65rem 1.25rem;
+  background: #fdfbf7;
+  border: 1px solid #dcd1bf;
+  border-radius: 14px;
+  padding: 1.6rem 1.85rem 1.35rem;
   text-align: left;
-  box-shadow: 0 10px 28px -12px rgba(60, 42, 24, .18), 0 1px 3px rgba(60, 42, 24, .04);
+  box-shadow: 0 12px 30px -12px rgba(60, 42, 24, .14), 0 2px 6px rgba(60, 42, 24, .04);
   overflow: hidden;
   box-sizing: border-box;
   width: 100%;
 }
 @media (max-width: 600px) { .aerogramme-sheet { padding: 1.15rem 1.15rem 1rem; } }
-
-.folk-border-top, .folk-border-bottom {
-  height: 6px;
-  border-radius: 3px;
-  background: repeating-linear-gradient(
-    -45deg,
-    #b96552 0 12px,
-    #fdfbf5 12px 16px,
-    #1d6396 16px 28px,
-    #fdfbf5 28px 32px,
-    #d9ab55 32px 44px,
-    #fdfbf5 44px 48px
-  );
-}
-.folk-border-top { margin-bottom: 1.1rem; }
-.folk-border-bottom { margin-top: 1.1rem; }
 
 .postage-corner {
   position: absolute; top: 1.4rem; right: 1.4rem;

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2.5">
+  <link rel="stylesheet" href="css/style.css?v=2.6">
 </head>
 <body>
   <header id="level-bar" class="level-bar">
@@ -115,189 +115,83 @@
     <!-- 9: Dedicated Level - Postcard from Dhaka University -->
     <div id="screen-letter" class="screen flex-col items-center w-full max-w-4xl mx-auto">
       <div class="ui-box header-box text-center">
-        <p class="eyebrow">Level 9</p>
-        <h1 class="title">A Letter From Meherjaan? 📮</h1>
-        <p class="subtitle">Tap the rickshaw bell, CNG, or clay tea cup for Dhaka sounds, stamp your aerogramme, and leave a note for Totoro.</p>
+        <p class="eyebrow">Level 9 • Vintage Aerogramme</p>
+        <h1 class="title">A Letter for Totoro 📮</h1>
+        <p class="subtitle">A quiet Dhaka evening under the Krishnachura trees. Write from the heart.</p>
       </div>
 
       <div class="dhaka-desk-folio">
-        <!-- Illustrated Dhaka University Panorama (Inspired by the Dhaka Notebook Art) -->
-        <div class="dhaka-art-banner">
-          <svg id="dhaka-banner-svg" viewBox="0 0 800 230" preserveAspectRatio="xMidYMid slice" aria-label="Interactive Dhaka University Illustration">
-            <!-- Terracotta & Warm Dusk Sky Backdrop -->
-            <rect width="800" height="230" fill="#b96552"/>
-            <!-- Background Buildings & Mustard Balconies -->
-            <rect x="40" y="12" width="160" height="145" fill="#9c5444" stroke="#2b2422" stroke-width="2"/>
-            <rect x="200" y="28" width="240" height="135" fill="#c96e58" stroke="#2b2422" stroke-width="2"/>
-            <rect x="440" y="8" width="140" height="120" fill="#778599" stroke="#2b2422" stroke-width="2"/>
-            <rect x="580" y="0" width="190" height="165" fill="#c4634e" stroke="#2b2422" stroke-width="2"/>
-            <!-- Yellow Striped Balconies on Right Building -->
-            <rect x="550" y="24" width="155" height="22" fill="#e8c266" stroke="#2b2422" stroke-width="2"/>
-            <rect x="550" y="68" width="155" height="22" fill="#e8c266" stroke="#2b2422" stroke-width="2"/>
-            <g stroke="#d19f3e" stroke-width="1.5">
-              <line x1="565" y1="24" x2="565" y2="46"/><line x1="580" y1="24" x2="580" y2="46"/><line x1="595" y1="24" x2="595" y2="46"/><line x1="610" y1="24" x2="610" y2="46"/>
-              <line x1="565" y1="68" x2="565" y2="90"/><line x1="580" y1="68" x2="580" y2="90"/><line x1="595" y1="68" x2="595" y2="90"/><line x1="610" y1="68" x2="610" y2="90"/>
-            </g>
-            <!-- Small Terracotta Windows -->
-            <g fill="none" stroke="#f5d9b8" stroke-width="1.5">
-              <rect x="245" y="42" width="12" height="14"/><rect x="285" y="60" width="12" height="14"/>
-              <rect x="640" y="105" width="12" height="14"/><rect x="680" y="128" width="12" height="14"/>
-            </g>
-            <!-- Lush Krishnachura & Banyan Foliage -->
-            <path d="M390 95 Q420 75 450 92 Q480 78 515 95 L515 125 L390 125 Z" fill="#1e6b43" stroke="#2b2422" stroke-width="2"/>
-            <path d="M560 125 Q605 102 650 122 Q695 102 745 125 L745 170 L560 170 Z" fill="#2c8c53" stroke="#2b2422" stroke-width="2"/>
-
-            <!-- Interactive Zone 1: Aparajeyo Bangla Sculpture & Golden DU Arches -->
-            <g id="svg-du-arch" class="svg-interactive" tabindex="0" role="button" aria-label="Play TSC Acoustic Chord">
-              <!-- Pedestal & Three Figures of Aparajeyo Bangla -->
-              <path d="M92 108 L188 108 L198 135 L82 135 Z" fill="#6c7d93" stroke="#2b2422" stroke-width="2"/>
-              <g fill="#7c8ea6" stroke="#2b2422" stroke-width="1.8">
-                <!-- Left figure -->
-                <circle cx="116" cy="58" r="7"/>
-                <path d="M106 66 L126 66 L124 108 L108 108 Z"/>
-                <!-- Center figure -->
-                <circle cx="140" cy="50" r="7.5"/>
-                <path d="M128 59 L152 59 L150 108 L130 108 Z"/>
-                <!-- Right figure -->
-                <circle cx="164" cy="60" r="7"/>
-                <path d="M154 68 L174 68 L172 108 L156 108 Z"/>
-              </g>
-              <!-- Golden Arched Colonnade with Jali Dots -->
-              <rect x="115" y="105" width="245" height="65" fill="#d9ab55" stroke="#2b2422" stroke-width="2"/>
-              <rect x="75" y="125" width="40" height="45" fill="#d9ab55" stroke="#2b2422" stroke-width="2"/>
-              <rect x="360" y="125" width="42" height="45" fill="#d9ab55" stroke="#2b2422" stroke-width="2"/>
-              <path d="M145 170 L145 135 A26 22 0 0 1 197 135 L197 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
-              <path d="M235 170 L235 135 A26 22 0 0 1 287 135 L287 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
-              <path d="M208 170 L208 145 A9 9 0 0 1 226 145 L226 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
-              <path d="M300 170 L300 145 A9 9 0 0 1 318 145 L318 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
-              <!-- Vintage Streetlamp -->
-              <path d="M0 40 L95 16 L102 26 L55 38 Z" fill="#c9a259" stroke="#2b2422" stroke-width="2"/>
-            </g>
-
-            <!-- Road Surface -->
-            <rect x="0" y="168" width="800" height="62" fill="#8c7a6b" stroke="#2b2422" stroke-width="2"/>
-
-            <!-- Interactive Zone 2: Colorful Painted Dhaka Rickshaw Hoods -->
-            <g id="svg-rickshaws" class="svg-interactive" tabindex="0" role="button" aria-label="Ring Rickshaw Bell">
-              <!-- Back row colourful hoods -->
-              <ellipse cx="185" cy="148" rx="34" ry="22" fill="#f0d264" stroke="#2b2422" stroke-width="2"/>
-              <ellipse cx="305" cy="150" rx="32" ry="22" fill="#e87ea1" stroke="#2b2422" stroke-width="2"/>
-              <ellipse cx="465" cy="152" rx="36" ry="22" fill="#2c7da0" stroke="#2b2422" stroke-width="2"/>
-              <ellipse cx="565" cy="154" rx="42" ry="24" fill="#c93b4b" stroke="#2b2422" stroke-width="2"/>
-              <!-- Left Orange & Red Rickshaw Hood -->
-              <path d="M55 195 L55 152 A44 36 0 0 1 143 152 L143 195 Z" fill="#e06d2b" stroke="#2b2422" stroke-width="2.2"/>
-              <path d="M62 152 A37 30 0 0 1 136 152 Z" fill="#c93b4b" stroke="#2b2422" stroke-width="1.8"/>
-              <!-- Center Royal Blue & Terracotta Folk-Art Rickshaw -->
-              <path d="M175 198 L175 154 A54 44 0 0 1 283 154 L283 198 Z" fill="#1d6396" stroke="#2b2422" stroke-width="2.4"/>
-              <path d="M188 195 L188 158 A41 34 0 0 1 270 158 L270 195 Z" fill="#c96551" stroke="#2b2422" stroke-width="1.8"/>
-              <!-- Blue Draped Center Tassel Curtain -->
-              <path d="M229 124 L212 188 L246 188 Z" fill="#134e7a" stroke="#2b2422" stroke-width="1.8"/>
-              <!-- Green Seat & Wheels -->
-              <rect x="182" y="192" width="94" height="14" fill="#3a9659" stroke="#2b2422" stroke-width="2"/>
-              <rect x="174" y="185" width="12" height="42" rx="4" fill="#332e2c" stroke="#2b2422" stroke-width="2"/>
-              <rect x="272" y="185" width="12" height="42" rx="4" fill="#332e2c" stroke="#2b2422" stroke-width="2"/>
-              <!-- Folk-art dots -->
-              <circle cx="202" cy="168" r="2" fill="#fff3d1"/><circle cx="206" cy="176" r="2" fill="#fff3d1"/>
-              <circle cx="256" cy="168" r="2" fill="#fff3d1"/><circle cx="252" cy="176" r="2" fill="#fff3d1"/>
-            </g>
-
-            <!-- Interactive Zone 3: Green Dhaka CNG Auto-Rickshaw -->
-            <g id="svg-cng" class="svg-interactive" tabindex="0" role="button" aria-label="Honk CNG Horn">
-              <!-- Canopy Roof -->
-              <path d="M395 162 C395 128 595 128 595 162 L590 182 L400 182 Z" fill="#0f6e49" stroke="#2b2422" stroke-width="2.4"/>
-              <!-- Rear Window -->
-              <rect x="462" y="152" width="66" height="24" rx="5" fill="#8b7d70" stroke="#2b2422" stroke-width="2"/>
-              <!-- White Folk-Art Swirls flanking window -->
-              <path d="M425 168 Q415 155 430 152 Q440 155 432 168" fill="none" stroke="#e9f5ed" stroke-width="2" stroke-linecap="round"/>
-              <path d="M565 168 Q575 155 560 152 Q550 155 558 168" fill="none" stroke="#e9f5ed" stroke-width="2" stroke-linecap="round"/>
-              <!-- Lower Green Body -->
-              <rect x="392" y="180" width="206" height="36" rx="4" fill="#439c47" stroke="#2b2422" stroke-width="2.4"/>
-              <!-- Tail lights & Number Plate -->
-              <rect x="408" y="190" width="20" height="16" fill="#a82431" stroke="#2b2422" stroke-width="1.8"/>
-              <rect x="562" y="190" width="20" height="16" fill="#a82431" stroke="#2b2422" stroke-width="1.8"/>
-              <rect x="466" y="192" width="58" height="16" fill="#2e7d32" stroke="#e9f5ed" stroke-width="1.2"/>
-              <!-- Tires -->
-              <rect x="400" y="214" width="24" height="15" rx="4" fill="#262322"/>
-              <rect x="566" y="214" width="24" height="15" rx="4" fill="#262322"/>
-            </g>
-
-            <!-- Floating Sound Feedback Pill -->
-            <g transform="translate(650, 18)">
-              <rect width="134" height="24" rx="12" fill="rgba(31,30,28,0.78)"/>
-              <text x="67" y="16" text-anchor="middle" fill="#f7e8d0" font-family="JetBrains Mono, monospace" font-size="9.5">TAP ART FOR SOUNDS 🔊</text>
-            </g>
-          </svg>
-        </div>
-
-        <!-- Interactive Dhaka Sound & Souvenir Bar -->
-        <div class="dhaka-soundboard" aria-label="Dhaka Souvenir Sounds">
-          <button id="btn-sfx-rickshaw" class="dhaka-toy-btn" type="button" title="Ring Rickshaw Bell">
-            <span class="toy-emoji">🔔</span>
-            <div class="toy-text"><b>Rickshaw Bell</b><small>Tring-Tring</small></div>
-          </button>
-          <button id="btn-sfx-cng" class="dhaka-toy-btn" type="button" title="Honk CNG Horn">
-            <span class="toy-emoji">🛺</span>
-            <div class="toy-text"><b>CNG Horn</b><small>Pee-Peep</small></div>
-          </button>
-          <button id="btn-sfx-cha" class="dhaka-toy-btn" type="button" title="Sip Matir Cha">
-            <span class="toy-emoji">🍵</span>
-            <div class="toy-text"><b>TSC Matir Cha</b><small>Cardamom tea</small></div>
-          </button>
-          <button id="btn-sfx-petals" class="dhaka-toy-btn" type="button" title="Scatter Spring Petals">
-            <span class="toy-emoji">🌸</span>
-            <div class="toy-text"><b>Krishnachura</b><small>Spring petals</small></div>
-          </button>
-        </div>
-
-        <!-- Main Desk Workspace: Clean Desk Tray + Centered Aerogramme Sheet -->
-        <div class="desk-workspace">
-          <!-- Postal Tools & Keepsake Header Tray -->
-          <div class="desk-tray">
-            <!-- Rubber Stamp Station -->
-            <div class="desk-card stamp-pad-box">
-              <div class="stamp-pad-header">
-                <span class="desk-card-kicker">POSTMARK INK STAMPS • TAP TO INK</span>
-                <button id="btn-clear-stamps" class="clear-stamps-link" type="button">Clear stamps</button>
+        <!-- Aesthetic Vintage Dhaka Postcard Art -->
+        <div class="dhaka-postcard-stage">
+          <div class="vintage-postcard-card">
+            <div class="postcard-visual">
+              <img src="images/dhaka-postcard.jpg" alt="Dhaka Twilight at Curzon Hall with blooming Krishnachura and vintage rickshaw" class="postcard-img">
+              <!-- Interactive Hotspots on the Postcard -->
+              <div id="svg-rickshaws" class="art-hotspot hotspot-rickshaw" tabindex="0" role="button" aria-label="Ring Rickshaw Bell" title="Ring Rickshaw Bell">
+                <span class="hotspot-pulse">🔔</span>
               </div>
-              <div class="rubber-stamp-grid">
-                <button class="rubber-stamp-btn" data-stamp="tsc" type="button">
-                  <span class="rs-icon">🏛️</span>
-                  <div><b>TSC Post</b><small>Est. 1921</small></div>
-                </button>
-                <button class="rubber-stamp-btn" data-stamp="curzon" type="button">
-                  <span class="rs-icon">🧱</span>
-                  <div><b>Curzon Hall</b><small>Botanical</small></div>
-                </button>
-                <button class="rubber-stamp-btn" data-stamp="rick" type="button">
-                  <span class="rs-icon">🛺</span>
-                  <div><b>Rickshaw</b><small>Express</small></div>
-                </button>
+              <div id="svg-du-arch" class="art-hotspot hotspot-curzon" tabindex="0" role="button" aria-label="Curzon Hall Arch Chords" title="Curzon Hall Chords">
+                <span class="hotspot-pulse">🏛️</span>
+              </div>
+              <div id="svg-cng" class="art-hotspot hotspot-cng" tabindex="0" role="button" aria-label="Dhaka Evening" title="Dhaka Evening">
+                <span class="hotspot-pulse">🛺</span>
               </div>
             </div>
-
-            <!-- DU Evening Gate Pass & Pen Sound Keepsake Card -->
-            <div class="desk-card du-gate-pass">
-              <div class="pass-header">
-                <span>UNIVERSITY OF DHAKA</span>
-                <b>EVENING PASS</b>
+            <div class="postcard-caption">
+              <div class="caption-text">
+                <span class="cap-title">Curzon Hall &amp; Fuller Road</span>
+                <span class="cap-sub">ঢাকা বিশ্ববিদ্যালয় • Twilight under Krishnachura blossoms</span>
               </div>
-              <div class="pass-main">
-                <p class="pass-serial">NO. 143-TOTORO</p>
-                <p class="pass-copy">Admits <b>Moon Walker &amp; Totoro</b> across all campus lawns &amp; tea stalls.</p>
-              </div>
-              <label class="pen-sfx-toggle">
-                <input type="checkbox" id="chk-pen-sound" checked>
-                <span>Fountain pen sound ✒️</span>
-              </label>
+              <span class="cap-serial">COLLECTOR POSTCARD NO. 143</span>
             </div>
           </div>
+        </div>
 
-          <!-- Main Vintage Aerogramme Letter (Spacious & Centered) -->
+        <!-- Minimalist Dhaka Ambient Souvenir Ribbon -->
+        <div class="dhaka-sound-ribbon" aria-label="Dhaka Souvenir Sounds">
+          <span class="ribbon-title">Sounds of Dhaka:</span>
+          <button id="btn-sfx-rickshaw" class="ribbon-chip" type="button" title="Ring Rickshaw Bell">
+            <span>🔔</span> Rickshaw Bell
+          </button>
+          <button id="btn-sfx-cng" class="ribbon-chip" type="button" title="Honk CNG Horn">
+            <span>🛺</span> CNG Horn
+          </button>
+          <button id="btn-sfx-cha" class="ribbon-chip" type="button" title="Sip Matir Cha">
+            <span>🍵</span> TSC Matir Cha
+          </button>
+          <button id="btn-sfx-petals" class="ribbon-chip" type="button" title="Scatter Spring Petals">
+            <span>🌸</span> Krishnachura
+          </button>
+        </div>
+
+        <!-- Main Desk Workspace: Clean Stamp Toolbar + Centered Aerogramme Sheet -->
+        <div class="desk-workspace">
+          <!-- Hidden checkbox for fountain pen sound (enabled by default) -->
+          <input type="checkbox" id="chk-pen-sound" checked hidden>
+
+          <!-- Compact Stamp Toolbar (Eliminates bulky cards and DU pass) -->
+          <div class="stamp-toolbar">
+            <div class="stamp-toolbar-left">
+              <span class="stamp-toolbar-kicker">POSTMARKS:</span>
+              <button class="rubber-stamp-btn" data-stamp="tsc" type="button" title="Stamp TSC Post Office">
+                <span class="rs-icon">🏛️</span>
+                <b>TSC Post</b>
+              </button>
+              <button class="rubber-stamp-btn" data-stamp="curzon" type="button" title="Stamp Curzon Hall">
+                <span class="rs-icon">🧱</span>
+                <b>Curzon Hall</b>
+              </button>
+              <button class="rubber-stamp-btn" data-stamp="rick" type="button" title="Stamp Rickshaw Express">
+                <span class="rs-icon">🛺</span>
+                <b>Rickshaw</b>
+              </button>
+            </div>
+            <button id="btn-clear-stamps" class="clear-stamps-link" type="button">Clear stamps</button>
+          </div>
+
+          <!-- Main Vintage Aerogramme Letter (Spacious, Uncongested & Aesthetic) -->
           <div class="aerogramme-wrap">
             <div id="aerogramme-sheet" class="aerogramme-sheet">
-              <!-- Dhaka Folk-Art Terracotta & Mustard Border -->
-              <div class="folk-border-top"></div>
-
               <!-- Vintage Postage Stamp & Cancellation Postmark -->
               <div class="postage-corner" aria-hidden="true">
                 <div class="dhaka-post-stamp">
@@ -347,8 +241,6 @@
                   <span>Seal with Wax &amp; Send 💌</span>
                 </button>
               </div>
-
-              <div class="folk-border-bottom"></div>
             </div>
           </div>
         </div>
@@ -791,7 +683,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js"></script>
   <script>if (typeof Phaser === "undefined") { document.write('<script src="js/phaser.min.js"><\/script>'); }</script>
-  <script src="js/game.js?v=2.5"></script>
+  <script src="js/game.js?v=2.6"></script>
   <script>
     const WEB3FORMS_KEY = '167aea1e-2696-4fd6-813c-735856d8ed6b';
 
