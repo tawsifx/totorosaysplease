@@ -642,6 +642,35 @@ function buildMasterSprites() {
     a.outline("#40181e");
   });
 
+  function tintCanvas(srcCanvas, tintR, tintG, tintB) {
+    if (!srcCanvas || typeof document === "undefined") return null;
+    const o = document.createElement("canvas");
+    o.width = srcCanvas.width;
+    o.height = srcCanvas.height;
+    const ctx = o.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(srcCanvas, 0, 0);
+    const imgData = ctx.getImageData(0, 0, o.width, o.height);
+    const d = imgData.data;
+    const isWhite = tintR === 255 && tintG === 255 && tintB === 255;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] > 10) {
+        if (isWhite) {
+          const lum = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) / 255;
+          const val = Math.min(255, Math.round(180 + 75 * lum));
+          d[i] = val; d[i + 1] = val; d[i + 2] = val;
+        } else {
+          const lum = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) / 255;
+          d[i] = Math.min(255, Math.round(tintR * (0.3 + 0.7 * lum)));
+          d[i + 1] = Math.min(255, Math.round(tintG * (0.3 + 0.7 * lum)));
+          d[i + 2] = Math.min(255, Math.round(tintB * (0.3 + 0.7 * lum)));
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    return o;
+  }
+
   MASTER_SPRITES = {
     astro: astroCanvas,
     totoro: totoroCanvas,
@@ -656,6 +685,12 @@ function buildMasterSprites() {
     cng: cngCanvas,
     rick: rickCanvas,
     crow: crowCanvas,
+    cng_scared: tintCanvas(cngCanvas, 50, 130, 255),
+    rick_scared: tintCanvas(rickCanvas, 50, 130, 255),
+    crow_scared: tintCanvas(crowCanvas, 50, 130, 255),
+    cng_flash: tintCanvas(cngCanvas, 255, 255, 255),
+    rick_flash: tintCanvas(rickCanvas, 255, 255, 255),
+    crow_flash: tintCanvas(crowCanvas, 255, 255, 255),
     kite: kiteCanvas,
     fuchka: fuchkaCanvas,
     doi: doiCanvas,
@@ -710,6 +745,12 @@ function initTexturesForScene(scene) {
   sliceTexture(scene, "cng", 18 * 2, 15 * 2, 2);
   sliceTexture(scene, "rick", 18 * 2, 17 * 2, 2);
   sliceTexture(scene, "crow", 16 * 2, 12 * 2, 2);
+  sliceTexture(scene, "cng_scared", 18 * 2, 15 * 2, 2);
+  sliceTexture(scene, "rick_scared", 18 * 2, 17 * 2, 2);
+  sliceTexture(scene, "crow_scared", 16 * 2, 12 * 2, 2);
+  sliceTexture(scene, "cng_flash", 18 * 2, 15 * 2, 2);
+  sliceTexture(scene, "rick_flash", 18 * 2, 17 * 2, 2);
+  sliceTexture(scene, "crow_flash", 16 * 2, 12 * 2, 2);
   sliceTexture(scene, "bug", 13 * 3, 11 * 3, 2);
 
   createAnim(scene, "astro_run", "astro", [0, 1], 10, -1);
@@ -726,6 +767,12 @@ function initTexturesForScene(scene) {
   createAnim(scene, "cng_run", "cng", [0, 1], 9, -1);
   createAnim(scene, "rick_run", "rick", [0, 1], 7, -1);
   createAnim(scene, "crow_fly", "crow", [0, 1], 8, -1);
+  createAnim(scene, "cng_run_scared", "cng_scared", [0, 1], 9, -1);
+  createAnim(scene, "rick_run_scared", "rick_scared", [0, 1], 7, -1);
+  createAnim(scene, "crow_fly_scared", "crow_scared", [0, 1], 8, -1);
+  createAnim(scene, "cng_run_flash", "cng_flash", [0, 1], 9, -1);
+  createAnim(scene, "rick_run_flash", "rick_flash", [0, 1], 7, -1);
+  createAnim(scene, "crow_fly_flash", "crow_flash", [0, 1], 8, -1);
   createAnim(scene, "bug_fly", "bug", [0, 1], 14, -1);
 }
 
@@ -1221,6 +1268,8 @@ class PacScene extends SceneBase {
       this.ghosts.push({
         sprite: gSprite,
         key: gc.key,
+        anim: gc.anim,
+        eaten: false,
         startX: gc.startX,
         startY: gc.startY,
         startDir: gc.startDir,
@@ -1328,8 +1377,32 @@ class PacScene extends SceneBase {
 
     if (this.scaredTimer > 0) {
       this.scaredTimer -= dt;
+      const isWarning = this.scaredTimer < 2.5;
+      const freq = isWarning ? 8 : 4;
+      const flash = Math.floor(this.scaredTimer * freq) % 2 === 0;
+
+      this.ghosts.forEach(g => {
+        if (!g.eaten) {
+          const suffix = g.key === "crow" ? "_fly_" : "_run_";
+          if (isWarning) {
+            const targetAnim = flash ? g.key + suffix + "flash" : g.key + suffix + "scared";
+            g.sprite.play(targetAnim, true);
+            g.sprite.setAlpha(flash ? 1.0 : 0.6);
+          } else {
+            const targetAnim = flash ? g.key + suffix + "scared" : g.key + suffix + "flash";
+            g.sprite.play(targetAnim, true);
+            g.sprite.setAlpha(flash ? 1.0 : 0.75);
+          }
+        }
+      });
+
       if (this.scaredTimer <= 0) {
-        this.ghosts.forEach(g => g.sprite.clearTint());
+        this.scaredTimer = 0;
+        this.ghosts.forEach(g => {
+          g.eaten = false;
+          g.sprite.setAlpha(1.0);
+          g.sprite.play(g.anim, true);
+        });
       }
     }
 
@@ -1457,7 +1530,9 @@ class PacScene extends SceneBase {
         this.dois.splice(i, 1);
         sfx.powerup();
         this.scaredTimer = 7.0;
-        this.ghosts.forEach(g => g.sprite.setTint(0x80b0ff));
+        this.ghosts.forEach(g => {
+          g.eaten = false;
+        });
         break;
       }
     }
@@ -1468,7 +1543,8 @@ class PacScene extends SceneBase {
     const allDirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
     this.ghosts.forEach(g => {
-      const speed = isScared ? g.speed * 0.55 : g.speed;
+      const isGhostScared = isScared && !g.eaten;
+      const speed = isGhostScared ? g.speed * 0.55 : g.speed;
       let step = speed * dt;
       let [gdx, gdy] = g.dir;
 
@@ -1496,7 +1572,7 @@ class PacScene extends SceneBase {
 
           let targetX_tile = this.playerTile.x;
           let targetY_tile = this.playerTile.y;
-          if (g.key === "rick" && !isScared) {
+          if (g.key === "rick" && !isGhostScared) {
             targetX_tile += this.playerDir[0] * 2;
             targetY_tile += this.playerDir[1] * 2;
           }
@@ -1510,9 +1586,9 @@ class PacScene extends SceneBase {
             valid.sort((a, b) => {
               const da = Math.abs(g.tileX + a[0] - targetX_tile) + Math.abs(g.tileY + a[1] - targetY_tile);
               const db = Math.abs(g.tileX + b[0] - targetX_tile) + Math.abs(g.tileY + b[1] - targetY_tile);
-              return isScared ? db - da : da - db;
+              return isGhostScared ? db - da : da - db;
             });
-            const randChance = isScared ? 0.05 : (g.key === "crow" ? 0.35 : 0.15);
+            const randChance = isGhostScared ? 0.05 : (g.key === "crow" ? 0.35 : 0.15);
             g.dir = Math.random() < randChance ? valid[Math.floor(Math.random() * valid.length)] : valid[0];
           } else if (this.free(g.tileX - gdx, g.tileY - gdy)) {
             g.dir = [-gdx, -gdy];
@@ -1534,8 +1610,9 @@ class PacScene extends SceneBase {
     const isScared = this.scaredTimer > 0;
     this.ghosts.forEach(g => {
       if (Math.abs(this.playerPos.x - g.x) < 16 && Math.abs(this.playerPos.y - g.y) < 16) {
-        if (isScared) {
+        if (isScared && !g.eaten) {
           sfx.ghost();
+          g.eaten = true;
           g.x = this.px(g.startX);
           g.y = this.py(g.startY);
           g.tileX = g.startX;
@@ -1543,8 +1620,9 @@ class PacScene extends SceneBase {
           g.dir = [...g.startDir];
           g.sprite.x = g.x;
           g.sprite.y = g.y;
-          g.sprite.clearTint();
-        } else {
+          g.sprite.setAlpha(1.0);
+          g.sprite.play(g.anim, true);
+        } else if (!isScared || g.eaten) {
           sfx.hit();
           this.state = "hit";
           this.chibi.play("chibi_hit");
@@ -1554,11 +1632,13 @@ class PacScene extends SceneBase {
           }
           if (this.lives > 0) {
             this.time.delayedCall(900, () => {
+              this.scaredTimer = 0;
               this.playerPos = { x: this.px(9), y: this.py(11) };
               this.playerDir = [0, 0];
               this.playerNextDir = [0, 0];
               this.chibi.play("chibi_idle");
               this.ghosts.forEach(gh => {
+                gh.eaten = false;
                 gh.x = this.px(gh.startX);
                 gh.y = this.py(gh.startY);
                 gh.tileX = gh.startX;
@@ -1566,6 +1646,8 @@ class PacScene extends SceneBase {
                 gh.dir = [...gh.startDir];
                 gh.sprite.x = gh.x;
                 gh.sprite.y = gh.y;
+                gh.sprite.setAlpha(1.0);
+                gh.sprite.play(gh.anim, true);
               });
               this.state = "play";
             });
