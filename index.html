@@ -11,12 +11,20 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2.6">
+  <link rel="stylesheet" href="css/style.css?v=2.7">
 </head>
 <body>
   <header id="level-bar" class="level-bar">
     <button id="btn-prev-level" class="lvl-btn" aria-label="Previous level">&lsaquo; Back</button>
     <div class="lvl-center"><p id="lvl-count">Level 1 / 13</p><p id="lvl-name">The Invitation</p></div>
+    <div id="header-music-pill" class="header-music-pill" title="Soundtrack Player">
+      <span id="music-pill-spinner" class="pill-spinner"></span>
+      <span id="music-pill-bars" class="pill-bars hidden">
+        <span></span><span></span><span></span>
+      </span>
+      <span id="music-pill-title" class="pill-title">Loading music…</span>
+      <button id="btn-music-toggle" class="pill-btn" type="button" aria-label="Toggle soundtrack">🔊</button>
+    </div>
     <button id="btn-next-level" class="lvl-btn" aria-label="Skip this level">Skip &rsaquo;</button>
     <div class="lvl-progress"><span id="lvl-fill"></span></div>
   </header>
@@ -264,6 +272,10 @@
       </div>
       <div class="player">
         <div class="vinyl-wrap">
+          <div id="vinyl-loader" class="vinyl-loader">
+            <div class="vinyl-spinner"></div>
+            <p class="vinyl-loader-text">Loading vinyl…</p>
+          </div>
           <div id="vinyl" class="vinyl"><div class="vinyl-label"></div></div>
           <div id="tonearm" class="tonearm"></div>
         </div>
@@ -683,7 +695,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js"></script>
   <script>if (typeof Phaser === "undefined") { document.write('<script src="js/phaser.min.js"><\/script>'); }</script>
-  <script src="js/game.js?v=2.6"></script>
+  <script src="js/game.js?v=2.7"></script>
   <script>
     const WEB3FORMS_KEY = '167aea1e-2696-4fd6-813c-735856d8ed6b';
 
@@ -912,6 +924,7 @@
       const $ = id => document.getElementById(id);
       const PLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
       const PAUSE_ICON = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+      const SPINNER_ICON = '<svg class="btn-spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.6" fill="none" stroke-dasharray="42" stroke-dashoffset="14" stroke-linecap="round"/></svg>';
 
       // Single dedicated audio element - eliminates HTTP socket contention and multiple concurrent downloads
       const audio = new Audio();
@@ -923,6 +936,9 @@
       let matchedBy = {};
       let reqId = 0;
       let retryCount = 0;
+      let isBuffering = false;
+      let isPlaying = false;
+      let isAwaitingUnlock = false;
 
       const fmt = t => isFinite(t) && t > 0 ? Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0') : '0:00';
       const fill = (el, pct, buf = pct) => {
@@ -938,14 +954,68 @@
       }
 
       function setBuffering(buffering) {
-        $('btn-play').classList.toggle('buffering', buffering);
+        isBuffering = buffering;
+        const btnPlay = $('btn-play');
+        if (btnPlay) {
+          btnPlay.classList.toggle('buffering', buffering);
+          btnPlay.innerHTML = isPlaying ? PAUSE_ICON : (buffering ? SPINNER_ICON : PLAY_ICON);
+        }
+
+        const vLoader = $('vinyl-loader');
+        if (vLoader) {
+          vLoader.classList.toggle('hidden', !buffering);
+        }
+
+        const pSpin = $('music-pill-spinner');
+        const pBars = $('music-pill-bars');
+        const pTitle = $('music-pill-title');
+        const pBtn = $('btn-music-toggle');
+        if (pSpin && pBars && pTitle) {
+          if (buffering) {
+            pSpin.classList.remove('hidden');
+            pBars.classList.add('hidden');
+            pTitle.textContent = isAwaitingUnlock ? 'Tap to play 🎵' : 'Loading music…';
+            if (pBtn) pBtn.textContent = '⏳';
+          } else if (isPlaying) {
+            pSpin.classList.add('hidden');
+            pBars.classList.remove('hidden');
+            const curSong = SONGS[list[i]];
+            pTitle.textContent = curSong ? curSong.title : 'Playing';
+            if (pBtn) pBtn.textContent = '🔊';
+          } else {
+            pSpin.classList.add('hidden');
+            pBars.classList.add('hidden');
+            pTitle.textContent = 'Paused';
+            if (pBtn) pBtn.textContent = '🔈';
+          }
+        }
       }
 
       function syncUI(playing) {
-        $('btn-play').innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
-        $('vinyl').classList.toggle('playing', playing);
-        $('tonearm').classList.toggle('playing', playing);
-        if (!playing) setBuffering(false);
+        isPlaying = playing;
+        const btnPlay = $('btn-play');
+        if (btnPlay) {
+          btnPlay.innerHTML = playing ? PAUSE_ICON : (isBuffering ? SPINNER_ICON : PLAY_ICON);
+        }
+        const vinyl = $('vinyl'), tonearm = $('tonearm');
+        if (vinyl) vinyl.classList.toggle('playing', playing);
+        if (tonearm) tonearm.classList.toggle('playing', playing);
+
+        if (playing) {
+          isAwaitingUnlock = false;
+          setBuffering(false);
+        } else if (!isBuffering) {
+          const pSpin = $('music-pill-spinner');
+          const pBars = $('music-pill-bars');
+          const pTitle = $('music-pill-title');
+          const pBtn = $('btn-music-toggle');
+          if (pSpin && pBars && pTitle) {
+            pSpin.classList.add('hidden');
+            pBars.classList.add('hidden');
+            pTitle.textContent = 'Paused';
+            if (pBtn) pBtn.textContent = '🔈';
+          }
+        }
 
         if ('mediaSession' in navigator) {
           navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
@@ -1027,10 +1097,13 @@
 
       function executePlay(token) {
         if (token !== reqId) return;
+        setBuffering(true);
         const p = audio.play();
         if (p && typeof p.then === 'function') {
           p.then(() => {
             if (token !== reqId) return;
+            isAwaitingUnlock = false;
+            isPlaying = true;
             syncUI(true);
             setBuffering(false);
             $('song-note').innerHTML = '';
@@ -1039,14 +1112,23 @@
             if (token !== reqId) return;
             if (err && err.name === 'AbortError') return;
             if (err && err.name === 'NotAllowedError') {
+              isAwaitingUnlock = true;
+              isPlaying = false;
               syncUI(false);
-              setBuffering(false);
-              $('song-note').textContent = 'Tap Play to listen 🎵';
+              setBuffering(true);
+              $('song-note').textContent = 'Tap anywhere to start music 🎵';
+
               const unlock = () => {
+                isAwaitingUnlock = false;
+                setBuffering(true);
                 if (audio.paused) executePlay(reqId);
-                ['pointerdown', 'keydown'].forEach(ev => document.removeEventListener(ev, unlock));
+                ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'].forEach(ev => {
+                  window.removeEventListener(ev, unlock, true);
+                });
               };
-              ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, unlock, { once: true }));
+              ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'].forEach(ev => {
+                window.addEventListener(ev, unlock, { once: true, capture: true });
+              });
               return;
             }
             syncUI(false);
@@ -1185,7 +1267,31 @@
 
       audio.volume = 0.8;
       fill($('vol'), 80);
-      syncUI(false);
+      // Header music pill controls
+      const headerBtn = $('btn-music-toggle');
+      if (headerBtn) {
+        headerBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          if (audio.paused) {
+            executePlay(++reqId);
+          } else {
+            audio.pause();
+            syncUI(false);
+          }
+        });
+      }
+      const headerPill = $('header-music-pill');
+      if (headerPill) {
+        headerPill.addEventListener('click', e => {
+          if (e.target.id === 'btn-music-toggle') return;
+          if (audio.paused) {
+            executePlay(++reqId);
+          } else {
+            audio.pause();
+            syncUI(false);
+          }
+        });
+      }
 
       return {
         start(choices) {
@@ -1214,9 +1320,16 @@
           list = Object.keys(SONGS).sort((a, b) => (score[b] || 0) - (score[a] || 0));
           i = 0;
           load(true);
+        },
+        initAutoPlay(choices) {
+          this.start(choices);
         }
       };
     })();
+
+    // Start music and loading system immediately as soon as user enters the website
+    ensureChoices();
+    player.initAutoPlay(userChoices);
 
     /* ---------- Level 9: Interactive Dhaka University Postbox & Inbuilt Web Audio SFX ---------- */
     (() => {

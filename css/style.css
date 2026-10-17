@@ -114,6 +114,54 @@ body {
 .vinyl.playing { animation-play-state: running; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Vinyl loader overlay */
+.vinyl-loader {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(30, 24, 22, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  transition: opacity .35s ease, visibility .35s;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+}
+.vinyl-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.vinyl-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3.5px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--accent);
+  border-right-color: #f7d794;
+  border-radius: 50%;
+  animation: vinylSpin 0.9s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+}
+@keyframes vinylSpin {
+  to { transform: rotate(360deg); }
+}
+.vinyl-loader-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  color: #fff;
+  margin-top: .6rem;
+  text-transform: uppercase;
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.95; }
+  50% { opacity: 0.55; }
+}
+
 .tonearm {
   position: absolute; top: 10px; right: -16px; width: 112px; height: 6px; border-radius: 3px;
   background: #cfc8c2; transform-origin: right center; transform: rotate(14deg);
@@ -152,6 +200,8 @@ body {
 .ctl-play.buffering { animation: pulse-buffering 1.2s ease-in-out infinite; }
 @keyframes pulse-buffering { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.94); opacity: 0.8; } }
 .ctl-play svg { width: 26px; height: 26px; fill: currentColor; }
+.btn-spinner { animation: spin .85s linear infinite; }
+
 .vol { display: flex; align-items: center; gap: .5rem; width: 140px; margin-top: .75rem; color: var(--muted); }
 .vol svg { width: 16px; height: 16px; fill: currentColor; flex: none; }
 .vol input { flex: 1; }
@@ -634,6 +684,81 @@ body {
 .lvl-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; }
 .lvl-progress span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s ease; }
 #app-container { padding-top: 4.5rem; }
+
+/* Header Music Pill & Soundtrack Status */
+.header-music-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .28rem .7rem;
+  background: rgba(253, 246, 248, 0.94);
+  border: 1px solid rgba(196, 98, 127, 0.28);
+  border-radius: 999px;
+  font-size: .75rem;
+  color: var(--text);
+  box-shadow: 0 2px 6px rgba(196, 98, 127, 0.08);
+  transition: all .2s ease;
+  user-select: none;
+  cursor: pointer;
+  flex: none;
+}
+.header-music-pill:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(196, 98, 127, 0.18);
+}
+.pill-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(196, 98, 127, 0.25);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  flex: none;
+}
+.pill-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  flex: none;
+}
+.pill-bars span {
+  width: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: eqBounce .8s ease-in-out infinite alternate;
+}
+.pill-bars span:nth-child(1) { height: 45%; animation-delay: 0.1s; }
+.pill-bars span:nth-child(2) { height: 100%; animation-delay: 0.25s; }
+.pill-bars span:nth-child(3) { height: 70%; animation-delay: 0.4s; }
+@keyframes eqBounce {
+  0% { height: 25%; }
+  100% { height: 100%; }
+}
+.pill-title {
+  font-size: .74rem;
+  font-weight: 500;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.pill-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: .82rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform .15s;
+}
+.pill-btn:hover { transform: scale(1.15); }
+@media (max-width: 680px) {
+  .pill-title { display: none; }
+  .header-music-pill { padding: .24rem .48rem; }
+}
+
 
 /* Games */
 .game-card { width: 100%; overflow: hidden; padding: 0; }
