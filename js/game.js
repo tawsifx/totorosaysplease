@@ -1078,7 +1078,7 @@ window.Game = {
 
     if (!runnerPhaserGame) {
       runnerPhaserGame = new Phaser.Game({
-        type: Phaser.AUTO,
+        type: Phaser.CANVAS,
         canvas: canvas,
         width: RUN_W,
         height: RUN_H,
@@ -1488,7 +1488,7 @@ window.PacGame = {
 
     if (!pacPhaserGame) {
       pacPhaserGame = new Phaser.Game({
-        type: Phaser.AUTO,
+        type: Phaser.CANVAS,
         canvas: canvas,
         width: PAC_W,
         height: PAC_H,
@@ -1954,7 +1954,7 @@ window.MarioGame = {
 
     if (!marioPhaserGame) {
       marioPhaserGame = new Phaser.Game({
-        type: Phaser.AUTO,
+        type: Phaser.CANVAS,
         canvas: canvas,
         width: MARIO_W,
         height: MARIO_H,
