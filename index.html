@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Date in Dhaka</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="level-bar" class="level-bar">
+    <button id="btn-prev-level" class="lvl-btn" aria-label="Previous level">&lsaquo; Back</button>
+    <div class="lvl-center"><p id="lvl-count">Level 1 / 13</p><p id="lvl-name">The Invitation</p></div>
+    <button id="btn-next-level" class="lvl-btn" aria-label="Skip this level">Skip &rsaquo;</button>
+    <div class="lvl-progress"><span id="lvl-fill"></span></div>
+  </header>
+  <div id="app-container" class="min-h-screen flex-col items-center justify-center p-4 md:p-8">
+
+    <!-- 1: Invitation -->
+    <div id="screen-invite" class="screen active flex-col items-center text-center w-full max-w-xl mx-auto ui-box p-10 md:p-14">
+      <p class="laptop-note md:hidden">💻 For the best experience, please switch to a laptop. It's Totoro's promise.</p>
+      <div class="text-5xl mb-5">💌</div>
+      <p class="eyebrow">A new message</p>
+      <h1 class="title"><span class="name">Totoro</span> has invited <span class="name">Moon Walker</span> on a date.</h1>
+      <p class="subtitle">Will you say yes?</p>
+      <div class="btn-row">
+        <button id="btn-invite-yes" class="modern-btn btn-primary">Yes</button>
+        <button id="btn-no-1" class="btn-escape modern-btn btn-secondary">No</button>
+      </div>
+    </div>
+
+    <!-- 2-4: Choices -->
+    <div id="screen-place" class="screen flex-col items-center text-center w-full max-w-5xl mx-auto">
+      <div class="ui-box header-box">
+        <p class="eyebrow">Step 1 of 3</p>
+        <h1 class="title">Where shall we go?</h1>
+        <p class="subtitle">Pick our corner of Dhaka for the day.</p>
+      </div>
+      <div id="grid-place" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full"></div>
+    </div>
+
+    <div id="screen-food" class="screen flex-col items-center text-center w-full max-w-5xl mx-auto">
+      <div class="ui-box header-box">
+        <p class="eyebrow">Step 2 of 3</p>
+        <h1 class="title">What shall we eat?</h1>
+        <p class="subtitle">From street-side carts to cozy tables for two.</p>
+      </div>
+      <div id="grid-food" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full"></div>
+    </div>
+
+    <div id="screen-activity" class="screen flex-col items-center text-center w-full max-w-5xl mx-auto">
+      <div class="ui-box header-box">
+        <p class="eyebrow">Step 3 of 3</p>
+        <h1 class="title">And after that?</h1>
+        <p class="subtitle">Pick how we spend the rest of the evening.</p>
+      </div>
+      <div id="grid-activity" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full"></div>
+    </div>
+
+    <!-- 5: Run to Totoro -->
+    <div id="screen-game" class="screen flex-col items-center text-center w-full max-w-4xl mx-auto">
+      <div class="ui-box header-box">
+        <p class="eyebrow">Level 5</p>
+        <h1 class="title">Run to Totoro!</h1>
+        <p class="subtitle">Jump over the obstacles with Space, the up arrow, or a tap.</p>
+      </div>
+      <div class="ui-box game-card"><canvas id="game-canvas" tabindex="0"></canvas></div>
+      <p id="game-hint" class="subtitle mt-4"></p>
+      <button id="btn-game-continue" class="modern-btn btn-primary mt-4" hidden>Continue &rsaquo;</button>
+    </div>
+
+    <!-- 6: Fuchka Chase -->
+    <div id="screen-pac" class="screen flex-col items-center text-center w-full max-w-3xl mx-auto">
+      <div class="ui-box header-box">
+        <p class="eyebrow">Level 6</p>
+        <h1 class="title">Fuchka Chase</h1>
+        <p class="subtitle">Eat every fuchka before the CNGs, rickshaws and crows catch you. Mishti doi scares them off. Clear 3 stages, then find Totoro.</p>
+      </div>
+      <div class="ui-box game-card"><canvas id="pac-canvas" tabindex="0"></canvas></div>
+      <p id="pac-hint" class="subtitle mt-4">Arrow keys or WASD to move, or swipe on a touch screen.</p>
+    </div>
+
+    <!-- 7: Run to the Bus Stop -->
+    <div id="screen-mario" class="screen flex-col items-center text-center w-full max-w-4xl mx-auto">
+      <div class="ui-box header-box">
+        <p class="eyebrow">Level 7</p>
+        <h1 class="title">Run to the Bus Stop</h1>
+        <p class="subtitle">Hop over potholes and water, stomp rickshaws and CNGs, and reach Totoro. 3 stages through Dhaka.</p>
+      </div>
+      <div class="ui-box game-card"><canvas id="mario-canvas" tabindex="0"></canvas></div>
+      <div class="touch-pad">
+        <button class="pad-btn" data-k="left" aria-label="Left">&#9664;</button>
+        <button class="pad-btn" data-k="right" aria-label="Right">&#9654;</button>
+        <button class="pad-btn pad-jump" data-k="jump">Jump</button>
+      </div>
+      <p id="mario-hint" class="subtitle mt-4">Arrow keys or A / D to run, Space or the up arrow to jump (hold for a higher jump).</p>
+    </div>
+
+    <!-- 8: Confession -->
+    <div id="screen-confession" class="screen flex-col items-center text-center w-full max-w-xl mx-auto ui-box p-10 md:p-14">
+      <p class="eyebrow">One last question</p>
+      <h1 class="title">After all this... do you love me? 🥺</h1>
+      <div class="btn-row">
+        <button id="btn-confess-yes" class="modern-btn btn-primary">Duh, 100% yes</button>
+        <button id="btn-no-2" class="btn-escape modern-btn btn-secondary">Nah, just wanted fuchka</button>
+      </div>
+    </div>
+
+    <!-- 9: Dedicated Level - Postcard from Dhaka University -->
+    <div id="screen-letter" class="screen flex-col items-center w-full max-w-4xl mx-auto">
+      <div class="ui-box header-box text-center">
+        <p class="eyebrow">Level 9</p>
+        <h1 class="title">A Letter From Meherjaan? 📮</h1>
+        <p class="subtitle">Tap the rickshaw bell, CNG, or clay tea cup for Dhaka sounds, stamp your aerogramme, and leave a note for Totoro.</p>
+      </div>
+
+      <div class="dhaka-desk-folio">
+        <!-- Illustrated Dhaka University Panorama (Inspired by the Dhaka Notebook Art) -->
+        <div class="dhaka-art-banner">
+          <svg id="dhaka-banner-svg" viewBox="0 0 800 230" preserveAspectRatio="xMidYMid slice" aria-label="Interactive Dhaka University Illustration">
+            <!-- Terracotta & Warm Dusk Sky Backdrop -->
+            <rect width="800" height="230" fill="#b96552"/>
+            <!-- Background Buildings & Mustard Balconies -->
+            <rect x="40" y="12" width="160" height="145" fill="#9c5444" stroke="#2b2422" stroke-width="2"/>
+            <rect x="200" y="28" width="240" height="135" fill="#c96e58" stroke="#2b2422" stroke-width="2"/>
+            <rect x="440" y="8" width="140" height="120" fill="#778599" stroke="#2b2422" stroke-width="2"/>
+            <rect x="580" y="0" width="190" height="165" fill="#c4634e" stroke="#2b2422" stroke-width="2"/>
+            <!-- Yellow Striped Balconies on Right Building -->
+            <rect x="550" y="24" width="155" height="22" fill="#e8c266" stroke="#2b2422" stroke-width="2"/>
+            <rect x="550" y="68" width="155" height="22" fill="#e8c266" stroke="#2b2422" stroke-width="2"/>
+            <g stroke="#d19f3e" stroke-width="1.5">
+              <line x1="565" y1="24" x2="565" y2="46"/><line x1="580" y1="24" x2="580" y2="46"/><line x1="595" y1="24" x2="595" y2="46"/><line x1="610" y1="24" x2="610" y2="46"/>
+              <line x1="565" y1="68" x2="565" y2="90"/><line x1="580" y1="68" x2="580" y2="90"/><line x1="595" y1="68" x2="595" y2="90"/><line x1="610" y1="68" x2="610" y2="90"/>
+            </g>
+            <!-- Small Terracotta Windows -->
+            <g fill="none" stroke="#f5d9b8" stroke-width="1.5">
+              <rect x="245" y="42" width="12" height="14"/><rect x="285" y="60" width="12" height="14"/>
+              <rect x="640" y="105" width="12" height="14"/><rect x="680" y="128" width="12" height="14"/>
+            </g>
+            <!-- Lush Krishnachura & Banyan Foliage -->
+            <path d="M390 95 Q420 75 450 92 Q480 78 515 95 L515 125 L390 125 Z" fill="#1e6b43" stroke="#2b2422" stroke-width="2"/>
+            <path d="M560 125 Q605 102 650 122 Q695 102 745 125 L745 170 L560 170 Z" fill="#2c8c53" stroke="#2b2422" stroke-width="2"/>
+
+            <!-- Interactive Zone 1: Aparajeyo Bangla Sculpture & Golden DU Arches -->
+            <g id="svg-du-arch" class="svg-interactive" tabindex="0" role="button" aria-label="Play TSC Acoustic Chord">
+              <!-- Pedestal & Three Figures of Aparajeyo Bangla -->
+              <path d="M92 108 L188 108 L198 135 L82 135 Z" fill="#6c7d93" stroke="#2b2422" stroke-width="2"/>
+              <g fill="#7c8ea6" stroke="#2b2422" stroke-width="1.8">
+                <!-- Left figure -->
+                <circle cx="116" cy="58" r="7"/>
+                <path d="M106 66 L126 66 L124 108 L108 108 Z"/>
+                <!-- Center figure -->
+                <circle cx="140" cy="50" r="7.5"/>
+                <path d="M128 59 L152 59 L150 108 L130 108 Z"/>
+                <!-- Right figure -->
+                <circle cx="164" cy="60" r="7"/>
+                <path d="M154 68 L174 68 L172 108 L156 108 Z"/>
+              </g>
+              <!-- Golden Arched Colonnade with Jali Dots -->
+              <rect x="115" y="105" width="245" height="65" fill="#d9ab55" stroke="#2b2422" stroke-width="2"/>
+              <rect x="75" y="125" width="40" height="45" fill="#d9ab55" stroke="#2b2422" stroke-width="2"/>
+              <rect x="360" y="125" width="42" height="45" fill="#d9ab55" stroke="#2b2422" stroke-width="2"/>
+              <path d="M145 170 L145 135 A26 22 0 0 1 197 135 L197 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
+              <path d="M235 170 L235 135 A26 22 0 0 1 287 135 L287 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
+              <path d="M208 170 L208 145 A9 9 0 0 1 226 145 L226 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
+              <path d="M300 170 L300 145 A9 9 0 0 1 318 145 L318 170 Z" fill="#b96552" stroke="#2b2422" stroke-width="2"/>
+              <!-- Vintage Streetlamp -->
+              <path d="M0 40 L95 16 L102 26 L55 38 Z" fill="#c9a259" stroke="#2b2422" stroke-width="2"/>
+            </g>
+
+            <!-- Road Surface -->
+            <rect x="0" y="168" width="800" height="62" fill="#8c7a6b" stroke="#2b2422" stroke-width="2"/>
+
+            <!-- Interactive Zone 2: Colorful Painted Dhaka Rickshaw Hoods -->
+            <g id="svg-rickshaws" class="svg-interactive" tabindex="0" role="button" aria-label="Ring Rickshaw Bell">
+              <!-- Back row colourful hoods -->
+              <ellipse cx="185" cy="148" rx="34" ry="22" fill="#f0d264" stroke="#2b2422" stroke-width="2"/>
+              <ellipse cx="305" cy="150" rx="32" ry="22" fill="#e87ea1" stroke="#2b2422" stroke-width="2"/>
+              <ellipse cx="465" cy="152" rx="36" ry="22" fill="#2c7da0" stroke="#2b2422" stroke-width="2"/>
+              <ellipse cx="565" cy="154" rx="42" ry="24" fill="#c93b4b" stroke="#2b2422" stroke-width="2"/>
+              <!-- Left Orange & Red Rickshaw Hood -->
+              <path d="M55 195 L55 152 A44 36 0 0 1 143 152 L143 195 Z" fill="#e06d2b" stroke="#2b2422" stroke-width="2.2"/>
+              <path d="M62 152 A37 30 0 0 1 136 152 Z" fill="#c93b4b" stroke="#2b2422" stroke-width="1.8"/>
+              <!-- Center Royal Blue & Terracotta Folk-Art Rickshaw -->
+              <path d="M175 198 L175 154 A54 44 0 0 1 283 154 L283 198 Z" fill="#1d6396" stroke="#2b2422" stroke-width="2.4"/>
+              <path d="M188 195 L188 158 A41 34 0 0 1 270 158 L270 195 Z" fill="#c96551" stroke="#2b2422" stroke-width="1.8"/>
+              <!-- Blue Draped Center Tassel Curtain -->
+              <path d="M229 124 L212 188 L246 188 Z" fill="#134e7a" stroke="#2b2422" stroke-width="1.8"/>
+              <!-- Green Seat & Wheels -->
+              <rect x="182" y="192" width="94" height="14" fill="#3a9659" stroke="#2b2422" stroke-width="2"/>
+              <rect x="174" y="185" width="12" height="42" rx="4" fill="#332e2c" stroke="#2b2422" stroke-width="2"/>
+              <rect x="272" y="185" width="12" height="42" rx="4" fill="#332e2c" stroke="#2b2422" stroke-width="2"/>
+              <!-- Folk-art dots -->
+              <circle cx="202" cy="168" r="2" fill="#fff3d1"/><circle cx="206" cy="176" r="2" fill="#fff3d1"/>
+              <circle cx="256" cy="168" r="2" fill="#fff3d1"/><circle cx="252" cy="176" r="2" fill="#fff3d1"/>
+            </g>
+
+            <!-- Interactive Zone 3: Green Dhaka CNG Auto-Rickshaw -->
+            <g id="svg-cng" class="svg-interactive" tabindex="0" role="button" aria-label="Honk CNG Horn">
+              <!-- Canopy Roof -->
+              <path d="M395 162 C395 128 595 128 595 162 L590 182 L400 182 Z" fill="#0f6e49" stroke="#2b2422" stroke-width="2.4"/>
+              <!-- Rear Window -->
+              <rect x="462" y="152" width="66" height="24" rx="5" fill="#8b7d70" stroke="#2b2422" stroke-width="2"/>
+              <!-- White Folk-Art Swirls flanking window -->
+              <path d="M425 168 Q415 155 430 152 Q440 155 432 168" fill="none" stroke="#e9f5ed" stroke-width="2" stroke-linecap="round"/>
+              <path d="M565 168 Q575 155 560 152 Q550 155 558 168" fill="none" stroke="#e9f5ed" stroke-width="2" stroke-linecap="round"/>
+              <!-- Lower Green Body -->
+              <rect x="392" y="180" width="206" height="36" rx="4" fill="#439c47" stroke="#2b2422" stroke-width="2.4"/>
+              <!-- Tail lights & Number Plate -->
+              <rect x="408" y="190" width="20" height="16" fill="#a82431" stroke="#2b2422" stroke-width="1.8"/>
+              <rect x="562" y="190" width="20" height="16" fill="#a82431" stroke="#2b2422" stroke-width="1.8"/>
+              <rect x="466" y="192" width="58" height="16" fill="#2e7d32" stroke="#e9f5ed" stroke-width="1.2"/>
+              <!-- Tires -->
+              <rect x="400" y="214" width="24" height="15" rx="4" fill="#262322"/>
+              <rect x="566" y="214" width="24" height="15" rx="4" fill="#262322"/>
+            </g>
+
+            <!-- Floating Sound Feedback Pill -->
+            <g transform="translate(650, 18)">
+              <rect width="134" height="24" rx="12" fill="rgba(31,30,28,0.78)"/>
+              <text x="67" y="16" text-anchor="middle" fill="#f7e8d0" font-family="JetBrains Mono, monospace" font-size="9.5">TAP ART FOR SOUNDS 🔊</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Interactive Dhaka Sound & Souvenir Bar -->
+        <div class="dhaka-soundboard">
+          <button id="btn-sfx-rickshaw" class="dhaka-toy-btn" type="button">
+            <span class="toy-emoji">🔔</span>
+            <div class="toy-text"><b>Rickshaw Bell</b><small>Tring-Tring! Sit closer</small></div>
+          </button>
+          <button id="btn-sfx-cng" class="dhaka-toy-btn" type="button">
+            <span class="toy-emoji">🛺</span>
+            <div class="toy-text"><b>Dhaka CNG Horn</b><small>Pee-peep! VIP lane</small></div>
+          </button>
+          <button id="btn-sfx-cha" class="dhaka-toy-btn" type="button">
+            <span class="toy-emoji">🍵</span>
+            <div class="toy-text"><b>TSC Matir Cha</b><small>Sip warm cardamom tea</small></div>
+          </button>
+          <button id="btn-sfx-petals" class="dhaka-toy-btn" type="button">
+            <span class="toy-emoji">🌺</span>
+            <div class="toy-text"><b>Krishnachura</b><small>Scatter spring petals</small></div>
+          </button>
+        </div>
+
+        <!-- Main Desk Workspace: Rubber Stamps + Vintage Aerogramme Letter -->
+        <div class="desk-workspace">
+          <!-- Left Sidebar: Collector's Rubber Stamps & DU Gate Pass -->
+          <aside class="desk-sidebar">
+            <div class="desk-card stamp-pad-box">
+              <span class="desk-card-kicker">POSTAL INK PAD • CLICK TO STAMP</span>
+              <p class="desk-card-sub">Press a rubber stamp below to ink an official Dhaka postmark onto your letter:</p>
+              <div class="rubber-stamp-grid">
+                <button class="rubber-stamp-btn" data-stamp="tsc" type="button">
+                  <span class="rs-icon">🏛️</span>
+                  <div><b>TSC Post Office</b><small>Est. 1921 • Ramna</small></div>
+                </button>
+                <button class="rubber-stamp-btn" data-stamp="curzon" type="button">
+                  <span class="rs-icon">🧱</span>
+                  <div><b>Curzon Hall Arches</b><small>Botanical Wing</small></div>
+                </button>
+                <button class="rubber-stamp-btn" data-stamp="rick" type="button">
+                  <span class="rs-icon">🛺</span>
+                  <div><b>Rickshaw Express</b><small>Via Dhanmondi Lake</small></div>
+                </button>
+              </div>
+              <button id="btn-clear-stamps" class="clear-stamps-link" type="button">Clear ink stamps</button>
+            </div>
+
+            <div class="desk-card du-gate-pass">
+              <div class="pass-header">
+                <span>UNIVERSITY OF DHAKA</span>
+                <b>EVENING PASS</b>
+              </div>
+              <p class="pass-serial">NO. 143-TOTORO</p>
+              <p class="pass-copy">Admits <b>Moon Walker &amp; Totoro</b> to all campus walkways, Curzon lawns, and late-evening tea stalls.</p>
+              <div class="pass-toggle-row">
+                <label class="pen-sfx-toggle">
+                  <input type="checkbox" id="chk-pen-sound" checked>
+                  <span>Fountain pen sound while typing ✒️</span>
+                </label>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Right Area: Redesigned Vintage Letter Folio (Strictly English Salutations) -->
+          <div class="aerogramme-wrap">
+            <div id="aerogramme-sheet" class="aerogramme-sheet">
+              <!-- Dhaka Folk-Art Terracotta & Mustard Border -->
+              <div class="folk-border-top"></div>
+
+              <!-- Vintage Postage Stamp & Cancellation Postmark -->
+              <div class="postage-corner" aria-hidden="true">
+                <div class="dhaka-post-stamp">
+                  <span class="st-top">DHAKA MAIL</span>
+                  <span class="st-mid">🌙</span>
+                  <span class="st-bot">100 TAKA</span>
+                </div>
+                <svg class="cancel-postmark" viewBox="0 0 120 70">
+                  <circle cx="35" cy="35" r="28" fill="none" stroke="#9e3d33" stroke-width="1.8" stroke-dasharray="3 2"/>
+                  <circle cx="35" cy="35" r="20" fill="none" stroke="#9e3d33" stroke-width="1"/>
+                  <text x="35" y="24" text-anchor="middle" fill="#9e3d33" font-size="6.5" font-weight="bold">DHAKA UNIV.</text>
+                  <text x="35" y="37" text-anchor="middle" fill="#9e3d33" font-size="6">FIRST CLASS</text>
+                  <text x="35" y="49" text-anchor="middle" fill="#9e3d33" font-size="6" font-weight="bold">RAMNA G.P.O.</text>
+                  <path d="M68 22 Q82 16 96 22 T118 22 M68 35 Q82 29 96 35 T118 35 M68 48 Q82 42 96 48 T118 48" fill="none" stroke="#9e3d33" stroke-width="1.5"/>
+                </svg>
+              </div>
+
+              <!-- Dynamic Rubber Stamp Layer -->
+              <div id="letter-stamp-layer" class="letter-stamp-layer" aria-hidden="true"></div>
+
+              <!-- Aerogramme Metadata Header -->
+              <div class="aerogramme-meta">
+                <span class="aero-badge">BY PARCEL OF THE HEART • PAR AVION</span>
+                <p id="letter-date" class="aero-date"></p>
+              </div>
+
+              <!-- English Salutation & Ruled Writing Area -->
+              <p class="aero-salutation">Dearest Totoro,</p>
+              <textarea id="letter-text" rows="6" maxlength="1500" placeholder="Write whatever is in your heart... about our walk through Dhaka, the rickshaw ride, or what you want to tell me when we meet..."></textarea>
+
+              <div class="aero-closing-row">
+                <div class="aero-itinerary-tag">
+                  <span>OUR PLANNED ROUTE</span>
+                  <p id="letter-route-preview">TSC • Kacchi • Rickshaw Ride</p>
+                </div>
+                <div class="aero-signoff">
+                  <p class="aero-yours">With all my heart,</p>
+                  <p class="aero-sig">Moon Walker</p>
+                </div>
+              </div>
+
+              <!-- Wax Seal Action Bar -->
+              <div class="aero-footer">
+                <p id="letter-status" class="aero-status">Ready to seal with hot crimson wax.</p>
+                <button id="btn-letter" class="wax-seal-button" type="button">
+                  <span class="wax-emblem">♥</span>
+                  <span>Seal with Wax &amp; Send 💌</span>
+                </button>
+              </div>
+
+              <div class="folk-border-bottom"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ending-nav-row">
+        <button id="btn-letter-back" class="back-link">← Back to Question</button>
+        <button id="btn-letter-skip" class="back-link accent-link">Continue to Date Ticket &amp; Vinyl Player 🎵 →</button>
+      </div>
+    </div>
+
+    <!-- 10: Date confirmed -->
+    <div id="screen-final" class="screen flex-col items-center text-center w-full max-w-xl mx-auto ui-box p-10 md:p-12">
+      <div class="text-5xl mb-4">💖</div>
+      <p class="eyebrow">Date confirmed</p>
+      <h1 class="title">It's a date!</h1>
+      <div class="ticket">
+        <div class="ticket-row"><p class="label">Where</p><p id="sum-place" class="value"></p></div>
+        <div class="ticket-row"><p class="label">Eating</p><p id="sum-food" class="value"></p></div>
+        <div class="ticket-row"><p class="label">Afterwards</p><p id="sum-activity" class="value"></p></div>
+      </div>
+      <div class="player">
+        <div class="vinyl-wrap">
+          <div id="vinyl" class="vinyl"><div class="vinyl-label"></div></div>
+          <div id="tonearm" class="tonearm"></div>
+        </div>
+        <p id="song-title" class="song-title"></p>
+        <p id="song-artist" class="song-artist"></p>
+        <p id="song-reason" class="song-reason"></p>
+        <p id="song-note" class="note"></p>
+
+        <div class="seek">
+          <span id="t-cur">0:00</span>
+          <input id="seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek">
+          <span id="t-dur">0:00</span>
+        </div>
+
+        <div class="controls">
+          <button id="btn-prev" class="ctl" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+          <button id="btn-play" class="ctl-play" aria-label="Play or pause"></button>
+          <button id="btn-next" class="ctl" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+        </div>
+
+        <div class="vol">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+          <input id="vol" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+        </div>
+
+        <ul id="queue" class="queue"></ul>
+      </div>
+
+      <div class="ending-links">
+        <p class="ending-links-title">✨ Interactive Epilogues ✨</p>
+        <button id="btn-find" class="modern-btn btn-primary w-full">1. Find Totoro on the Map 📍</button>
+        <div class="ending-subgrid">
+          <button id="btn-go-telescope" class="modern-btn btn-secondary w-full">2. Celestial Atlas 🔭</button>
+          <button id="btn-go-vitals" class="modern-btn btn-secondary w-full">3. Totoro's Vitals 💓</button>
+        </div>
+        <button id="btn-revisit-letter" class="back-link mt-3">← Revisit Dhaka University Postbox 📮</button>
+      </div>
+      <p class="subtitle mt-4">Totoro &amp; Moon Walker</p>
+    </div>
+
+    <!-- 11: Find Totoro (Upgraded fake map) -->
+    <div id="screen-map" class="screen flex-col items-center w-full max-w-3xl mx-auto">
+      <div class="ui-box header-box text-center">
+        <p class="eyebrow">Level 11</p>
+        <h1 class="title">Totoro Locator</h1>
+        <p class="subtitle">Tap any spot in Dhaka to track down where Totoro is hiding.</p>
+      </div>
+      <div class="ui-box map-card">
+        <div class="map-viewport" id="map-viewport">
+          <svg id="map-svg" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid slice" aria-label="Map of Dhaka">
+            <defs>
+              <radialGradient id="hg"><stop offset="0" stop-color="#f4a9c0" stop-opacity=".55"/><stop offset="1" stop-color="#f4a9c0" stop-opacity="0"/></radialGradient>
+            </defs>
+            <rect width="800" height="520" fill="#f8f5f1"/>
+            <g id="map-blocks"></g>
+            <g fill="none" stroke="#fff" stroke-linecap="round">
+              <path d="M-20 205 C200 230 600 330 820 345" stroke-width="9"/>
+              <path d="M300 -20 C330 200 300 360 340 540" stroke-width="9"/>
+              <path d="M-20 90 C250 120 560 80 820 150" stroke-width="7"/>
+              <path d="M620 -20 C600 200 640 360 600 540" stroke-width="7"/>
+            </g>
+            <path d="M-20 470 C150 430 250 510 400 480 S650 430 820 470" fill="none" stroke="#f8f5f1" stroke-width="54"/>
+            <path d="M-20 470 C150 430 250 510 400 480 S650 430 820 470" fill="none" stroke="#cfe4f1" stroke-width="36"/>
+            <text x="120" y="500" class="map-label water">Buriganga</text>
+            <ellipse cx="290" cy="95" rx="78" ry="22" transform="rotate(-10 290 95)" fill="#cfe4f1" stroke="#f8f5f1" stroke-width="6"/>
+            <path d="M470 130 C530 100 600 150 690 120" fill="none" stroke="#f8f5f1" stroke-width="26" stroke-linecap="round"/>
+            <path d="M470 130 C530 100 600 150 690 120" fill="none" stroke="#cfe4f1" stroke-width="14" stroke-linecap="round"/>
+            <rect x="185" y="165" width="95" height="58" rx="14" fill="#e1eed9" stroke="#f8f5f1" stroke-width="6"/>
+            <rect x="520" y="335" width="100" height="60" rx="14" fill="#e1eed9" stroke="#f8f5f1" stroke-width="6"/>
+            <g id="heart-group">
+              <ellipse cx="400" cy="260" rx="112" ry="102" fill="#f8f5f1"/>
+              <circle cx="400" cy="260" r="130" fill="url(#hg)"/>
+              <path d="M400 322 C318 262 330 196 372 200 C392 202 400 218 400 226 C400 218 408 202 428 200 C470 196 482 262 400 322Z" fill="#f4c6d3" stroke="#e39ab2" stroke-width="3"/>
+              <rect x="322" y="334" width="156" height="22" rx="11" fill="#fff" stroke="#f0c9d5"/>
+              <text x="400" y="349" text-anchor="middle" class="heart-label">Moon Walker's Heart</text>
+            </g>
+            <g id="map-spots"></g>
+          </svg>
+          <div id="globe-veil" class="globe-veil"></div>
+          <div id="globe" class="globe"></div>
+
+          <div class="map-search">
+            <span class="map-search-icon">🔍</span>
+            <div><p class="map-query">Totoro</p><p id="map-status" class="map-status"></p></div>
+          </div>
+          <div id="map-pulse" class="map-pulse"></div>
+          <div id="map-pin" class="map-pin"><svg viewBox="0 0 36 46"><path d="M18 45C18 45 3 28 3 16a15 15 0 0 1 30 0C33 28 18 45 18 45Z" fill="#c4627f" stroke="#fff" stroke-width="2"/><circle cx="18" cy="16" r="6" fill="#fff"/></svg></div>
+        </div>
+
+        <div id="map-sheet" class="map-sheet">
+          <div class="sheet-head">
+            <div><h2>Totoro</h2><p>Permanent Resident • Moon Walker's Heart, Dhaka</p></div>
+            <span class="badge">0.0 km away</span>
+          </div>
+          <p class="rating">★★★★★ <span>5.0 (3 verified reviews) • "Never leaving."</span></p>
+          <div class="traffic-bar">
+            <span class="traffic-dot"></span>
+            <span><b>Live Traffic:</b> Heavy congestion right around your smile. Estimated departure: Never.</span>
+          </div>
+          <div class="chips">
+            <span>Open 24 hours</span>
+            <span>Always available</span>
+            <span>Free forehead kisses</span>
+            <span>Hand-holding zone</span>
+          </div>
+          <div class="sheet-actions">
+            <button id="btn-directions" class="modern-btn btn-primary">Directions</button>
+            <button id="btn-map-reviews" class="modern-btn btn-secondary">Reviews (3) 💬</button>
+            <button id="btn-map-street" class="modern-btn btn-secondary">Street View 📸</button>
+            <button id="btn-map-replay" class="modern-btn btn-secondary">Search again</button>
+          </div>
+          <p id="route-note" class="route-note"></p>
+
+          <div id="map-reviews-box" class="map-drawer" hidden>
+            <div class="review-item">
+              <div class="review-head"><b>Moon Walker</b> <span class="stars">★★★★★</span></div>
+              <p>"10/10, gives great hugs, shares his last piece of Kacchi, and is slightly obsessed with me."</p>
+            </div>
+            <div class="review-item">
+              <div class="review-head"><b>Dhaka Traffic Police (Bijoy Sarani)</b> <span class="stars">★★★★★</span></div>
+              <p>"They sat in a rickshaw jam for 45 minutes and didn't even notice the green light."</p>
+            </div>
+            <div class="review-item">
+              <div class="review-head"><b>Mama (Fuchka Stall)</b> <span class="stars">★★★★★</span></div>
+              <p>"He let her have the last extra-spicy fuchka and held her hand when her eyes watered. True love."</p>
+            </div>
+          </div>
+
+          <div id="map-street-box" class="map-drawer" hidden>
+            <div class="polaroid">
+              <div class="polaroid-art">
+                <svg viewBox="0 0 360 190" class="w-full h-full">
+                  <rect width="360" height="190" fill="#1e2238"/>
+                  <circle cx="295" cy="42" r="20" fill="#fff5d6" opacity=".9"/>
+                  <circle cx="65" cy="35" r="1.5" fill="#fff"/><circle cx="145" cy="25" r="1.5" fill="#fff"/><circle cx="220" cy="48" r="1.5" fill="#fff"/>
+                  <polygon points="115,45 55,190 175,190" fill="#f7cb45" opacity=".14"/>
+                  <rect x="113" y="42" width="4" height="135" fill="#6b7280"/>
+                  <ellipse cx="115" cy="42" rx="12" ry="5" fill="#fde68a"/>
+                  <rect x="0" y="172" width="360" height="18" fill="#2d3142"/>
+                  <ellipse cx="185" cy="142" rx="28" ry="32" fill="#948ec9"/>
+                  <ellipse cx="185" cy="112" rx="22" ry="16" fill="#948ec9"/>
+                  <circle cx="170" cy="96" r="5" fill="#948ec9"/><circle cx="200" cy="96" r="5" fill="#948ec9"/>
+                  <ellipse cx="185" cy="148" rx="19" ry="18" fill="#f7f0e4"/>
+                  <circle cx="176" cy="110" r="3.5" fill="#fff"/><circle cx="194" cy="110" r="3.5" fill="#fff"/>
+                  <circle cx="176" cy="110" r="1.8" fill="#1e2238"/><circle cx="194" cy="110" r="1.8" fill="#1e2238"/>
+                  <ellipse cx="170" cy="116" rx="3" ry="1.8" fill="#f4a9c0"/><ellipse cx="200" cy="116" rx="3" ry="1.8" fill="#f4a9c0"/>
+                  <polygon points="212,138 225,122 232,132" fill="#82cfa6"/>
+                  <circle cx="224" cy="122" r="4.5" fill="#e87ea1"/>
+                  <circle cx="231" cy="126" r="4.5" fill="#f4a9c0"/>
+                  <circle cx="220" cy="128" r="4" fill="#c45b7d"/>
+                  <path d="M185 84 C179 78 180 72 184 73 C185 73 185 75 185 75 C185 75 185 73 186 73 C190 72 191 78 185 84Z" fill="#f4a9c0"/>
+                </svg>
+              </div>
+              <p class="polaroid-caption"><b>Live Street View:</b> POV, you're looking at the guy who made an entire video game just to ask you out.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ending-nav-row">
+        <button id="btn-map-back" class="back-link">← Back to Date Ticket</button>
+        <button id="btn-map-to-tele" class="back-link accent-link">Next: Celestial Atlas 🔭 →</button>
+      </div>
+    </div>
+
+    <!-- 12: The Moon Telescope (Claude-Style Editorial Celestial Atlas) -->
+    <div id="screen-telescope" class="screen flex-col items-center w-full max-w-3xl mx-auto">
+      <div class="claude-artifact">
+        <div class="claude-header">
+          <div>
+            <span class="claude-kicker">DHAKA CELESTIAL OBSERVATORY • FOLIO XII</span>
+            <h1 class="claude-serif-title">The Moon Walker Star Atlas</h1>
+            <p class="claude-sub">Move the brass astrolabe lens across Dhaka's night sky, or select a celestial body below to align the telescope.</p>
+          </div>
+          <div class="claude-meta-box">
+            <span id="tele-progress" class="claude-mono-tag">CATALOGUED: 0 / 4</span>
+            <button id="btn-tele-sky-mode" class="claude-pill-btn" type="button">Clear All Smog ✨</button>
+          </div>
+        </div>
+
+        <div class="claude-pill-bar" role="tablist" aria-label="Constellations">
+          <button class="claude-const-pill" data-target="fuchka" type="button"><span>01</span> Fuchka Minor 🥙</button>
+          <button class="claude-const-pill" data-target="rickshaw" type="button"><span>02</span> Rickshaw Major 🛺</button>
+          <button class="claude-const-pill" data-target="umbrella" type="button"><span>03</span> Totoro's Umbrella ☂️</button>
+          <button class="claude-const-pill highlight" data-target="moonwalker" type="button"><span>04</span> Alpha Moon Walker 🌙</button>
+        </div>
+
+        <div id="tele-viewport" class="tele-viewport">
+          <svg viewBox="0 0 800 460" preserveAspectRatio="xMidYMid slice" class="tele-layer">
+            <defs>
+              <linearGradient id="smogSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#232129"/>
+                <stop offset="65%" stop-color="#332d38"/>
+                <stop offset="100%" stop-color="#4d3d46"/>
+              </linearGradient>
+              <radialGradient id="starGlow">
+                <stop offset="0%" stop-color="#d97757" stop-opacity=".55"/>
+                <stop offset="55%" stop-color="#c4627f" stop-opacity=".2"/>
+                <stop offset="100%" stop-color="#c4627f" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="800" height="460" fill="url(#smogSky)"/>
+            <g stroke="rgba(250,247,242,0.05)" stroke-width="1" fill="none">
+              <circle cx="400" cy="230" r="140"/><circle cx="400" cy="230" r="260"/>
+              <line x1="0" y1="230" x2="800" y2="230"/><line x1="400" y1="0" x2="400" y2="460"/>
+            </g>
+            <ellipse cx="240" cy="155" rx="190" ry="38" fill="#faf7f2" opacity=".04"/>
+            <ellipse cx="580" cy="215" rx="220" ry="44" fill="#faf7f2" opacity=".04"/>
+            <text x="400" y="65" text-anchor="middle" fill="rgba(250,247,242,0.22)" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2">DHAKA ATMOSPHERIC HAZE • DRAG LENS TO RESOLVE STARS</text>
+            <path d="M0 460 L0 398 L45 398 L45 368 L95 368 L95 402 L140 402 L140 352 L195 352 L195 398 L260 398 L285 358 L325 358 L350 398 L420 398 C470 362 540 362 590 398 L645 398 L645 348 L705 348 L705 388 L755 388 L755 368 L800 368 L800 460 Z" fill="#17161b"/>
+            <path d="M415 398 Q460 352 505 398 Q550 352 595 398" fill="none" stroke="#d97757" stroke-width="1.8" opacity=".45"/>
+          </svg>
+
+          <svg id="tele-clear-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid slice" class="tele-layer tele-clipped">
+            <rect width="800" height="460" fill="#12131a"/>
+            <g stroke="rgba(232,196,104,0.11)" stroke-width="1" fill="none">
+              <circle cx="400" cy="230" r="110"/><circle cx="400" cy="230" r="220"/><circle cx="400" cy="230" r="330"/>
+              <line x1="0" y1="115" x2="800" y2="115" stroke-dasharray="3 6"/>
+              <line x1="0" y1="230" x2="800" y2="230"/>
+              <line x1="0" y1="345" x2="800" y2="345" stroke-dasharray="3 6"/>
+              <line x1="200" y1="0" x2="200" y2="460" stroke-dasharray="3 6"/>
+              <line x1="400" y1="0" x2="400" y2="460"/>
+              <line x1="600" y1="0" x2="600" y2="460" stroke-dasharray="3 6"/>
+            </g>
+            <g id="tele-bg-stars"></g>
+
+            <g class="constellation" data-id="fuchka">
+              <circle cx="185" cy="135" r="54" fill="none" stroke="rgba(232,196,104,0.22)" stroke-dasharray="2 4"/>
+              <polygon points="145,135 165,112 205,112 225,135 205,158 165,158" fill="rgba(217,119,87,0.12)" stroke="#e8c468" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <line x1="165" y1="128" x2="205" y2="128" stroke="#d97757" stroke-width="1.2"/>
+              <circle cx="145" cy="135" r="3.5" fill="#fffdf0"/><circle cx="165" cy="112" r="3" fill="#fffdf0"/>
+              <circle cx="205" cy="112" r="3.5" fill="#fffdf0"/><circle cx="225" cy="135" r="3" fill="#fffdf0"/>
+              <circle cx="205" cy="158" r="3" fill="#fffdf0"/><circle cx="165" cy="158" r="3.5" fill="#fffdf0"/>
+              <text x="185" y="182" text-anchor="middle" class="const-label">I. FUCHKA MINOR</text>
+            </g>
+
+            <g class="constellation" data-id="rickshaw">
+              <circle cx="605" cy="130" r="56" fill="none" stroke="rgba(232,196,104,0.22)" stroke-dasharray="2 4"/>
+              <polyline points="565,148 565,105 600,92 620,122 645,148 565,148" fill="rgba(217,119,87,0.1)" stroke="#e8c468" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <circle cx="572" cy="152" r="10" fill="none" stroke="#d97757" stroke-width="1.2" stroke-dasharray="2 2"/>
+              <circle cx="642" cy="152" r="8" fill="none" stroke="#d97757" stroke-width="1.2" stroke-dasharray="2 2"/>
+              <circle cx="565" cy="148" r="3.5" fill="#fff"/><circle cx="565" cy="105" r="3" fill="#fff"/>
+              <circle cx="600" cy="92" r="4" fill="#fff"/><circle cx="620" cy="122" r="3" fill="#fff"/>
+              <circle cx="645" cy="148" r="3.5" fill="#fff"/>
+              <text x="605" y="182" text-anchor="middle" class="const-label">II. RICKSHAW MAJOR</text>
+            </g>
+
+            <g class="constellation" data-id="umbrella">
+              <circle cx="235" cy="295" r="56" fill="none" stroke="rgba(232,196,104,0.22)" stroke-dasharray="2 4"/>
+              <path d="M190,290 Q235,245 280,290 Z" fill="rgba(244,169,192,0.12)" stroke="#e8c468" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <line x1="235" y1="265" x2="235" y2="325" stroke="#f4a9c0" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <circle cx="190" cy="290" r="3.5" fill="#fff"/><circle cx="235" cy="262" r="4" fill="#fff"/>
+              <circle cx="280" cy="290" r="3.5" fill="#fff"/><circle cx="235" cy="325" r="3" fill="#fff"/>
+              <circle cx="227" cy="325" r="2.5" fill="#f4a9c0"/>
+              <text x="235" y="350" text-anchor="middle" class="const-label">III. UMBRELLA BOREALIS</text>
+            </g>
+
+            <g class="constellation" data-id="moonwalker">
+              <circle cx="485" cy="245" r="64" fill="url(#starGlow)"/>
+              <circle cx="485" cy="245" r="52" fill="none" stroke="#e8c468" stroke-width="1" stroke-dasharray="3 3"/>
+              <path d="M485 274 C450 246 455 216 473 218 C481 219 485 227 485 231 C485 227 489 219 497 218 C515 216 520 246 485 274Z" fill="rgba(217,119,87,0.22)" stroke="#f4a9c0" stroke-width="1.8"/>
+              <circle cx="485" cy="215" r="4.5" fill="#fff"/><circle cx="458" cy="232" r="3.5" fill="#ffe4ec"/>
+              <circle cx="512" cy="232" r="3.5" fill="#ffe4ec"/><circle cx="485" cy="274" r="4.5" fill="#fff"/>
+              <circle cx="485" cy="244" r="6.5" fill="#fffdf2"/>
+              <text x="485" y="310" text-anchor="middle" class="const-label bright">★ IV. ALPHA MOON WALKER ★</text>
+            </g>
+
+            <path d="M0 460 L0 398 L45 398 L45 368 L95 368 L95 402 L140 402 L140 352 L195 352 L195 398 L260 398 L285 358 L325 358 L350 398 L420 398 C470 362 540 362 590 398 L645 398 L645 348 L705 348 L705 388 L755 388 L755 368 L800 368 L800 460 Z" fill="#0d0e14"/>
+          </svg>
+
+          <div id="tele-lens" class="tele-lens">
+            <div class="tele-lens-ring"></div>
+            <span class="tele-coords" id="tele-coords">RA 23h 81m • DEC +90.4°</span>
+          </div>
+        </div>
+
+        <div class="claude-dossier">
+          <div class="claude-dossier-head">
+            <span id="tele-active-tag" class="claude-mono-badge">FIELD OBSERVATION LOG</span>
+            <span id="tele-mag-tag" class="claude-mono-muted">ZENITH OVER DHAKA</span>
+          </div>
+          <h2 id="tele-title" class="claude-serif-sub">Scanning the Dhaka Night Sky...</h2>
+          <p id="tele-note" class="claude-prose">
+            Drag the brass reticle across the viewport (or click any constellation tab above) to cut through the city haze and inspect what Totoro found in the stars.
+          </p>
+
+          <div id="tele-lock-card" class="claude-callout" hidden>
+            <div class="claude-callout-grid">
+              <div>
+                <span class="claude-field-label">PRIMARY DESIGNATION</span>
+                <p class="claude-field-val">Alpha Moon Walker (α-MW)</p>
+              </div>
+              <div>
+                <span class="claude-field-label">APPARENT MAGNITUDE</span>
+                <p class="claude-field-val">-99.9 (Outshines Hatirjheel)</p>
+              </div>
+              <div>
+                <span class="claude-field-label">GRAVITATIONAL EFFECT</span>
+                <p class="claude-field-val">100% pull on Totoro's attention</p>
+              </div>
+            </div>
+            <p class="claude-callout-quote">
+              "The smog hides the stars over Dhaka, yet even through the thickest haze, she remains the brightest thing in my entire sky."
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ending-nav-row">
+        <button id="btn-tele-back" class="back-link">← Back to Map</button>
+        <button id="btn-tele-to-vitals" class="back-link accent-link">Next: Totoro's Vitals 💓 →</button>
+      </div>
+    </div>
+
+    <!-- 13: Totoro's Vitals Monitor (Claude-Style Bio-Telemetry Artifact) -->
+    <div id="screen-vitals" class="screen flex-col items-center w-full max-w-3xl mx-auto">
+      <div class="claude-artifact">
+        <div class="claude-header">
+          <div>
+            <span class="claude-kicker">DHAKA CARDIOLOGY LAB • BIO-TELEMETRY ARTIFACT XIII</span>
+            <h1 class="claude-serif-title">Totoro's Proximity Vitals</h1>
+            <p class="claude-sub">Move your cursor closer to Totoro in the sensor well below, or trigger a stimulus button to observe his cardiovascular response.</p>
+          </div>
+          <div class="claude-bpm-pill">
+            <span class="vitals-heart">♥</span>
+            <span id="vitals-bpm" class="claude-bpm-num">72</span>
+            <span class="claude-bpm-unit">BPM</span>
+          </div>
+        </div>
+
+        <div class="claude-metrics-row">
+          <div class="claude-metric-cell">
+            <span class="claude-field-label">CARDIAC RHYTHM</span>
+            <p id="vitals-state" class="claude-metric-val">Resting (Daydreaming)</p>
+          </div>
+          <div class="claude-metric-cell">
+            <span class="claude-field-label">COMPOSURE INDEX</span>
+            <p id="vitals-composure" class="claude-metric-val">98% (Acting Cool)</p>
+          </div>
+          <div class="claude-metric-cell">
+            <span class="claude-field-label">BLUSH RESPONSE</span>
+            <p id="vitals-blush" class="claude-metric-val">Nominal (Ears Normal)</p>
+          </div>
+        </div>
+
+        <div class="vitals-screen-wrap">
+          <div class="vitals-strip-header">
+            <span>LEAD II • PAPER SPEED 25mm/s</span>
+            <span id="vitals-stimulus-tag">SIGNAL: BASELINE SINUS</span>
+          </div>
+          <canvas id="vitals-canvas" width="720" height="150"></canvas>
+        </div>
+
+        <div class="claude-stimulus-bar">
+          <span class="claude-field-label">TEST STIMULUS:</span>
+          <button class="claude-stim-btn" data-bpm="118" data-comp="64% (Slightly Nervous)" data-blush="Warm (Cheeks Pink)" data-msg="Stimulus: Moon Walker smiled at the screen">😊 Smile at him</button>
+          <button class="claude-stim-btn" data-bpm="148" data-comp="28% (Forgetting Words)" data-blush="High (Ears Glowing)" data-msg="Stimulus: Accidental hand brush in rickshaw">🤝 Hold his hand</button>
+          <button class="claude-stim-btn" data-bpm="168" data-comp="12% (Pure Happiness)" data-blush="Critical (Heart Eyes)" data-msg="Stimulus: Shared the last spicy Fuchka">🥙 Feed him Fuchka</button>
+          <button class="claude-stim-btn highlight" data-bpm="196" data-comp="0% (Completely Melted)" data-blush="100% (Overload)" data-msg="Stimulus: Direct forehead kiss" data-lock="1">💋 Forehead Kiss</button>
+        </div>
+
+        <div id="vitals-zone" class="vitals-zone">
+          <button id="vitals-totoro" class="vitals-totoro" aria-label="Tap Totoro">
+            <svg viewBox="0 0 100 100" class="w-20 h-20">
+              <ellipse cx="28" cy="22" rx="8" ry="13" fill="#8d88b8"/>
+              <ellipse cx="72" cy="22" rx="8" ry="13" fill="#8d88b8"/>
+              <ellipse cx="28" cy="23" rx="4.5" ry="8" fill="#f4a9c0"/>
+              <ellipse cx="72" cy="23" rx="4.5" ry="8" fill="#f4a9c0"/>
+              <ellipse cx="50" cy="62" rx="34" ry="30" fill="#9e99c9"/>
+              <ellipse cx="50" cy="42" rx="28" ry="22" fill="#9e99c9"/>
+              <ellipse cx="50" cy="18" rx="10" ry="4" fill="#76b893"/>
+              <line x1="50" y1="16" x2="53" y2="10" stroke="#4d8a68" stroke-width="2"/>
+              <ellipse cx="50" cy="68" rx="23" ry="20" fill="#f7f0e4"/>
+              <path d="M38 60 L42 57 L46 60 M54 60 L58 57 L62 60 M45 68 L50 64 L55 68" fill="none" stroke="#8d88b8" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="37" cy="40" r="5" fill="#fff"/><circle cx="63" cy="40" r="5" fill="#fff"/>
+              <circle cx="37" cy="40" r="2.6" fill="#231f20"/><circle cx="63" cy="40" r="2.6" fill="#231f20"/>
+              <circle cx="36" cy="39" r="1" fill="#fff"/><circle cx="62" cy="39" r="1" fill="#fff"/>
+              <ellipse id="totoro-blush-l" cx="27" cy="46" rx="6" ry="3.5" fill="#e05378" opacity=".35"/>
+              <ellipse id="totoro-blush-r" cx="73" cy="46" rx="6" ry="3.5" fill="#e05378" opacity=".35"/>
+              <polygon points="47,42 53,42 50,45" fill="#231f20"/>
+              <path d="M44 48 Q50 53 56 48" fill="none" stroke="#231f20" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="vitals-tap-hint">Tap Totoro</span>
+          </button>
+          <p id="vitals-dist-note" class="vitals-dist-note">Move cursor closer to Totoro or tap a stimulus button above...</p>
+        </div>
+
+        <div id="vitals-diagnosis" class="claude-callout" style="margin: 0 1.5rem 1.5rem;" hidden>
+          <div class="claude-dossier-head">
+            <span class="claude-mono-badge">CLINICAL CARDIOLOGY REPORT • SIGNED</span>
+            <span class="claude-mono-muted">PROGNOSIS: PERMANENT</span>
+          </div>
+          <h3 class="claude-serif-sub" style="margin-top:.35rem">Diagnosis: Acute Moon Walker Arrhythmia 💘</h3>
+          <div class="claude-callout-grid" style="margin-top:.75rem">
+            <div>
+              <span class="claude-field-label">PRIMARY ETIOLOGY</span>
+              <p class="claude-field-val">Unfiltered proximity to Moon Walker's smile.</p>
+            </div>
+            <div>
+              <span class="claude-field-label">OBSERVED SYMPTOMS</span>
+              <p class="claude-field-val">Staring instead of reading the menu, sharing the last piece of Kacchi.</p>
+            </div>
+            <div>
+              <span class="claude-field-label">REQUIRED PRESCRIPTION</span>
+              <p class="claude-field-val">Immediate hand-holding in Dhaka traffic. Repeat indefinitely.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ending-nav-row">
+        <button id="btn-vitals-back" class="back-link">← Back to Celestial Atlas</button>
+        <button id="btn-vitals-final" class="back-link accent-link">Back to Date Ticket &amp; Vinyl Player 🎵</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/phaser.min.js"></script>
+  <script>if (typeof Phaser === "undefined") { document.write('<script src="https://cdn.jsdelivr.net/npm/phaser@3.86.0/dist/phaser.min.js"><\/script>'); }</script>
+  <script src="js/game.js"></script>
+  <script>
+    const WEB3FORMS_KEY = '167aea1e-2696-4fd6-813c-735856d8ed6b';
+
+    /* Diversified 12 Dhaka Places, 12 Foods, and 12 Activities */
+    const OPTIONS = {
+      place: [
+        ['🎸', 'TSC, Dhaka University', 'Come for the ten-taka tea, stay for the staring.'],
+        ['🌅', 'Rabindra Sarobar', 'Golden hour looks better with you in it.'],
+        ['🦆', 'Dhanmondi Lake', "We'll walk slowly. I'm in no hurry to end this."],
+        ['🌳', 'Ramna Park', 'Under the krishnachura trees, secrets for two.'],
+        ['🌉', 'Hatirjheel at Night', 'City lights on the water, and you outshining them all.'],
+        ['🏛️', 'Ahsan Manzil', 'Pink palace walls, old stories, and you in the frame.'],
+        ['🏰', 'Lalbagh Fort', 'Centuries of history, yet this feeling is brand new.'],
+        ['☕', 'Banani Rooftop Café', 'Skyline views, though my eyes have other plans.'],
+        ['🎨', 'Zainul Gallery, Charukola', "Surrounded by art, pretending I'm not just looking at you."],
+        ['✈️', 'Dia Bari & Metro Rail', 'Watching trains and clouds, glad every route led to you.'],
+        ['🌿', 'Botanical Garden, Mirpur', 'Getting lost on purpose so the walk takes longer.'],
+        ['🏮', 'Old Dhaka Heritage Lanes', 'Vintage balconies, narrow lanes, and my hand in yours.']
+      ],
+      food: [
+        ['🍖', 'Kacchi Biryani', "I'd share my last piece of potato with you. Don't tell anyone."],
+        ['🥙', "Mama'r Spicy Fuchka", 'If the Naga chili gets too hot, you may hold my hand.'],
+        ['🧇', 'Waffles & Iced Coffee', 'Sweet, warm, slightly addictive. Sound familiar?'],
+        ['🍲', 'Bhuna Khichuri & Beguni', 'Rain outside, cozy warmth across the table.'],
+        ['🍵', 'Malai Cha & Singara', 'One clay cup of tea, ten extra minutes with you.'],
+        ['🍮', 'Bogurar Mishti Doi', 'I get to feed you the first spoonful.'],
+        ['🍕', 'Wood-Fired Pizza Night', 'Sharing slices is step one of sharing everything.'],
+        ['🍦', 'Gelato & Kulfi Walk', 'Careful, I might steal a bite. And your attention.'],
+        ['🍢', 'Mohammadpur Bihari Kebabs', 'Smoky mustard-oil chap, luchi, and zero pretension.'],
+        ['🥟', 'Street-Side Chili Momos', 'Steaming dumplings on a plastic stool right beside you.'],
+        ['🍜', 'Cozy Ramen Bowl', 'Slurping noodles and talking until the café closes.'],
+        ['🥤', 'Beauty Lassi, Old Dhaka', "Old Dhaka's sweetest classic, second only to you."]
+      ],
+      activity: [
+        ['🛺', 'Hood-Down Rickshaw Ride', 'Dhaka traffic is a great excuse to sit a little closer.'],
+        ['🚶🏻‍♀️', 'Twilight Lake Walk', 'Mosquitoes optional. Hand-holding mandatory.'],
+        ['🕹️', 'Toggi Arcade & Air Hockey', 'Loser buys dessert. I plan on losing.'],
+        ['✨', 'Rooftop Stargazing', "The smog hides the stars. You're still the brightest."],
+        ['⛵', 'Lake Rowboat Ride', 'Slow ripples on the water, slower goodbyes.'],
+        ['📚', 'Nilkhet & Bengal Boi Hopping', "Pick a book for me, I'll pick one for you. No peeking."],
+        ['🎬', 'Corner-Seat Movie Date', 'I promise to watch the movie. Mostly.'],
+        ['📸', 'Vintage Film Photo Walk', 'Keeping every moment in the pocket of my ripped jeans.'],
+        ['🏺', 'Pottery & Clay Painting', 'Painting lopsided mugs we have to keep forever.'],
+        ['🎶', 'Live Acoustic Adda', 'Humming the chorus under my breath while looking at you.'],
+        ['🌧️', 'Walking Under One Umbrella', 'Hoping for sudden Dhaka rain so we have to share.'],
+        ['💌', 'Postcards & Polaroids', 'Writing notes to our future selves over iced coffee.']
+      ]
+    };
+    const NEXT = { place: 'screen-food', food: 'screen-activity', activity: 'screen-game' };
+    const userChoices = {};
+
+    const LEVELS = [
+      { id: 'screen-invite', name: 'The Invitation' },
+      { id: 'screen-place', name: 'Choose the Place' },
+      { id: 'screen-food', name: 'Choose the Food' },
+      { id: 'screen-activity', name: 'Choose the Adventure' },
+      { id: 'screen-game', name: 'Run to Totoro' },
+      { id: 'screen-pac', name: 'Fuchka Chase' },
+      { id: 'screen-mario', name: 'Run to the Bus Stop' },
+      { id: 'screen-confession', name: 'The Big Question' },
+      { id: 'screen-letter', name: 'Postcard from DU' },
+      { id: 'screen-final', name: 'Date Confirmed' },
+      { id: 'screen-map', name: 'Find Totoro' },
+      { id: 'screen-telescope', name: 'Celestial Atlas' },
+      { id: 'screen-vitals', name: "Totoro's Vitals" }
+    ];
+    let level = 0, navLock = false;
+    const escapes = [];
+    const el = id => document.getElementById(id);
+
+    function setLevel(id) {
+      level = LEVELS.findIndex(l => l.id === id);
+      el('lvl-count').textContent = `Level ${level + 1} / ${LEVELS.length}`;
+      el('lvl-name').textContent = LEVELS[level].name;
+      el('lvl-fill').style.width = ((level + 1) / LEVELS.length * 100) + '%';
+      el('btn-prev-level').disabled = level === 0;
+      el('btn-next-level').disabled = level === LEVELS.length - 1;
+    }
+    function switchScreen(currentId, nextId, callback) {
+      escapes.forEach(e => e.release());
+      setLevel(nextId);
+      const cur = el(currentId), nxt = el(nextId);
+      cur.classList.remove('active');
+      setTimeout(() => {
+        cur.classList.add('hidden');
+        nxt.classList.remove('hidden');
+        setTimeout(() => { nxt.classList.add('active'); if (callback) callback(); }, 50);
+      }, 300);
+    }
+
+    const ensureChoices = () => ['place', 'food', 'activity'].forEach(c => { userChoices[c] = userChoices[c] || OPTIONS[c][0][1]; });
+
+    const ENTER = {
+      'screen-game': () => {
+        el('btn-game-continue').hidden = true; el('game-hint').textContent = '';
+        const run = () => { if (window.Game) Game.start(() => { el('btn-game-continue').hidden = false; }); };
+        if (window.Game) run();
+        else {
+          el('game-hint').textContent = 'Loading game...';
+          window.addEventListener('gamesready', run, { once: true });
+        }
+      },
+      'screen-pac': () => {
+        el('pac-hint').textContent = 'Arrow keys or WASD to move, or swipe on a touch screen.';
+        const run = () => { if (window.PacGame) PacGame.start(() => goLevel(1)); };
+        if (window.PacGame) run();
+        else {
+          el('pac-hint').textContent = 'Loading game...';
+          window.addEventListener('gamesready', run, { once: true });
+        }
+      },
+      'screen-mario': () => {
+        el('mario-hint').textContent = 'Arrow keys / AD to run, Space / Up to jump.';
+        const run = () => { if (window.MarioGame) MarioGame.start(() => goLevel(1)); };
+        if (window.MarioGame) run();
+        else {
+          el('mario-hint').textContent = 'Loading game...';
+          window.addEventListener('gamesready', run, { once: true });
+        }
+      },
+      'screen-letter': () => {
+        ensureChoices();
+        el('letter-route-preview').textContent = [userChoices.place, userChoices.food, userChoices.activity].join(' • ');
+      },
+      'screen-final': () => {
+        ensureChoices();
+        el('sum-place').textContent = userChoices.place;
+        el('sum-food').textContent = userChoices.food;
+        el('sum-activity').textContent = userChoices.activity;
+        player.start(userChoices);
+      },
+      'screen-map': () => FindTotoro.init(),
+      'screen-telescope': () => MoonTelescope.init(),
+      'screen-vitals': () => TotoroVitals.start()
+    };
+    const LEAVE = {
+      'screen-game': () => { if (window.Game) Game.stop(); },
+      'screen-pac': () => { if (window.PacGame) PacGame.stop(); },
+      'screen-mario': () => { if (window.MarioGame) MarioGame.stop(); },
+      'screen-map': () => FindTotoro.reset(),
+      'screen-vitals': () => TotoroVitals.stop()
+    };
+    function goTo(id) {
+      if (navLock || id === LEVELS[level].id) return;
+      navLock = true; setTimeout(() => { navLock = false; }, 500);
+      const from = LEVELS[level].id;
+      if (LEAVE[from]) LEAVE[from]();
+      if (id === 'screen-final') {
+        ensureChoices();
+        player.start(userChoices);
+      }
+      switchScreen(from, id, () => { window.scrollTo(0, 0); if (ENTER[id]) ENTER[id](); });
+    }
+    const goLevel = d => { const t = level + d; if (t >= 0 && t < LEVELS.length) goTo(LEVELS[t].id); };
+
+    Object.keys(OPTIONS).forEach(cat => {
+      const grid = document.getElementById('grid-' + cat);
+      OPTIONS[cat].forEach(([emoji, name, tag]) => {
+        const card = document.createElement('div');
+        card.className = 'choice-card ui-box';
+        card.tabIndex = 0;
+        card.innerHTML = `<span class="emoji">${emoji}</span><h3>${name}</h3><p>${tag}</p>`;
+        const pick = () => { userChoices[cat] = name; goTo(NEXT[cat]); };
+        card.addEventListener('click', pick);
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+        grid.appendChild(card);
+      });
+    });
+
+    /* All 11 Audio Files Optimized for Fast Vercel CDN Delivery */
+    const SONGS = {
+      afreen:     { title: 'Afreen Afreen',       artist: 'Rahat Fateh Ali Khan & Momina Mustehsan', duration: 405, file: 'audio/Afreen_Afreen.m4a' },
+      amar:       { title: 'Amar Mawte',          artist: 'Lopamudra Mitra',                         duration: 183, file: 'audio/Amar-Mawte.m4a' },
+      photograph: { title: 'Photograph',          artist: 'Ed Sheeran',                              duration: 258, file: 'audio/Ed Sheeran - Photograph.m4a' },
+      ekhon:      { title: 'Ekhon Onek Raat',     artist: 'Anupam Roy',                              duration: 251, file: 'audio/Ekhon-Onek-Raat.m4a' },
+      ghum:       { title: 'Ghum Ghum Chand',     artist: 'Sandhya Mukhopadhyay',                    duration: 214, file: 'audio/Ghum-Ghum-Chand.m4a' },
+      ishq:       { title: 'Ishq',                artist: 'Faheem Abdullah',                         duration: 228, file: 'audio/Ishq - Faheem Abdullah.m4a' },
+      kadam:      { title: 'Kadam',               artist: 'Blue Jeans',                              duration: 252, file: 'audio/Kadam.m4a' },
+      longdist:   { title: 'Long Distance Love',  artist: 'Ankan',                                   duration: 285, file: 'audio/Long Distance Love - Coke Studio.m4a' },
+      etota:      { title: 'Etota Valobashi',     artist: 'Recall',                                  duration: 220, file: 'audio/Recall - Etota Valobashi.m4a' },
+      lovestory:  { title: 'Love Story',          artist: 'Taylor Swift',                            duration: 237, file: 'audio/Taylor Swift - Love Story.m4a' },
+      tomake:     { title: 'Tomake Chai',         artist: 'Arijit Singh',                            duration: 273, file: 'audio/Tomake Chai - Arijit Singh.m4a' }
+    };
+
+    const SONG_FOR = {
+      'TSC, Dhaka University':      ['kadam', 'etota'],
+      'Rabindra Sarobar':           ['ghum', 'amar'],
+      'Dhanmondi Lake':             ['amar', 'tomake'],
+      'Ramna Park':                 ['ishq', 'kadam'],
+      'Hatirjheel at Night':        ['ekhon', 'longdist'],
+      'Ahsan Manzil':               ['afreen', 'lovestory'],
+      'Lalbagh Fort':               ['lovestory', 'afreen'],
+      'Banani Rooftop Café':        ['photograph', 'ekhon'],
+      'Zainul Gallery, Charukola':  ['tomake', 'amar'],
+      'Dia Bari & Metro Rail':      ['longdist', 'kadam'],
+      'Botanical Garden, Mirpur':   ['etota', 'ishq'],
+      'Old Dhaka Heritage Lanes':   ['afreen', 'ghum'],
+      'Kacchi Biryani':             ['ishq', 'afreen'],
+      "Mama'r Spicy Fuchka":        ['kadam', 'amar'],
+      'Waffles & Iced Coffee':      ['photograph', 'lovestory'],
+      'Bhuna Khichuri & Beguni':    ['amar', 'longdist'],
+      'Malai Cha & Singara':        ['ekhon', 'etota'],
+      'Bogurar Mishti Doi':         ['afreen', 'tomake'],
+      'Wood-Fired Pizza Night':     ['lovestory', 'photograph'],
+      'Gelato & Kulfi Walk':        ['tomake', 'kadam'],
+      'Mohammadpur Bihari Kebabs':  ['etota', 'ishq'],
+      'Street-Side Chili Momos':    ['kadam', 'longdist'],
+      'Cozy Ramen Bowl':            ['longdist', 'ekhon'],
+      'Beauty Lassi, Old Dhaka':    ['ghum', 'afreen'],
+      'Hood-Down Rickshaw Ride':    ['kadam', 'tomake'],
+      'Twilight Lake Walk':         ['amar', 'ghum'],
+      'Toggi Arcade & Air Hockey':  ['lovestory', 'photograph'],
+      'Rooftop Stargazing':         ['ghum', 'ekhon'],
+      'Lake Rowboat Ride':          ['afreen', 'longdist'],
+      'Nilkhet & Bengal Boi Hopping': ['ekhon', 'amar'],
+      'Corner-Seat Movie Date':     ['tomake', 'ishq'],
+      'Vintage Film Photo Walk':    ['photograph', 'kadam'],
+      'Pottery & Clay Painting':    ['ishq', 'lovestory'],
+      'Live Acoustic Adda':         ['etota', 'ekhon'],
+      'Walking Under One Umbrella': ['longdist', 'tomake'],
+      'Postcards & Polaroids':      ['photograph', 'lovestory']
+    };
+    const WEIGHT = { place: 1.3, food: 1.0, activity: 1.5 };
+
+    const player = (() => {
+      const $ = id => document.getElementById(id);
+      const PLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+      const PAUSE_ICON = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+
+      // Single dedicated audio element - eliminates HTTP socket contention and multiple concurrent downloads
+      const audio = new Audio();
+      audio.preload = 'auto';
+
+      let list = Object.keys(SONGS);
+      let i = 0;
+      let lastSig = '';
+      let matchedBy = {};
+      let reqId = 0;
+      let retryCount = 0;
+
+      const fmt = t => isFinite(t) && t > 0 ? Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0') : '0:00';
+      const fill = (el, pct, buf = pct) => {
+        el.style.setProperty('--pct', pct + '%');
+        el.style.setProperty('--buf', buf + '%');
+      };
+      const encodePath = p => './' + p.split('/').map(s => encodeURIComponent(s)).join('/');
+
+      function getDuration() {
+        if (isFinite(audio.duration) && audio.duration > 0) return audio.duration;
+        const curId = list[i], s = SONGS[curId];
+        return s && s.duration ? s.duration : 0;
+      }
+
+      function setBuffering(buffering) {
+        $('btn-play').classList.toggle('buffering', buffering);
+      }
+
+      function syncUI(playing) {
+        $('btn-play').innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
+        $('vinyl').classList.toggle('playing', playing);
+        $('tonearm').classList.toggle('playing', playing);
+        if (!playing) setBuffering(false);
+
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+        }
+      }
+
+      function updateProgress() {
+        const dur = getDuration();
+        const cur = audio.currentTime || 0;
+        $('t-cur').textContent = fmt(cur);
+        if (dur > 0) $('t-dur').textContent = fmt(dur);
+
+        let maxBuf = cur;
+        try {
+          const b = audio.buffered;
+          for (let j = 0; j < b.length; j++) {
+            if (b.start(j) <= cur && b.end(j) >= cur) {
+              maxBuf = b.end(j);
+              break;
+            }
+          }
+        } catch {}
+
+        const curPct = dur > 0 ? Math.min(100, Math.max(0, (cur / dur) * 100)) : 0;
+        const bufPct = dur > 0 ? Math.min(100, Math.max(curPct, (maxBuf / dur) * 100)) : 0;
+        $('seek').value = curPct;
+        fill($('seek'), curPct, bufPct);
+
+        if ('mediaSession' in navigator && isFinite(audio.duration) && audio.duration > 0) {
+          try {
+            navigator.mediaSession.setPositionState({
+              duration: audio.duration,
+              playbackRate: audio.playbackRate || 1,
+              position: Math.min(cur, audio.duration)
+            });
+          } catch {}
+        }
+      }
+
+      function updateMediaSession(song) {
+        if (!('mediaSession' in navigator)) return;
+        try {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title,
+            artist: song.artist || 'A Date in Dhaka',
+            album: 'A Date in Dhaka (Soundtrack)',
+            artwork: [
+              { src: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=512', sizes: '512x512', type: 'image/jpeg' }
+            ]
+          });
+
+          navigator.mediaSession.setActionHandler('play', () => { executePlay(++reqId); });
+          navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); syncUI(false); });
+          navigator.mediaSession.setActionHandler('previoustrack', () => go(-1));
+          navigator.mediaSession.setActionHandler('nexttrack', () => go(1));
+          navigator.mediaSession.setActionHandler('seekto', details => {
+            if (details.seekTime !== undefined && isFinite(details.seekTime)) {
+              audio.currentTime = details.seekTime;
+              updateProgress();
+            }
+          });
+        } catch {}
+      }
+
+      function renderQueue() {
+        $('queue').innerHTML = '';
+        list.forEach((id, idx) => {
+          const li = document.createElement('li');
+          const reason = matchedBy[id];
+          li.className = 'queue-item' + (idx === i ? ' active' : '');
+          li.innerHTML =
+            `<span class="q-num">${idx === i ? '♪' : idx + 1}</span>` +
+            `<div class="q-meta"><span class="q-title">${SONGS[id].title}</span><span class="q-sub">${SONGS[id].artist}</span></div>` +
+            (reason ? `<span class="q-match">Matched ✨</span>` : '');
+          li.addEventListener('click', () => { i = idx; load(true); });
+          $('queue').appendChild(li);
+        });
+      }
+
+      function executePlay(token) {
+        if (token !== reqId) return;
+        const p = audio.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => {
+            if (token !== reqId) return;
+            syncUI(true);
+            setBuffering(false);
+            $('song-note').innerHTML = '';
+            retryCount = 0;
+          }).catch(err => {
+            if (token !== reqId) return;
+            if (err && err.name === 'AbortError') return;
+            if (err && err.name === 'NotAllowedError') {
+              syncUI(false);
+              setBuffering(false);
+              $('song-note').textContent = 'Tap Play to listen 🎵';
+              const unlock = () => {
+                if (audio.paused) executePlay(reqId);
+                ['pointerdown', 'keydown'].forEach(ev => document.removeEventListener(ev, unlock));
+              };
+              ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, unlock, { once: true }));
+              return;
+            }
+            syncUI(false);
+            setBuffering(false);
+          });
+        }
+      }
+
+      function load(autoPlay = true) {
+        if (!list.length) list = Object.keys(SONGS);
+        const id = list[i], s = SONGS[id];
+        if (!s) return;
+
+        const token = ++reqId;
+        retryCount = 0;
+
+        // Immediate UI feedback — instantly shows known title, artist, and duration (never stuck at 0:00)
+        $('song-title').textContent = s.title;
+        $('song-artist').textContent = s.artist || 'Picked for your date';
+        $('song-reason').textContent = matchedBy[id] ? `Paired with: ${matchedBy[id]}` : 'Curated for your evening in Dhaka';
+        $('song-note').innerHTML = '';
+        $('seek').value = 0;
+        fill($('seek'), 0, 0);
+        $('t-cur').textContent = '0:00';
+        $('t-dur').textContent = fmt(s.duration || 0);
+
+        renderQueue();
+        updateMediaSession(s);
+
+        // Clean teardown: immediately halts any previous audio stream & closes socket
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+
+        audio.src = encodePath(s.file);
+
+        if (autoPlay) {
+          setBuffering(true);
+          executePlay(token);
+        } else {
+          setBuffering(false);
+          syncUI(false);
+        }
+      }
+
+      const go = d => {
+        if (!list.length) return;
+        i = (i + d + list.length) % list.length;
+        load(true);
+      };
+
+      // Audio element listeners
+      audio.addEventListener('play', () => {
+        setBuffering(false);
+        syncUI(true);
+        $('song-note').innerHTML = '';
+      });
+      audio.addEventListener('pause', () => {
+        syncUI(false);
+        setBuffering(false);
+      });
+      audio.addEventListener('waiting', () => {
+        setBuffering(true);
+      });
+      audio.addEventListener('playing', () => {
+        setBuffering(false);
+        syncUI(true);
+      });
+      audio.addEventListener('canplay', () => {
+        setBuffering(false);
+        updateProgress();
+      });
+      audio.addEventListener('loadedmetadata', updateProgress);
+      audio.addEventListener('durationchange', updateProgress);
+      audio.addEventListener('timeupdate', updateProgress);
+      audio.addEventListener('progress', updateProgress);
+      audio.addEventListener('ended', () => go(1));
+      audio.addEventListener('error', () => {
+        if (!audio.error || audio.error.code === 1) return; // Ignore user-initiated aborts
+
+        if (retryCount < 2) {
+          retryCount++;
+          const pos = audio.currentTime || 0;
+          setTimeout(() => {
+            audio.load();
+            if (pos > 0) audio.currentTime = pos;
+            audio.play().catch(() => {});
+          }, 500 * retryCount);
+          return;
+        }
+
+        const s = SONGS[list[i]];
+        if (!s) return;
+        $('song-note').innerHTML = `Couldn't stream <code>${s.file}</code>. ` +
+          `<a target="_blank" rel="noopener" href="https://open.spotify.com/search/${encodeURIComponent(s.title + ' ' + s.artist)}">Open on Spotify</a>.`;
+        syncUI(false);
+        setBuffering(false);
+      });
+
+      // Controls binding
+      $('btn-next').addEventListener('click', () => go(1));
+      $('btn-prev').addEventListener('click', () => {
+        if (audio.currentTime > 3) {
+          audio.currentTime = 0;
+          updateProgress();
+        } else {
+          go(-1);
+        }
+      });
+
+      $('btn-play').addEventListener('click', () => {
+        if (!audio.src) { load(true); return; }
+        if (audio.paused) {
+          executePlay(++reqId);
+        } else {
+          audio.pause();
+          syncUI(false);
+        }
+      });
+
+      $('seek').addEventListener('input', e => {
+        const dur = getDuration();
+        if (dur > 0) {
+          const targetTime = (e.target.value / 100) * dur;
+          audio.currentTime = targetTime;
+          $('t-cur').textContent = fmt(targetTime);
+        }
+        updateProgress();
+      });
+
+      $('vol').addEventListener('input', e => {
+        const v = parseFloat(e.target.value);
+        audio.volume = v;
+        fill(e.target, v * 100);
+      });
+
+      audio.volume = 0.8;
+      fill($('vol'), 80);
+      syncUI(false);
+
+      return {
+        start(choices) {
+          const sig = [choices.place, choices.food, choices.activity].join('|');
+          if (sig === lastSig && list.length && audio.src) {
+            if (audio.paused) executePlay(++reqId);
+            return;
+          }
+          lastSig = sig;
+          const score = {};
+          matchedBy = {};
+          Object.keys(choices).forEach(c => {
+            const pickName = choices[c];
+            const pair = SONG_FOR[pickName];
+            if (!pair) return;
+            const [pri, sec] = Array.isArray(pair) ? pair : [pair, null];
+            if (pri) {
+              score[pri] = (score[pri] || 0) + WEIGHT[c];
+              matchedBy[pri] = matchedBy[pri] ? `${matchedBy[pri]} & ${pickName}` : pickName;
+            }
+            if (sec) {
+              score[sec] = (score[sec] || 0) + WEIGHT[c] * 0.55;
+              if (!matchedBy[sec]) matchedBy[sec] = pickName;
+            }
+          });
+          list = Object.keys(SONGS).sort((a, b) => (score[b] || 0) - (score[a] || 0));
+          i = 0;
+          load(true);
+        }
+      };
+    })();
+
+    /* ---------- Level 9: Interactive Dhaka University Postbox & Inbuilt Web Audio SFX ---------- */
+    (() => {
+      const $ = id => document.getElementById(id);
+      const status = msg => { $('letter-status').textContent = msg; };
+      $('letter-date').textContent = 'DISPATCH DATE: ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+      let actx = null;
+      function getCtx() {
+        if (!actx) {
+          const C = window.AudioContext || window.webkitAudioContext;
+          if (C) actx = new C();
+        }
+        if (actx && actx.state === 'suspended') actx.resume().catch(() => {});
+        return actx;
+      }
+
+      function synthTone(f1, f2, type, dur, vol = 0.12, delay = 0) {
+        const c = getCtx();
+        if (!c) return;
+        const t0 = c.currentTime + delay;
+        const osc = c.createOscillator(), g = c.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(f1, t0);
+        if (f2 && f2 !== f1) osc.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t0 + dur);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.linearRampToValueAtTime(vol, t0 + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(t0); osc.stop(t0 + dur + 0.01);
+      }
+
+      const dhakaSfx = {
+        // Metallic brass Dhaka cycle rickshaw bell ("Tring-Tring!")
+        rickshawBell() {
+          [0, 0.14].forEach(d => {
+            synthTone(1760, 1740, 'sine', 0.22, 0.14, d);
+            synthTone(2637, 2600, 'triangle', 0.18, 0.09, d + 0.02);
+          });
+        },
+        // Nasal double-beep Dhaka CNG horn ("Pee-Peep!")
+        cngHorn() {
+          [0, 0.16].forEach(d => {
+            synthTone(440, 415, 'sawtooth', 0.11, 0.08, d);
+            synthTone(554, 530, 'square', 0.11, 0.06, d);
+          });
+        },
+        // Warm clay tea cup clink & sip
+        chaCup() {
+          synthTone(880, 820, 'sine', 0.09, 0.12, 0);
+          synthTone(1320, 1280, 'triangle', 0.14, 0.08, 0.05);
+        },
+        // TSC evening acoustic guitar chord
+        duChord() {
+          [261.63, 329.63, 392.00, 523.25].forEach((f, idx) => {
+            synthTone(f, f * 0.998, 'triangle', 0.45, 0.09, idx * 0.055);
+          });
+        },
+        // Krishnachura petals harp glissando
+        petals() {
+          [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, idx) => {
+            synthTone(f, f, 'sine', 0.25, 0.08, idx * 0.05);
+          });
+        },
+        // Rubber ink stamp thud
+        stampThud() {
+          synthTone(145, 42, 'triangle', 0.11, 0.2, 0);
+          synthTone(90, 35, 'square', 0.08, 0.1, 0.01);
+        },
+        // Subtle fountain pen nib scratch on paper
+        penNib() {
+          synthTone(900 + Math.random() * 400, 300, 'sine', 0.025, 0.025, 0);
+        },
+        // Hot wax seal press + confirmation chime
+        waxSeal() {
+          synthTone(120, 45, 'triangle', 0.16, 0.18, 0);
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+            synthTone(f, f, 'triangle', 0.24, 0.11, 0.12 + idx * 0.08);
+          });
+        }
+      };
+
+      function spawnFloatingFX(anchorEl, symbols, count = 5) {
+        const r = anchorEl.getBoundingClientRect();
+        for (let i = 0; i < count; i++) {
+          const sp = document.createElement('span');
+          sp.className = 'dhaka-float-fx';
+          sp.textContent = symbols[i % symbols.length];
+          sp.style.left = (r.left + r.width / 2 + (Math.random() * 90 - 45)) + 'px';
+          sp.style.top = (r.top + r.height / 3 + (Math.random() * 30 - 15)) + 'px';
+          document.body.appendChild(sp);
+          setTimeout(() => sp.remove(), 1150);
+        }
+      }
+
+      function animateBounce(el) {
+        if (!el) return;
+        el.classList.remove('toy-bounce');
+        void el.offsetWidth;
+        el.classList.add('toy-bounce');
+      }
+
+      // Wire SVG interactive zones & soundboard buttons
+      const triggerRickshaw = srcEl => {
+        dhakaSfx.rickshawBell();
+        animateBounce($('svg-rickshaws'));
+        spawnFloatingFX(srcEl, ['🔔', '🛺', '💗'], 4);
+        status('Tring-Tring! The rickshaw puller cleared a path down Fuller Road 🛺');
+      };
+      const triggerCng = srcEl => {
+        dhakaSfx.cngHorn();
+        animateBounce($('svg-cng'));
+        spawnFloatingFX(srcEl, ['🛺', '💨', '✨'], 4);
+        status('Pee-Peep! Green CNG ready for our Hatirjheel run 🛺');
+      };
+      const triggerCha = srcEl => {
+        dhakaSfx.chaCup();
+        spawnFloatingFX(srcEl, ['🍵', '☁️', '🧡'], 5);
+        status('Warm cardamom steam rises from the clay cup at TSC ☕');
+      };
+      const triggerPetals = srcEl => {
+        dhakaSfx.petals();
+        spawnFloatingFX(srcEl, ['🌺', '🌸', '✨'], 7);
+        status('Krishnachura and Bokul blossoms drift across the desk 🌸');
+      };
+
+      $('btn-sfx-rickshaw').addEventListener('click', e => triggerRickshaw(e.currentTarget));
+      $('svg-rickshaws').addEventListener('click', e => triggerRickshaw(e.currentTarget));
+      $('svg-rickshaws').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); triggerRickshaw(e.currentTarget); } });
+      $('btn-sfx-cng').addEventListener('click', e => triggerCng(e.currentTarget));
+      $('svg-cng').addEventListener('click', e => triggerCng(e.currentTarget));
+      $('svg-cng').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); triggerCng(e.currentTarget); } });
+      $('btn-sfx-cha').addEventListener('click', e => triggerCha(e.currentTarget));
+      $('btn-sfx-petals').addEventListener('click', e => triggerPetals(e.currentTarget));
+      const playDuArch = el => {
+        dhakaSfx.duChord();
+        animateBounce($('svg-du-arch'));
+        spawnFloatingFX(el, ['🎸', '🎶', '✨'], 5);
+        status('An evening acoustic guitar chord echoes past Aparajeyo Bangla 🎸');
+      };
+      $('svg-du-arch').addEventListener('click', e => playDuArch(e.currentTarget));
+      $('svg-du-arch').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playDuArch(e.currentTarget); } });
+
+      // Rubber Stamp Station
+      const STAMP_META = {
+        tsc:    { title: 'TSC POST OFFICE', sub: 'UNIVERSITY OF DHAKA • 1921', color: '#9e3d33' },
+        curzon: { title: 'CURZON GARDENS',  sub: 'BOTANICAL ARCHWAY MAIL',    color: '#1d6396' },
+        rick:   { title: 'RICKSHAW EXPRESS', sub: 'HOOD-DOWN PRIORITY',       color: '#1f6f45' }
+      };
+      const stampLayer = $('letter-stamp-layer');
+      document.querySelectorAll('.rubber-stamp-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const info = STAMP_META[btn.dataset.stamp];
+          if (!info) return;
+          dhakaSfx.stampThud();
+          animateBounce($('aerogramme-sheet'));
+          const mark = document.createElement('div');
+          mark.className = 'ink-postmark-imprint';
+          mark.style.borderColor = info.color;
+          mark.style.color = info.color;
+          mark.style.left = (12 + Math.random() * 58) + '%';
+          mark.style.top = (18 + Math.random() * 54) + '%';
+          mark.style.transform = `rotate(${(Math.random() * 26 - 13).toFixed(1)}deg)`;
+          mark.innerHTML = `<b>★ ${info.title} ★</b><span>${info.sub}</span>`;
+          stampLayer.appendChild(mark);
+          status(`Stamped letter with "${info.title}" ink seal 📜`);
+        });
+      });
+
+      $('btn-clear-stamps').addEventListener('click', () => {
+        stampLayer.innerHTML = '';
+        status('Cleared extra ink stamps from the parchment.');
+      });
+
+      // Fountain pen sound when typing inside the letter
+      $('letter-text').addEventListener('input', () => {
+        if ($('chk-pen-sound').checked) dhakaSfx.penNib();
+      });
+
+      // Wax Seal & Send Button
+      $('btn-letter').addEventListener('click', async () => {
+        const text = $('letter-text').value.trim();
+        if (!text) {
+          dhakaSfx.cngHorn();
+          return status('Write a few heartfelt words on the parchment first 🙂');
+        }
+        dhakaSfx.waxSeal();
+        spawnFloatingFX($('btn-letter'), ['💌', '💖', '✨'], 6);
+        if (!WEB3FORMS_KEY) return status('Letter sealed! Click Continue below.');
+
+        $('btn-letter').disabled = true;
+        status('Pressing hot crimson wax seal & dispatching to Totoro…');
+        try {
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              access_key: WEB3FORMS_KEY,
+              subject: 'A letter from Moon Walker 💌',
+              from_name: 'Moon Walker',
+              message: text + '\n\n- Moon Walker\n(Our date: ' + [userChoices.place, userChoices.food, userChoices.activity].join(' · ') + ')'
+            })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.message);
+          status('Sealed & delivered! Totoro will read it very soon 💌');
+          $('letter-text').disabled = true;
+          setTimeout(() => goTo('screen-final'), 1200);
+        } catch (err) {
+          $('btn-letter').disabled = false;
+          status("Couldn't send over the network right now, or you can continue to your Date Ticket below.");
+        }
+      });
+
+      $('btn-letter-back').addEventListener('click', () => goTo('screen-confession'));
+      $('btn-letter-skip').addEventListener('click', () => goTo('screen-final'));
+      $('btn-revisit-letter').addEventListener('click', () => goTo('screen-letter'));
+    })();
+
+    /* ---------- Ending 1: Upgraded Find Totoro Map ---------- */
+    (() => {
+      const $ = id => document.getElementById(id);
+      const vp = $('map-viewport'), veil = $('globe-veil'), globe = $('globe');
+      let timers = [], busy = false;
+      const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+      const status = t => { $('map-status').textContent = t; };
+
+      let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const shades = ['#efe9e2', '#f2ede6', '#ece5dd'];
+      let blocks = '';
+      for (let x = 0; x < 800; x += 46) for (let y = 0; y < 520; y += 40) {
+        const w = 30 + rnd() * 10, hh = 24 + rnd() * 9;
+        blocks += `<rect x="${(x + 4 + rnd() * 3).toFixed(1)}" y="${(y + 4 + rnd() * 3).toFixed(1)}" width="${w.toFixed(1)}" height="${hh.toFixed(1)}" rx="4" fill="${shades[Math.floor(rnd() * 3)]}"/>`;
+      }
+      $('map-blocks').innerHTML = blocks;
+
+      const tex = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" preserveAspectRatio="none"><rect width="400" height="200" fill="#cfe4f1"/>' +
+        '<g fill="#e1eed9"><ellipse cx="60" cy="70" rx="38" ry="22"/><ellipse cx="120" cy="125" rx="30" ry="40"/><ellipse cx="215" cy="55" rx="45" ry="20"/><ellipse cx="285" cy="135" rx="42" ry="30"/><ellipse cx="352" cy="75" rx="28" ry="25"/></g>' +
+        '<g fill="#fff" opacity=".6"><ellipse cx="165" cy="28" rx="40" ry="6"/><ellipse cx="320" cy="172" rx="36" ry="6"/><ellipse cx="70" cy="165" rx="30" ry="5"/></g>' +
+        '<path d="M205 122C193 112 195 102 201 102C204 102 205 105 205 107C205 105 206 102 209 102C215 102 217 112 205 122Z" fill="#e39ab2"/></svg>';
+      globe.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodeURIComponent(tex)}")`;
+
+      const SPOTS = [['TSC', 240, 335], ['Ramna Park', 232, 194], ['Dhanmondi Lake', 290, 95],
+                     ['Hatirjheel', 580, 128], ['Rabindra Sarobar', 570, 365], ['Ahsan Manzil', 470, 405]];
+      $('map-spots').innerHTML = SPOTS.map(([n, x, y], k) =>
+        `<g class="spot" data-name="${n}" tabindex="0" role="button" aria-label="Search ${n}" transform="translate(${x},${y})">
+           <g class="spot-inner" style="animation-delay:${(k * 0.25).toFixed(2)}s">
+             <path class="pin-body" d="M0 0C0 0-9-11-9-17a9 9 0 0 1 18 0C9-11 0 0 0 0Z"/>
+             <circle cy="-17" r="3.5" fill="#fff"/>
+             <text y="17" text-anchor="middle">${n}</text>
+             <circle cy="-12" r="26" fill="transparent"/>
+           </g></g>`).join('');
+      const spots = [...document.querySelectorAll('.spot')];
+
+      function reset() {
+        timers.forEach(clearTimeout); timers = []; busy = false;
+        vp.classList.remove('zoomed', 'revealed'); veil.classList.remove('on'); globe.className = 'globe';
+        $('map-pin').classList.remove('drop'); $('map-pulse').classList.remove('on');
+        $('map-sheet').classList.remove('show'); $('route-note').textContent = '';
+        $('map-reviews-box').hidden = true; $('map-street-box').hidden = true;
+        spots.forEach(s => s.classList.remove('picked', 'miss', 'dim'));
+      }
+      function init() { reset(); status('Where is he? Tap a spot to search 👆'); }
+
+      function pick(spot) {
+        if (busy) return; busy = true;
+        const name = spot.dataset.name;
+        spots.forEach(s => s !== spot && s.classList.add('dim'));
+        spot.classList.add('picked'); status(`Searching ${name}…`);
+        later(() => { spot.classList.add('miss'); status(`Not at ${name}. Widening the search…`); }, 1300);
+        later(() => { veil.classList.add('on'); globe.classList.add('show'); }, 2300);
+        later(() => { globe.classList.add('spin'); status('Scanning the whole world…'); }, 2900);
+        later(() => { status('Signal found 💗'); globe.classList.add('out'); veil.classList.remove('on'); vp.classList.add('revealed', 'zoomed'); }, 6300);
+        later(() => $('map-pin').classList.add('drop'), 8100);
+        later(() => { $('map-pulse').classList.add('on'); $('map-sheet').classList.add('show'); status('Found 1 result 💗'); }, 8800);
+      }
+      spots.forEach(s => {
+        s.addEventListener('click', () => pick(s));
+        s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(s); } });
+      });
+
+      $('btn-find').addEventListener('click', () => goTo('screen-map'));
+      $('btn-go-telescope').addEventListener('click', () => goTo('screen-telescope'));
+      $('btn-go-vitals').addEventListener('click', () => goTo('screen-vitals'));
+
+      window.FindTotoro = { init, reset };
+      $('btn-map-replay').addEventListener('click', init);
+      $('btn-directions').addEventListener('click', () => {
+        $('route-note').textContent = "Route found: 0 steps, 0 turns. You've already arrived 💗";
+      });
+      $('btn-map-reviews').addEventListener('click', () => {
+        const rb = $('map-reviews-box');
+        $('map-street-box').hidden = true;
+        rb.hidden = !rb.hidden;
+      });
+      $('btn-map-street').addEventListener('click', () => {
+        const sb = $('map-street-box');
+        $('map-reviews-box').hidden = true;
+        sb.hidden = !sb.hidden;
+      });
+      $('btn-map-back').addEventListener('click', () => goTo('screen-final'));
+      $('btn-map-to-tele').addEventListener('click', () => goTo('screen-telescope'));
+    })();
+
+    /* ---------- Ending 2: Claude-Style Moon Telescope & Star Atlas ---------- */
+    const MoonTelescope = (() => {
+      const $ = id => document.getElementById(id);
+      const vp = $('tele-viewport'), lens = $('tele-lens'), clearSvg = $('tele-clear-svg');
+      const pills = [...document.querySelectorAll('.claude-const-pill')];
+      const FOUND = new Set();
+      let fullSky = false;
+
+      const TARGETS = [
+        {
+          id: 'fuchka', x: 185, y: 135, r: 78,
+          tag: 'CONSTELLATION I • FUCHKA MINOR',
+          mag: 'APPARENT MAG: +2.4',
+          title: 'Fuchka Minor (The Six Crispy Shells)',
+          msg: 'Six golden stars arranged in a hollow circle over Dhaka University. Best observed while holding hands after asking Mama for extra Naga chili.'
+        },
+        {
+          id: 'rickshaw', x: 605, y: 130, r: 78,
+          tag: 'CONSTELLATION II • RICKSHAW MAJOR',
+          mag: 'APPARENT MAG: +1.8',
+          title: 'Rickshaw Major (The Three-Wheeled Chariot)',
+          msg: 'A beloved Dhaka asterism famous for moving at 4 km/h through Dhanmondi traffic, giving Totoro a convenient excuse to sit closer to Moon Walker.'
+        },
+        {
+          id: 'umbrella', x: 235, y: 295, r: 78,
+          tag: 'CONSTELLATION III • UMBRELLA BOREALIS',
+          mag: 'APPARENT MAG: +1.2',
+          title: "Umbrella Borealis (Totoro's Canopy)",
+          msg: 'Formed by five shelter stars that appear whenever sudden monsoon clouds gather over Ramna Park. Keeps the rain out and all the warmth in.'
+        },
+        {
+          id: 'moonwalker', x: 485, y: 245, r: 84,
+          tag: 'PRIMARY CELESTIAL LOCK • ALPHA MOON WALKER',
+          mag: 'MAGNITUDE: -99.9 (UNRIVALED)',
+          title: 'Alpha Moon Walker (The Brightest Star in Dhaka)',
+          msg: 'Astrophysical anomaly: Even when Dhaka smog obscures every other star in the hemisphere, this singular object shines at full luminosity.'
+        }
+      ];
+
+      let starsHTML = '';
+      for (let i = 0; i < 110; i++) {
+        const sx = (i * 97) % 800, sy = (i * 61) % 375, sr = (i % 4 === 0) ? 1.9 : 1.1;
+        const col = i % 7 === 0 ? '#ffe7b3' : i % 5 === 0 ? '#ffd6e4' : '#ffffff';
+        starsHTML += `<circle cx="${sx}" cy="${sy}" r="${sr}" fill="${col}" opacity="${(0.3 + (i % 5) * 0.13).toFixed(2)}"/>`;
+      }
+      $('tele-bg-stars').innerHTML = starsHTML;
+
+      function applyClip(xPct, yPct) {
+        if (fullSky) {
+          clearSvg.style.clipPath = 'circle(120% at 50% 50%)';
+        } else {
+          clearSvg.style.clipPath = `circle(102px at ${xPct}% ${yPct}%)`;
+        }
+      }
+
+      function moveLens(pxPct, pyPct) {
+        const xPct = Math.max(8, Math.min(92, pxPct));
+        const yPct = Math.max(10, Math.min(88, pyPct));
+        lens.style.left = xPct + '%';
+        lens.style.top = yPct + '%';
+        applyClip(xPct, yPct);
+
+        const svgX = (xPct / 100) * 800, svgY = (yPct / 100) * 460;
+        const raH = Math.floor(10 + (xPct / 100) * 12), decD = (15 + (yPct / 100) * 20).toFixed(1);
+        $('tele-coords').textContent = `RA ${raH}h ${Math.floor(xPct % 60)}m • DEC +${decD}°`;
+
+        TARGETS.forEach(t => {
+          if (Math.hypot(svgX - t.x, svgY - t.y) < t.r) {
+            if (!FOUND.has(t.id)) {
+              FOUND.add(t.id);
+              $('tele-progress').textContent = `CATALOGUED: ${FOUND.size} / 4`;
+            }
+            pills.forEach(p => {
+              if (p.dataset.target === t.id) p.classList.add('discovered');
+              p.classList.toggle('active', p.dataset.target === t.id);
+            });
+            $('tele-active-tag').textContent = t.tag;
+            $('tele-mag-tag').textContent = t.mag;
+            $('tele-title').textContent = t.title;
+            $('tele-note').textContent = t.msg;
+            if (t.id === 'moonwalker') $('tele-lock-card').hidden = false;
+          }
+        });
+      }
+
+      function handlePointer(e) {
+        const r = vp.getBoundingClientRect();
+        const xPct = ((e.clientX - r.left) / r.width) * 100;
+        const yPct = ((e.clientY - r.top) / r.height) * 100;
+        moveLens(xPct, yPct);
+      }
+
+      vp.addEventListener('pointermove', handlePointer);
+      vp.addEventListener('pointerdown', e => { e.preventDefault(); handlePointer(e); });
+
+      pills.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = TARGETS.find(t => t.id === btn.dataset.target);
+          if (target) moveLens((target.x / 800) * 100, (target.y / 460) * 100);
+        });
+      });
+
+      $('btn-tele-sky-mode').addEventListener('click', () => {
+        fullSky = !fullSky;
+        $('btn-tele-sky-mode').textContent = fullSky ? 'Use Brass Lens 🔭' : 'Clear All Smog ✨';
+        const xPct = parseFloat(lens.style.left) || 35, yPct = parseFloat(lens.style.top) || 42;
+        applyClip(xPct, yPct);
+      });
+
+      $('btn-tele-back').addEventListener('click', () => goTo('screen-map'));
+      $('btn-tele-to-vitals').addEventListener('click', () => goTo('screen-vitals'));
+
+      return {
+        init() {
+          FOUND.clear();
+          fullSky = false;
+          $('btn-tele-sky-mode').textContent = 'Clear All Smog ✨';
+          $('tele-progress').textContent = 'CATALOGUED: 0 / 4';
+          $('tele-active-tag').textContent = 'FIELD OBSERVATION LOG';
+          $('tele-mag-tag').textContent = 'ZENITH OVER DHAKA';
+          $('tele-title').textContent = 'Scanning the Dhaka Night Sky...';
+          $('tele-note').textContent = 'Drag the brass reticle across the viewport (or click any constellation tab above) to cut through the city haze and inspect what Totoro found in the stars.';
+          $('tele-lock-card').hidden = true;
+          pills.forEach(p => p.classList.remove('active', 'discovered'));
+          moveLens(35, 42);
+        }
+      };
+    })();
+
+    /* ---------- Ending 3: Claude-Style Totoro's Vitals Monitor ---------- */
+    const TotoroVitals = (() => {
+      const $ = id => document.getElementById(id);
+      const canvas = $('vitals-canvas'), ctx = canvas.getContext('2d');
+      const zone = $('vitals-zone'), totoroBtn = $('vitals-totoro');
+      const blushL = $('totoro-blush-l'), blushR = $('totoro-blush-r');
+      const stimBtns = [...document.querySelectorAll('.claude-stim-btn')];
+      let raf = null, running = false, lockedLove = false, bpm = 72, targetBpm = 72, phase = 0;
+      const points = Array(180).fill(75);
+
+      function ecgSample(p, heartMode) {
+        const m = p % 1;
+        if (heartMode) {
+          if (m > 0.18 && m < 0.48) return -Math.sin(((m - 0.18) / 0.3) * Math.PI) * 36;
+          if (m >= 0.48 && m < 0.78) return -Math.sin(((m - 0.48) / 0.3) * Math.PI) * 26;
+          return 0;
+        }
+        if (m > 0.15 && m < 0.25) return -Math.sin(((m - 0.15) / 0.1) * Math.PI) * 8;
+        if (m >= 0.32 && m < 0.36) return 10;
+        if (m >= 0.36 && m < 0.42) return -48;
+        if (m >= 0.42 && m < 0.47) return 18;
+        if (m >= 0.58 && m < 0.72) return -Math.sin(((m - 0.58) / 0.14) * Math.PI) * 13;
+        return 0;
+      }
+
+      function setBlushOpacity(op) {
+        if (blushL && blushR) {
+          blushL.setAttribute('opacity', op.toFixed(2));
+          blushR.setAttribute('opacity', op.toFixed(2));
+        }
+      }
+
+      function updateProximity(clientX, clientY) {
+        if (lockedLove) return;
+        const r = totoroBtn.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const dist = Math.hypot(clientX - cx, clientY - cy);
+        const prox = Math.max(0, Math.min(1, 1 - dist / 260));
+        targetBpm = Math.round(72 + prox * 116);
+        const comp = Math.max(2, Math.round(98 - prox * 94));
+        setBlushOpacity(0.25 + prox * 0.7);
+
+        if (targetBpm < 95) {
+          $('vitals-state').textContent = 'Resting (Daydreaming)';
+          $('vitals-composure').textContent = `${comp}% (Acting Cool)`;
+          $('vitals-blush').textContent = 'Nominal (Ears Normal)';
+          $('vitals-stimulus-tag').textContent = 'SIGNAL: BASELINE SINUS';
+          $('vitals-dist-note').textContent = 'Move cursor closer to Totoro or tap a stimulus button above...';
+        } else if (targetBpm < 140) {
+          $('vitals-state').textContent = 'Elevated (She is looking)';
+          $('vitals-composure').textContent = `${comp}% (Slightly Nervous)`;
+          $('vitals-blush').textContent = 'Warm (Cheeks Pink)';
+          $('vitals-stimulus-tag').textContent = 'SIGNAL: PROXIMITY SPIKE';
+          $('vitals-dist-note').textContent = 'Heart rate rising... keep moving closer!';
+        } else {
+          $('vitals-state').textContent = 'Critical (Cute Overload!)';
+          $('vitals-composure').textContent = `${comp}% (Forgetting Words)`;
+          $('vitals-blush').textContent = 'High (Ears Glowing)';
+          $('vitals-stimulus-tag').textContent = 'SIGNAL: TACHYCARDIA OF LOVE';
+          $('vitals-dist-note').textContent = 'Maximum proximity! Tap Totoro now to record diagnosis 💓';
+        }
+      }
+
+      zone.addEventListener('pointermove', e => updateProximity(e.clientX, e.clientY));
+
+      function triggerLock() {
+        lockedLove = true;
+        targetBpm = 196;
+        setBlushOpacity(0.95);
+        $('vitals-state').textContent = '100% Stolen by Moon Walker 💘';
+        $('vitals-composure').textContent = '0% (Completely Melted)';
+        $('vitals-blush').textContent = '100% (Maximum Blush)';
+        $('vitals-stimulus-tag').textContent = 'SIGNAL: LOCKED HEART WAVEFORM';
+        $('vitals-dist-note').textContent = 'Clinical Cardiology Report generated below.';
+        $('vitals-diagnosis').hidden = false;
+      }
+
+      totoroBtn.addEventListener('click', triggerLock);
+
+      stimBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          stimBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          if (btn.dataset.lock) {
+            triggerLock();
+            return;
+          }
+          lockedLove = false;
+          targetBpm = Number(btn.dataset.bpm) || 120;
+          setBlushOpacity(targetBpm > 140 ? 0.85 : 0.6);
+          $('vitals-state').textContent = targetBpm > 150 ? 'Critical (Blushing Hard)' : 'Elevated (Butterflies)';
+          $('vitals-composure').textContent = btn.dataset.comp;
+          $('vitals-blush').textContent = btn.dataset.blush;
+          $('vitals-stimulus-tag').textContent = btn.dataset.msg.toUpperCase();
+          $('vitals-dist-note').textContent = btn.dataset.msg + ' (Tap Totoro for full diagnosis)';
+        });
+      });
+
+      function loop() {
+        if (!running) return;
+        bpm += (targetBpm - bpm) * 0.12;
+        $('vitals-bpm').textContent = Math.round(bpm);
+
+        phase += (bpm / 60) * 0.022;
+        const yVal = 78 + ecgSample(phase, lockedLove);
+        points.push(yVal);
+        if (points.length > 180) points.shift();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = 'rgba(235, 225, 212, 0.08)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 28) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+        for (let y = 0; y < canvas.height; y += 28) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
+        ctx.strokeStyle = lockedLove ? '#e87ea1' : '#d97757';
+        ctx.lineWidth = 2.6;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        points.forEach((py, idx) => {
+          const px = (idx / (points.length - 1)) * canvas.width;
+          if (idx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+
+        const lastY = points[points.length - 1];
+        ctx.fillStyle = '#faf8f5';
+        ctx.beginPath();
+        ctx.arc(canvas.width - 4, lastY, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        raf = requestAnimationFrame(loop);
+      }
+
+      $('btn-vitals-back').addEventListener('click', () => goTo('screen-telescope'));
+      $('btn-vitals-final').addEventListener('click', () => goTo('screen-final'));
+
+      return {
+        start() {
+          lockedLove = false; bpm = 72; targetBpm = 72;
+          setBlushOpacity(0.35);
+          stimBtns.forEach(b => b.classList.remove('active'));
+          $('vitals-diagnosis').hidden = true;
+          $('vitals-state').textContent = 'Resting (Daydreaming)';
+          $('vitals-composure').textContent = '98% (Acting Cool)';
+          $('vitals-blush').textContent = 'Nominal (Ears Normal)';
+          $('vitals-stimulus-tag').textContent = 'SIGNAL: BASELINE SINUS';
+          $('vitals-dist-note').textContent = 'Move cursor closer to Totoro or tap a stimulus button above...';
+          if (!running) { running = true; raf = requestAnimationFrame(loop); }
+        },
+        stop() {
+          running = false;
+          if (raf) cancelAnimationFrame(raf);
+        }
+      };
+    })();
+
+    let px = innerWidth / 2, py = innerHeight / 2;
+    addEventListener('pointermove', e => { px = e.clientX; py = e.clientY; });
+
+    function makeEscape(btn, yesBtn, lines) {
+      const label = btn.textContent, ph = document.createElement('span');
+      let active = false, count = 0, last = 0, armed = false;
+      const PAD = 16, TRIGGER = 100, TOP = 72;
+
+      function dodge() {
+        if (!active) {
+          const r = btn.getBoundingClientRect();
+          ph.style.cssText = `display:inline-block;width:${r.width}px;height:${r.height}px`;
+          btn.parentNode.insertBefore(ph, btn);
+          document.body.appendChild(btn);
+          btn.classList.add('escaping');
+          btn.style.left = r.left + 'px'; btn.style.top = r.top + 'px';
+          active = true; void btn.offsetWidth;
+        }
+        count++;
+        btn.textContent = lines[Math.min(count - 1, lines.length - 1)];
+        yesBtn.style.transform = `scale(${1 + Math.min(count, 10) * 0.06})`;
+
+        const r = btn.getBoundingClientRect(), y = yesBtn.getBoundingClientRect();
+        const maxX = innerWidth - r.width - PAD, maxY = innerHeight - r.height - PAD;
+        let best = [PAD, TOP], bestScore = -Infinity;
+        for (let i = 0; i < 40; i++) {
+          const x = PAD + Math.random() * Math.max(0, maxX - PAD);
+          const yy = TOP + Math.random() * Math.max(0, maxY - TOP);
+          let score = Math.hypot(x + r.width / 2 - px, yy + r.height / 2 - py);
+          const overlapsYes = x < y.right + 12 && x + r.width > y.left - 12 && yy < y.bottom + 12 && yy + r.height > y.top - 12;
+          if (overlapsYes) score -= 2000;
+          if (score > bestScore) { bestScore = score; best = [x, yy]; }
+        }
+        btn.style.left = best[0] + 'px'; btn.style.top = best[1] + 'px';
+      }
+
+      const guard = e => { e.preventDefault(); e.stopPropagation(); dodge(); };
+      ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach(t => btn.addEventListener(t, guard, { passive: false }));
+      btn.addEventListener('focus', () => { btn.blur(); dodge(); });
+
+      addEventListener('pointermove', e => {
+        if (!(active || btn.offsetParent)) { armed = false; return; }
+        const r = btn.getBoundingClientRect();
+        const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
+        const dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
+        const dist = Math.hypot(dx, dy);
+        if (dist > TRIGGER * 1.4) armed = true;
+        const now = performance.now();
+        if (armed && dist < TRIGGER && now - last > 150) { last = now; armed = false; dodge(); }
+      });
+      addEventListener('resize', () => {
+        if (!active) return;
+        const r = btn.getBoundingClientRect();
+        btn.style.left = Math.min(r.left, innerWidth - r.width - PAD) + 'px';
+        btn.style.top = Math.min(r.top, innerHeight - r.height - PAD) + 'px';
+      });
+
+      const api = { release() {
+        armed = false;
+        if (!active) return;
+        ph.replaceWith(btn);
+        btn.classList.remove('escaping'); btn.style.left = btn.style.top = '';
+        btn.textContent = label; yesBtn.style.transform = '';
+        active = false; count = 0;
+      } };
+      escapes.push(api);
+      return api;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const yes1 = document.getElementById('btn-invite-yes'), yes2 = document.getElementById('btn-confess-yes');
+      makeEscape(document.getElementById('btn-no-1'), yes1,
+        ['Are you sure? 🥺', 'Think again…', 'Pretty please?', 'Misclick, right?', 'Error 404: "No" not found', 'Just say yes 💕']);
+      makeEscape(document.getElementById('btn-no-2'), yes2,
+        ['Okay fine… maybe 👉👈', "Don't break my heart 💔", 'Even for Kacchi?', "You can't catch me!", 'Please? 😭', 'Just click yes 💖']);
+
+      yes1.addEventListener('click', () => goTo('screen-place'));
+      yes2.addEventListener('click', () => goTo('screen-letter'));
+
+      LEVELS.forEach((l, i) => { const e = document.querySelector('#' + l.id + ' .eyebrow'); if (e) e.textContent = 'Level ' + (i + 1); });
+      setLevel('screen-invite');
+      document.querySelectorAll('.pad-btn').forEach(b => {
+        const n = b.dataset.k;
+        b.addEventListener('pointerdown', e => { e.preventDefault(); if (window.MarioGame && window.MarioGame.press) window.MarioGame.press(n, true); });
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => b.addEventListener(t, () => { if (window.MarioGame && window.MarioGame.press) window.MarioGame.press(n, false); }));
+      });
+      el('btn-prev-level').addEventListener('click', () => goLevel(-1));
+      el('btn-next-level').addEventListener('click', () => goLevel(1));
+      el('btn-game-continue').addEventListener('click', () => goLevel(1));
+    });
+  </script>
+</body>
+</html>
