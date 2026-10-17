@@ -327,13 +327,30 @@ function buildMasterSprites() {
     a.outline("#1f1719", 13);
   });
 
-  const heartCanvas = makeSprite(9, 8, 3, a => {
-    a.tri([0, 2], [4, 6], [4, 2], RED);
-    a.tri([4, 2], [4, 6], [8, 2], RED);
-    a.ell(2, 2, 2, 1.5, RED);
-    a.ell(6, 2, 2, 1.5, RED);
-    a.px(2, 1, "#ff9ebb");
-    a.outline("#8a2336");
+  const heartCanvas = makeSprite(13, 10, 2, a => {
+    const palette = {
+      B: "#5c0d1b",
+      R: "#e62e43",
+      D: "#b51a2e",
+      W: "#ffffff"
+    };
+    const rows = [
+      "   BB   BB   ",
+      "  BRRB BRRB  ",
+      " BRWRRBRRRDB ",
+      " BRRRRRRRRDB ",
+      " BRRRRRRRRDB ",
+      "  BRRRRRRDB  ",
+      "   BRRRRDB   ",
+      "    BRRDB    ",
+      "     BDB     ",
+      "      B      "
+    ];
+    rows.forEach((row, y) => {
+      [...row].forEach((ch, x) => {
+        if (palette[ch]) a.px(x, y, palette[ch]);
+      });
+    });
   });
 
   const cloudCanvas = makeSprite(22, 10, 3, a => {
@@ -751,20 +768,20 @@ const TS = 32, MR = 14;
 const MARIO_LEVELS = [
   { name: "Dhanmondi Rickshaw Road", walker: "rick", w: 100, start: 2, goal: 96,
     ground: [[0, 22], [26, 40], [44, 60], [63, 80], [83, 99]],
-    blocks: [[8, 8, 3], [12, 8, 3], [30, 9, 3], [48, 8, 3], [52, 8, 3], [70, 9, 2]], q: [[11, 8], [51, 8]],
+    blocks: [[8, 8, 3], [12, 8, 3], [30, 9, 3], [36, 9, 2], [48, 8, 3], [52, 8, 3], [64, 9, 2], [70, 9, 2]], q: [[11, 8], [51, 8]],
     coins: [[8, 7, 7], [23, 9, 3], [30, 8, 3], [41, 9, 3], [48, 7, 7], [61, 9, 2], [81, 9, 2]],
     hearts: [[31, 7], [57, 10], [88, 10]], kites: [[38, 6], [66, 6]],
     walkers: [16, 34, 50, 68, 90], crows: [[56, 10], [78, 10]], lamps: [20, 48, 76] },
   { name: "Hatirjheel Bridge", walker: "cng", w: 110, start: 2, goal: 105,
     ground: [[0, 14], [20, 28], [34, 38], [46, 52], [58, 64], [70, 78], [84, 92], [98, 109]],
-    blocks: [[17, 10, 1], [31, 10, 1], [41, 10, 1], [43, 10, 1], [55, 10, 1], [67, 10, 1], [81, 10, 1], [95, 10, 1], [22, 8, 2], [25, 8, 2]],
+    blocks: [[17, 10, 1], [31, 10, 1], [40, 9, 2], [41, 10, 1], [43, 10, 1], [55, 10, 1], [67, 10, 1], [80, 9, 2], [81, 10, 1], [95, 10, 1], [22, 8, 2], [25, 8, 2]],
     q: [[24, 8], [48, 8]],
     coins: [[16, 8, 3], [30, 8, 3], [41, 8, 3], [54, 8, 3], [66, 8, 3], [80, 8, 3], [94, 8, 3]],
     hearts: [[24, 10], [61, 10], [88, 10]], kites: [[42, 6], [82, 6]],
     walkers: [8, 24, 49, 61, 74, 88, 102], crows: [[36, 10], [72, 10], [100, 10]], lamps: [10, 26, 48, 74, 88] },
   { name: "Old Dhaka Rooftops", walker: "pedestrian", w: 120, start: 2, goal: 115,
     ground: [[0, 12, 12], [16, 24, 11], [28, 34, 10], [38, 46, 11], [50, 56, 12], [60, 66, 10], [70, 78, 11], [82, 88, 12], [92, 100, 10], [104, 119, 12]],
-    blocks: [], q: [[20, 8], [42, 8], [64, 7], [96, 7]],
+    blocks: [[24, 8, 2], [46, 8, 2], [78, 8, 2]], q: [[20, 8], [42, 8], [64, 7], [96, 7]],
     coins: [[13, 9, 3], [25, 8, 3], [35, 8, 3], [47, 8, 3], [57, 8, 3], [67, 8, 3], [79, 8, 3], [89, 8, 3], [101, 8, 3]],
     hearts: [[31, 8], [63, 8], [97, 8]], kites: [[26, 6], [48, 6], [80, 6]],
     walkers: [5, 20, 31, 42, 53, 63, 74, 85, 96, 110], crows: [[30, 8], [62, 7], [94, 7]], lamps: [6, 20, 42, 64, 86, 108] }
@@ -1232,7 +1249,7 @@ class PacScene extends SceneBase {
 
     this.heartSprites = [];
     for (let i = 0; i < 3; i++) {
-      const h = this.add.sprite(PAC_OX + PC * PAC_T - 12 - i * 22, 22, "heart").setOrigin(0.5, 0.5);
+      const h = this.add.sprite(PAC_OX + PC * PAC_T - 18 - i * 28, 22, "heart").setOrigin(0.5, 0.5);
       h.setVisible(i < this.lives);
       this.heartSprites.push(h);
     }
@@ -1536,6 +1553,9 @@ class MarioScene extends SceneBase {
     this.onWin = data?.onWin || marioOnWinCb;
     this.state = "play";
     this.invulnTimer = 0;
+    this.coyoteTimer = 0;
+    this.jumpBuffer = 0;
+    this.prevJumpKey = false;
     this.checkpointX = 2 * TS;
     this.checkpointY = 10 * TS;
   }
@@ -1728,7 +1748,7 @@ class MarioScene extends SceneBase {
     const p = this.p;
 
     const moveLeft = marioKeys.left, moveRight = marioKeys.right, jumpKey = marioKeys.jump;
-    const accel = 920, maxSpeed = 220, friction = 820;
+    const accel = 1050, maxSpeed = 240, friction = 880;
 
     if (moveLeft && !moveRight) {
       p.vx = Math.max(-maxSpeed, p.vx - accel * dt);
@@ -1741,22 +1761,44 @@ class MarioScene extends SceneBase {
       else if (p.vx < 0) p.vx = Math.min(0, p.vx + friction * dt);
     }
 
-    if (jumpKey && p.grounded) {
-      p.vy = -510;
+    // Coyote time: jump grace window after leaving ground
+    if (p.grounded) {
+      this.coyoteTimer = 0.12;
+    } else {
+      this.coyoteTimer = Math.max(0, this.coyoteTimer - dt);
+    }
+
+    // Jump buffering: buffer jump if pressed just before landing
+    const jumpJustPressed = jumpKey && !this.prevJumpKey;
+    this.prevJumpKey = jumpKey;
+    if (jumpJustPressed) {
+      this.jumpBuffer = 0.14;
+    } else {
+      this.jumpBuffer = Math.max(0, this.jumpBuffer - dt);
+    }
+
+    // Execute jump with calibrated height (apex ~178px / 5.5 tiles, easily reaching upper blocks)
+    if (this.jumpBuffer > 0 && this.coyoteTimer > 0) {
+      p.vy = -640;
       p.grounded = false;
+      this.coyoteTimer = 0;
+      this.jumpBuffer = 0;
       sfx.jump();
     }
 
-    const grav = (p.vy < 0 && jumpKey) ? 1200 : 1800;
-    p.vy = Math.min(700, p.vy + grav * dt);
+    // Variable jump gravity: high reach when holding jump, crisp short hop on release
+    const grav = (p.vy < 0 && jumpKey) ? 1150 : 2100;
+    p.vy = Math.min(750, p.vy + grav * dt);
 
     p.x += p.vx * dt;
     for (const b of this.solidBlocks) {
-      if (p.x + p.w / 2 > b.x && p.x - p.w / 2 < b.x + b.w &&
-          p.y > b.y && p.y - p.h < b.y + b.h) {
-        if (p.vx > 0) p.x = b.x - p.w / 2;
-        else if (p.vx < 0) p.x = b.x + b.w + p.w / 2;
-        p.vx = 0;
+      // Corner tolerance: ignore horizontal collision if feet are within 8px of top to land smoothly
+      if (p.y - 8 > b.y && p.y - p.h < b.y + b.h) {
+        if (p.x + p.w / 2 > b.x && p.x - p.w / 2 < b.x + b.w) {
+          if (p.vx > 0) p.x = b.x - p.w / 2;
+          else if (p.vx < 0) p.x = b.x + b.w + p.w / 2;
+          p.vx = 0;
+        }
       }
     }
 
@@ -1861,7 +1903,7 @@ class MarioScene extends SceneBase {
       if (Math.abs(p.x - ex) < (p.w + ew) / 2 && Math.abs((p.y - p.h / 2) - ey) < (p.h + eh) / 2) {
         if (p.vy > 0 && p.y - p.vy * dt <= ey + 10) {
           sfx.stomp();
-          p.vy = -450;
+          p.vy = marioKeys.jump ? -640 : -480;
           this.score += 200;
           this.hudScore.setText("Score: " + this.score);
           e.sprite.destroy();
