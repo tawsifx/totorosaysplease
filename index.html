@@ -532,7 +532,38 @@
           </svg>
 
           <svg id="tele-clear-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid slice" class="tele-layer tele-clipped">
+            <defs>
+              <radialGradient id="nebulaPink" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ff7b99" stop-opacity="0.32"/>
+                <stop offset="60%" stop-color="#9a3465" stop-opacity="0.12"/>
+                <stop offset="100%" stop-color="#12131a" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="nebulaGold" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffd56b" stop-opacity="0.22"/>
+                <stop offset="70%" stop-color="#c47833" stop-opacity="0.08"/>
+                <stop offset="100%" stop-color="#12131a" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="mwCoronalGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffe4ee" stop-opacity="0.6"/>
+                <stop offset="35%" stop-color="#ff6b9d" stop-opacity="0.32"/>
+                <stop offset="70%" stop-color="#80386b" stop-opacity="0.14"/>
+                <stop offset="100%" stop-color="#12131a" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="meteorTrail1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                <stop offset="30%" stop-color="#ffe699" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#ff8da1" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+
             <rect width="800" height="460" fill="#12131a"/>
+
+            <!-- Cosmic Nebulas -->
+            <g id="tele-nebulas" class="nebula-glow">
+              <ellipse cx="280" cy="190" rx="190" ry="90" fill="url(#nebulaGold)"/>
+              <ellipse cx="500" cy="230" rx="220" ry="110" fill="url(#nebulaPink)"/>
+            </g>
+
             <g stroke="rgba(232,196,104,0.11)" stroke-width="1" fill="none">
               <circle cx="400" cy="230" r="110"/><circle cx="400" cy="230" r="220"/><circle cx="400" cy="230" r="330"/>
               <line x1="0" y1="115" x2="800" y2="115" stroke-dasharray="3 6"/>
@@ -542,56 +573,113 @@
               <line x1="400" y1="0" x2="400" y2="460"/>
               <line x1="600" y1="0" x2="600" y2="460" stroke-dasharray="3 6"/>
             </g>
+
+            <!-- Shooting Stars / Meteors -->
+            <g id="tele-meteors">
+              <path d="M120 40 L280 140" stroke="url(#meteorTrail1)" stroke-width="2.2" stroke-linecap="round" fill="none" class="tele-meteor"/>
+              <path d="M480 30 L660 150" stroke="url(#meteorTrail1)" stroke-width="2.5" stroke-linecap="round" fill="none" class="tele-meteor"/>
+              <path d="M220 220 L380 340" stroke="url(#meteorTrail1)" stroke-width="2" stroke-linecap="round" fill="none" class="tele-meteor"/>
+            </g>
+
+            <!-- Background Stars -->
             <g id="tele-bg-stars"></g>
 
+            <!-- I. Fuchka Minor -->
             <g class="constellation" data-id="fuchka">
               <circle cx="185" cy="135" r="54" fill="none" stroke="rgba(232,196,104,0.22)" stroke-dasharray="2 4"/>
-              <polygon points="145,135 165,112 205,112 225,135 205,158 165,158" fill="rgba(217,119,87,0.12)" stroke="#e8c468" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <polygon points="145,135 165,112 205,112 225,135 205,158 165,158" fill="rgba(217,119,87,0.14)" stroke="#e8c468" stroke-width="1.8" class="const-stardust-line"/>
               <line x1="165" y1="128" x2="205" y2="128" stroke="#d97757" stroke-width="1.2"/>
-              <circle cx="145" cy="135" r="3.5" fill="#fffdf0"/><circle cx="165" cy="112" r="3" fill="#fffdf0"/>
-              <circle cx="205" cy="112" r="3.5" fill="#fffdf0"/><circle cx="225" cy="135" r="3" fill="#fffdf0"/>
-              <circle cx="205" cy="158" r="3" fill="#fffdf0"/><circle cx="165" cy="158" r="3.5" fill="#fffdf0"/>
+              <g fill="#fffdf0">
+                <circle cx="145" cy="135" r="3.5"/><circle cx="165" cy="112" r="3"/>
+                <circle cx="205" cy="112" r="3.5"/><circle cx="225" cy="135" r="3"/>
+                <circle cx="205" cy="158" r="3"/><circle cx="165" cy="158" r="3.5"/>
+              </g>
+              <circle cx="185" cy="135" r="2.5" fill="#fbd38d"/>
               <text x="185" y="182" text-anchor="middle" class="const-label">I. FUCHKA MINOR</text>
             </g>
 
+            <!-- II. Rickshaw Major -->
             <g class="constellation" data-id="rickshaw">
               <circle cx="605" cy="130" r="56" fill="none" stroke="rgba(232,196,104,0.22)" stroke-dasharray="2 4"/>
-              <polyline points="565,148 565,105 600,92 620,122 645,148 565,148" fill="rgba(217,119,87,0.1)" stroke="#e8c468" stroke-width="1.5" stroke-dasharray="4 3"/>
-              <circle cx="572" cy="152" r="10" fill="none" stroke="#d97757" stroke-width="1.2" stroke-dasharray="2 2"/>
-              <circle cx="642" cy="152" r="8" fill="none" stroke="#d97757" stroke-width="1.2" stroke-dasharray="2 2"/>
+              <polyline points="565,148 565,105 600,92 620,122 645,148 565,148" fill="rgba(217,119,87,0.12)" stroke="#e8c468" stroke-width="1.8" class="const-stardust-line"/>
+              <!-- Animated Rickshaw Wheels -->
+              <g class="rickshaw-wheel" transform="translate(572, 152)">
+                <circle r="10" fill="none" stroke="#e8c468" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <line x1="-10" y1="0" x2="10" y2="0" stroke="#d97757" stroke-width="0.8"/>
+                <line x1="0" y1="-10" x2="0" y2="10" stroke="#d97757" stroke-width="0.8"/>
+              </g>
+              <g class="rickshaw-wheel" transform="translate(642, 152)">
+                <circle r="8" fill="none" stroke="#e8c468" stroke-width="1.2" stroke-dasharray="2 2"/>
+                <line x1="-8" y1="0" x2="8" y2="0" stroke="#d97757" stroke-width="0.8"/>
+                <line x1="0" y1="-8" x2="0" y2="8" stroke="#d97757" stroke-width="0.8"/>
+              </g>
+              <circle cx="600" cy="92" r="5" fill="#ffe066" filter="drop-shadow(0 0 5px #ffc043)"/>
               <circle cx="565" cy="148" r="3.5" fill="#fff"/><circle cx="565" cy="105" r="3" fill="#fff"/>
-              <circle cx="600" cy="92" r="4" fill="#fff"/><circle cx="620" cy="122" r="3" fill="#fff"/>
-              <circle cx="645" cy="148" r="3.5" fill="#fff"/>
+              <circle cx="620" cy="122" r="3" fill="#fff"/><circle cx="645" cy="148" r="3.5" fill="#fff"/>
               <text x="605" y="182" text-anchor="middle" class="const-label">II. RICKSHAW MAJOR</text>
             </g>
 
+            <!-- III. Umbrella Borealis -->
             <g class="constellation" data-id="umbrella">
               <circle cx="235" cy="295" r="56" fill="none" stroke="rgba(232,196,104,0.22)" stroke-dasharray="2 4"/>
-              <path d="M190,290 Q235,245 280,290 Z" fill="rgba(244,169,192,0.12)" stroke="#e8c468" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <path d="M190,290 Q235,245 280,290 Z" fill="rgba(244,169,192,0.16)" stroke="#e8c468" stroke-width="1.8" class="const-stardust-line"/>
               <line x1="235" y1="265" x2="235" y2="325" stroke="#f4a9c0" stroke-width="1.5" stroke-dasharray="3 2"/>
-              <circle cx="190" cy="290" r="3.5" fill="#fff"/><circle cx="235" cy="262" r="4" fill="#fff"/>
+              <path d="M190 290 Q212 284 235 262 Q258 284 280 290" fill="none" stroke="rgba(244,169,192,0.5)" stroke-width="1"/>
+              <circle cx="190" cy="290" r="3.5" fill="#fff"/><circle cx="235" cy="262" r="4.2" fill="#fff"/>
               <circle cx="280" cy="290" r="3.5" fill="#fff"/><circle cx="235" cy="325" r="3" fill="#fff"/>
               <circle cx="227" cy="325" r="2.5" fill="#f4a9c0"/>
+              <!-- Gentle dripping stardust rain -->
+              <g class="stardust-rain">
+                <circle cx="190" cy="294" r="1.5" fill="#f4a9c0" class="stardust-drip"/>
+                <circle cx="235" cy="330" r="1.5" fill="#f4a9c0" class="stardust-drip"/>
+                <circle cx="280" cy="294" r="1.5" fill="#f4a9c0" class="stardust-drip"/>
+              </g>
               <text x="235" y="350" text-anchor="middle" class="const-label">III. UMBRELLA BOREALIS</text>
             </g>
 
+            <!-- IV. Alpha Moon Walker -->
             <g class="constellation" data-id="moonwalker">
-              <circle cx="485" cy="245" r="64" fill="url(#starGlow)"/>
-              <circle cx="485" cy="245" r="52" fill="none" stroke="#e8c468" stroke-width="1" stroke-dasharray="3 3"/>
-              <path d="M485 274 C450 246 455 216 473 218 C481 219 485 227 485 231 C485 227 489 219 497 218 C515 216 520 246 485 274Z" fill="rgba(217,119,87,0.22)" stroke="#f4a9c0" stroke-width="1.8"/>
-              <circle cx="485" cy="215" r="4.5" fill="#fff"/><circle cx="458" cy="232" r="3.5" fill="#ffe4ec"/>
-              <circle cx="512" cy="232" r="3.5" fill="#ffe4ec"/><circle cx="485" cy="274" r="4.5" fill="#fff"/>
-              <circle cx="485" cy="244" r="6.5" fill="#fffdf2"/>
+              <!-- Pulsing Coronal Halo -->
+              <circle cx="485" cy="245" r="72" fill="url(#mwCoronalGlow)" class="mw-aurora-halo"/>
+              <circle cx="485" cy="245" r="54" fill="none" stroke="#e8c468" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <!-- Sunburst Starlight Compass -->
+              <g class="mw-sunburst" stroke="rgba(255,214,228,0.4)" stroke-width="1">
+                <line x1="485" y1="185" x2="485" y2="305"/>
+                <line x1="425" y1="245" x2="545" y2="245"/>
+                <line x1="442" y1="202" x2="528" y2="288"/>
+                <line x1="442" y1="288" x2="528" y2="202"/>
+              </g>
+              <!-- Glowing Celestial Heart -->
+              <path d="M485 274 C450 246 455 216 473 218 C481 219 485 227 485 231 C485 227 489 219 497 218 C515 216 520 246 485 274Z" fill="rgba(255,107,157,0.28)" stroke="#f4a9c0" stroke-width="2.2" class="const-stardust-line"/>
+              <circle cx="485" cy="215" r="4.5" fill="#fff"/><circle cx="458" cy="232" r="3.8" fill="#ffe4ec"/>
+              <circle cx="512" cy="232" r="3.8" fill="#ffe4ec"/><circle cx="485" cy="274" r="4.5" fill="#fff"/>
+              <!-- Brilliant Central Core Star with Cross Spikes -->
+              <circle cx="485" cy="244" r="7" fill="#fffdf2" filter="drop-shadow(0 0 6px #ff7b99)"/>
+              <polygon points="485,232 487,243 497,244 487,246 485,256 483,246 473,244 483,243" fill="#ffffff"/>
               <text x="485" y="310" text-anchor="middle" class="const-label bright">★ IV. ALPHA MOON WALKER ★</text>
             </g>
 
             <path d="M0 460 L0 398 L45 398 L45 368 L95 368 L95 402 L140 402 L140 352 L195 352 L195 398 L260 398 L285 358 L325 358 L350 398 L420 398 C470 362 540 362 590 398 L645 398 L645 348 L705 348 L705 388 L755 388 L755 368 L800 368 L800 460 Z" fill="#0d0e14"/>
           </svg>
 
+          <!-- Upgraded Brass Astrolabe Lens -->
           <div id="tele-lens" class="tele-lens">
+            <div class="tele-lens-gear"></div>
             <div class="tele-lens-ring"></div>
+            <div class="tele-lens-notches"></div>
+            <div class="tele-lens-glare"></div>
+            <div class="tele-lens-target"></div>
+            <div class="tele-lens-brackets">
+              <span class="tl-b tl-tl"></span>
+              <span class="tl-b tl-tr"></span>
+              <span class="tl-b tl-bl"></span>
+              <span class="tl-b tl-br"></span>
+            </div>
             <span class="tele-coords" id="tele-coords">RA 23h 81m • DEC +90.4°</span>
           </div>
+
+          <!-- Stardust Burst Canvas Layer -->
+          <div id="tele-stardust" class="tele-stardust-layer"></div>
         </div>
 
         <div class="claude-dossier">
@@ -622,6 +710,18 @@
             <p class="claude-callout-quote">
               "The smog hides the stars over Dhaka, yet even through the thickest haze, she remains the brightest thing in my entire sky."
             </p>
+          </div>
+
+          <!-- Completion Banner when 4/4 discovered -->
+          <div id="tele-complete-banner" class="tele-complete-banner" hidden>
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">📜</span>
+              <div>
+                <span class="tele-complete-badge">ROYAL DHAKA OBSERVATORY • CERTIFICATE OF COMPLETION</span>
+                <p class="tele-complete-sub">All 4 celestial asterisms catalogued. The night sky belongs to Moon Walker 🌟</p>
+              </div>
+            </div>
+            <span class="badge" style="background:#fcedd4; color:#8c6218;">4 / 4 Found ★</span>
           </div>
         </div>
       </div>
@@ -1764,7 +1864,87 @@
       const vp = $('tele-viewport'), lens = $('tele-lens'), clearSvg = $('tele-clear-svg');
       const pills = [...document.querySelectorAll('.claude-const-pill')];
       const FOUND = new Set();
-      let fullSky = false;
+      let fullSky = false, animFrame = null, lastTick = 0;
+
+      function getAudio() {
+        return (window.totoroAudioCtx || (window.totoroAudioCtx = (typeof AudioContext !== 'undefined' ? new AudioContext() : null)));
+      }
+      function synthTeleTone(f1, f2, type, dur, vol = 0.06, delay = 0) {
+        try {
+          const actx = getAudio();
+          if (!actx) return;
+          if (actx.state === 'suspended') actx.resume().catch(() => {});
+          const t0 = actx.currentTime + delay;
+          const osc = actx.createOscillator(), g = actx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(f1, t0);
+          if (f2 && f2 !== f1) osc.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t0 + dur);
+          g.gain.setValueAtTime(0.0001, t0);
+          g.gain.linearRampToValueAtTime(vol, t0 + 0.005);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+          osc.connect(g); g.connect(actx.destination);
+          osc.start(t0); osc.stop(t0 + dur + 0.01);
+        } catch (_) {}
+      }
+
+      function playBrassTick() {
+        const now = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+        if (now - lastTick < 70) return;
+        lastTick = now;
+        synthTeleTone(1800 + Math.random() * 200, 1600, 'triangle', 0.015, 0.025);
+      }
+
+      function playLockChime(isMoonwalker) {
+        if (isMoonwalker) {
+          [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, idx) => {
+            synthTeleTone(f, f, 'sine', 0.35, 0.08, idx * 0.06);
+          });
+        } else {
+          [659.25, 880, 1174.66].forEach((f, idx) => {
+            synthTeleTone(f, f, 'triangle', 0.22, 0.07, idx * 0.07);
+          });
+        }
+      }
+
+      function playSmogClearSfx() {
+        [440, 554.37, 659.25, 880, 1108.73, 1318.51].forEach((f, idx) => {
+          synthTeleTone(f, f, 'sine', 0.3, 0.06, idx * 0.05);
+        });
+      }
+
+      function playAllCompleteSfx() {
+        if (window.sfx && typeof window.sfx.win === 'function') {
+          window.sfx.win();
+        } else {
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+            synthTeleTone(f, f, 'triangle', 0.35, 0.1, idx * 0.1);
+          });
+        }
+      }
+
+      function spawnStardust(xPct, yPct, isMoonwalker) {
+        const container = $('tele-stardust');
+        if (!container) return;
+        const items = isMoonwalker ? ['💖', '✨', '🌙', '🌟', '💕', '⭐'] : ['✨', '⭐', '🌟', '💫', '💛'];
+        const count = isMoonwalker ? 14 : 7;
+        for (let i = 0; i < count; i++) {
+          const sp = document.createElement('span');
+          sp.className = 'tele-spark';
+          sp.textContent = items[i % items.length];
+          sp.style.left = xPct + '%';
+          sp.style.top = yPct + '%';
+          const angle = (i / count) * 2 * Math.PI + (Math.random() * 0.4 - 0.2);
+          const dist = 35 + Math.random() * (isMoonwalker ? 75 : 45);
+          const dx = Math.cos(angle) * dist;
+          const dy = Math.sin(angle) * dist - 15;
+          sp.style.setProperty('--sdx', `${dx.toFixed(1)}px`);
+          sp.style.setProperty('--sdy', `${dy.toFixed(1)}px`);
+          sp.style.setProperty('--srot', `${(Math.random() * 60 - 30).toFixed(0)}deg`);
+          sp.style.animationDelay = `${(Math.random() * 0.15).toFixed(2)}s`;
+          container.appendChild(sp);
+          setTimeout(() => sp.remove(), 2000);
+        }
+      }
 
       const TARGETS = [
         {
@@ -1798,10 +1978,11 @@
       ];
 
       let starsHTML = '';
-      for (let i = 0; i < 110; i++) {
-        const sx = (i * 97) % 800, sy = (i * 61) % 375, sr = (i % 4 === 0) ? 1.9 : 1.1;
+      for (let i = 0; i < 140; i++) {
+        const sx = (i * 97) % 800, sy = (i * 61) % 380, sr = (i % 5 === 0) ? 2.2 : (i % 3 === 0) ? 1.6 : 1.0;
         const col = i % 7 === 0 ? '#ffe7b3' : i % 5 === 0 ? '#ffd6e4' : '#ffffff';
-        starsHTML += `<circle cx="${sx}" cy="${sy}" r="${sr}" fill="${col}" opacity="${(0.3 + (i % 5) * 0.13).toFixed(2)}"/>`;
+        const twClass = (i % 6 === 0) ? 'star-twinkle-1' : (i % 6 === 2) ? 'star-twinkle-2' : (i % 6 === 4) ? 'star-twinkle-3' : '';
+        starsHTML += `<circle cx="${sx}" cy="${sy}" r="${sr}" fill="${col}" opacity="${(0.35 + (i % 5) * 0.13).toFixed(2)}" class="${twClass}"/>`;
       }
       $('tele-bg-stars').innerHTML = starsHTML;
 
@@ -1809,45 +1990,89 @@
         if (fullSky) {
           clearSvg.style.clipPath = 'circle(120% at 50% 50%)';
         } else {
-          clearSvg.style.clipPath = `circle(102px at ${xPct}% ${yPct}%)`;
+          clearSvg.style.clipPath = `circle(108px at ${xPct}% ${yPct}%)`;
         }
       }
 
-      function moveLens(pxPct, pyPct) {
+      function moveLens(pxPct, pyPct, playAudio = true) {
         const xPct = Math.max(8, Math.min(92, pxPct));
         const yPct = Math.max(10, Math.min(88, pyPct));
         lens.style.left = xPct + '%';
         lens.style.top = yPct + '%';
         applyClip(xPct, yPct);
 
-        const svgX = (xPct / 100) * 800, svgY = (yPct / 100) * 460;
-        const raH = Math.floor(10 + (xPct / 100) * 12), decD = (15 + (yPct / 100) * 20).toFixed(1);
-        $('tele-coords').textContent = `RA ${raH}h ${Math.floor(xPct % 60)}m • DEC +${decD}°`;
+        if (playAudio) playBrassTick();
 
-        TARGETS.forEach(t => {
+        const svgX = (xPct / 100) * 800, svgY = (yPct / 100) * 460;
+        let matched = null;
+
+        for (const t of TARGETS) {
           if (Math.hypot(svgX - t.x, svgY - t.y) < t.r) {
-            if (!FOUND.has(t.id)) {
-              FOUND.add(t.id);
-              $('tele-progress').textContent = `CATALOGUED: ${FOUND.size} / 4`;
-            }
-            pills.forEach(p => {
-              if (p.dataset.target === t.id) p.classList.add('discovered');
-              p.classList.toggle('active', p.dataset.target === t.id);
-            });
-            $('tele-active-tag').textContent = t.tag;
-            $('tele-mag-tag').textContent = t.mag;
-            $('tele-title').textContent = t.title;
-            $('tele-note').textContent = t.msg;
-            if (t.id === 'moonwalker') $('tele-lock-card').hidden = false;
+            matched = t;
+            break;
           }
-        });
+        }
+
+        if (matched) {
+          lens.classList.add('locked');
+          const isNewlyFound = !FOUND.has(matched.id);
+          if (isNewlyFound) {
+            FOUND.add(matched.id);
+            $('tele-progress').textContent = `CATALOGUED: ${FOUND.size} / 4`;
+            playLockChime(matched.id === 'moonwalker');
+            spawnStardust(xPct, yPct, matched.id === 'moonwalker');
+            if (FOUND.size === 4) {
+              const b = $('tele-complete-banner');
+              if (b) b.hidden = false;
+              playAllCompleteSfx();
+            }
+          }
+          pills.forEach(p => {
+            if (p.dataset.target === matched.id) p.classList.add('discovered');
+            p.classList.toggle('active', p.dataset.target === matched.id);
+          });
+          $('tele-active-tag').textContent = matched.tag;
+          $('tele-mag-tag').textContent = matched.mag;
+          $('tele-title').textContent = matched.title;
+          $('tele-note').textContent = matched.msg;
+          $('tele-coords').textContent = `★ LOCKED: ${matched.id.toUpperCase()} ★`;
+          if (matched.id === 'moonwalker') $('tele-lock-card').hidden = false;
+        } else {
+          lens.classList.remove('locked');
+          const raH = Math.floor(10 + (xPct / 100) * 12), decD = (15 + (yPct / 100) * 20).toFixed(1);
+          $('tele-coords').textContent = `RA ${raH}h ${Math.floor(xPct % 60)}m • DEC +${decD}°`;
+        }
+      }
+
+      function glideTo(txPct, tyPct) {
+        if (animFrame) cancelAnimationFrame(animFrame);
+        const startX = parseFloat(lens.style.left) || 35;
+        const startY = parseFloat(lens.style.top) || 42;
+        const startTime = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+        const duration = 400;
+
+        function step(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(1, elapsed / duration);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          const newX = startX + (txPct - startX) * ease;
+          const newY = startY + (tyPct - startY) * ease;
+          moveLens(newX, newY, false);
+          if (progress < 1) {
+            animFrame = requestAnimationFrame(step);
+          } else {
+            animFrame = null;
+          }
+        }
+        animFrame = requestAnimationFrame(step);
       }
 
       function handlePointer(e) {
+        if (animFrame) cancelAnimationFrame(animFrame);
         const r = vp.getBoundingClientRect();
         const xPct = ((e.clientX - r.left) / r.width) * 100;
         const yPct = ((e.clientY - r.top) / r.height) * 100;
-        moveLens(xPct, yPct);
+        moveLens(xPct, yPct, true);
       }
 
       vp.addEventListener('pointermove', handlePointer);
@@ -1856,13 +2081,16 @@
       pills.forEach(btn => {
         btn.addEventListener('click', () => {
           const target = TARGETS.find(t => t.id === btn.dataset.target);
-          if (target) moveLens((target.x / 800) * 100, (target.y / 460) * 100);
+          if (target) {
+            glideTo((target.x / 800) * 100, (target.y / 460) * 100);
+          }
         });
       });
 
       $('btn-tele-sky-mode').addEventListener('click', () => {
         fullSky = !fullSky;
         $('btn-tele-sky-mode').textContent = fullSky ? 'Use Brass Lens 🔭' : 'Clear All Smog ✨';
+        playSmogClearSfx();
         const xPct = parseFloat(lens.style.left) || 35, yPct = parseFloat(lens.style.top) || 42;
         applyClip(xPct, yPct);
       });
@@ -1874,6 +2102,7 @@
         init() {
           FOUND.clear();
           fullSky = false;
+          if (animFrame) cancelAnimationFrame(animFrame);
           $('btn-tele-sky-mode').textContent = 'Clear All Smog ✨';
           $('tele-progress').textContent = 'CATALOGUED: 0 / 4';
           $('tele-active-tag').textContent = 'FIELD OBSERVATION LOG';
@@ -1881,8 +2110,9 @@
           $('tele-title').textContent = 'Scanning the Dhaka Night Sky...';
           $('tele-note').textContent = 'Drag the brass reticle across the viewport (or click any constellation tab above) to cut through the city haze and inspect what Totoro found in the stars.';
           $('tele-lock-card').hidden = true;
+          const b = $('tele-complete-banner'); if (b) b.hidden = true;
           pills.forEach(p => p.classList.remove('active', 'discovered'));
-          moveLens(35, 42);
+          moveLens(35, 42, false);
         }
       };
     })();

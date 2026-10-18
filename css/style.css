@@ -1039,32 +1039,202 @@ body {
 @media (max-width: 640px) { .claude-pill-bar { grid-template-columns: 1fr 1fr; } .claude-header { flex-direction: column; } .claude-meta-box { align-items: flex-start; flex-direction: row; } }
 
 /* Telescope Viewport & Brass Reticle */
-.tele-viewport { position: relative; aspect-ratio: 800 / 460; overflow: hidden; cursor: crosshair; touch-action: none; user-select: none; background: #191b2b; }
+.tele-viewport { position: relative; aspect-ratio: 800 / 460; overflow: hidden; cursor: crosshair; touch-action: none; user-select: none; background: #12131a; }
 .tele-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
-.tele-clipped { clip-path: circle(102px at 35% 42%); transition: clip-path .18s ease-out; }
+.tele-clipped { clip-path: circle(108px at 35% 42%); transition: clip-path .18s ease-out; }
 .const-label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; fill: #e8c468; letter-spacing: .12em; }
 .const-label.bright { fill: #ffd6e4; font-weight: 500; font-size: 10.5px; }
+
+/* Dynamic Background Stars & Nebulas */
+.star-twinkle-1 { animation: starPulse 2.4s ease-in-out infinite; }
+.star-twinkle-2 { animation: starPulse 3.2s ease-in-out infinite 0.8s; }
+.star-twinkle-3 { animation: starPulse 1.8s ease-in-out infinite 1.4s; }
+@keyframes starPulse {
+  0%, 100% { opacity: 0.28; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.35); }
+}
+
+.tele-meteor {
+  stroke-dasharray: 180;
+  stroke-dashoffset: 180;
+  animation: meteorShoot 6s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  opacity: 0;
+}
+.tele-meteor:nth-child(1) { animation-delay: 0.8s; }
+.tele-meteor:nth-child(2) { animation-delay: 3.2s; }
+.tele-meteor:nth-child(3) { animation-delay: 5.4s; }
+@keyframes meteorShoot {
+  0% { stroke-dashoffset: 180; opacity: 0; }
+  12% { opacity: 1; }
+  28% { stroke-dashoffset: -180; opacity: 0; }
+  100% { stroke-dashoffset: -180; opacity: 0; }
+}
+
+.nebula-glow {
+  transform-origin: center;
+  animation: nebulaBreathe 8s ease-in-out infinite alternate;
+}
+@keyframes nebulaBreathe {
+  0% { opacity: 0.3; transform: scale(0.95); }
+  100% { opacity: 0.55; transform: scale(1.08); }
+}
+
+/* Constellation Artwork Upgrades */
+.const-stardust-line {
+  stroke-dasharray: 6 3;
+  animation: stardustFlow 4s linear infinite;
+}
+@keyframes stardustFlow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -36; }
+}
+
+.rickshaw-wheel {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: wheelSpin 7s linear infinite;
+}
+@keyframes wheelSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.stardust-drip {
+  animation: raindropFall 2.4s ease-in infinite;
+  opacity: 0;
+}
+.stardust-drip:nth-child(2) { animation-delay: 0.8s; }
+.stardust-drip:nth-child(3) { animation-delay: 1.6s; }
+@keyframes raindropFall {
+  0% { transform: translateY(0); opacity: 0.85; }
+  75% { transform: translateY(14px); opacity: 0.7; }
+  100% { transform: translateY(20px); opacity: 0; }
+}
+
+.mw-aurora-halo {
+  transform-origin: 485px 245px;
+  animation: mwAuroraPulse 3.2s ease-in-out infinite alternate;
+}
+@keyframes mwAuroraPulse {
+  0% { transform: scale(0.92); opacity: 0.45; }
+  100% { transform: scale(1.15); opacity: 0.88; }
+}
+.mw-sunburst {
+  transform-origin: 485px 245px;
+  animation: mwSunburstRotate 26s linear infinite;
+}
+@keyframes mwSunburstRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Brass Astrolabe Lens */
 .tele-lens {
-  position: absolute; left: 35%; top: 42%; width: 204px; height: 204px; margin: -102px 0 0 -102px;
+  position: absolute; left: 35%; top: 42%; width: 216px; height: 216px; margin: -108px 0 0 -108px;
   border-radius: 50%;
-  border: 2px solid #e8c468;
-  box-shadow: 0 0 0 5px rgba(232, 196, 104, .12), inset 0 0 28px rgba(217, 119, 87, .28);
+  border: 2.5px solid #e8c468;
+  box-shadow:
+    0 0 0 4px rgba(232, 196, 104, .18),
+    0 0 24px rgba(232, 196, 104, .25),
+    inset 0 0 32px rgba(217, 119, 87, .25);
   pointer-events: none;
-  transition: left .18s ease-out, top .18s ease-out;
+  transition: left .16s ease-out, top .16s ease-out, border-color .3s, box-shadow .3s;
+}
+.tele-lens.locked {
+  border-color: #ff6b9d;
+  box-shadow:
+    0 0 0 5px rgba(255, 107, 157, .35),
+    0 0 32px rgba(255, 107, 157, .48),
+    inset 0 0 40px rgba(255, 107, 157, .32);
+}
+.tele-lens-gear {
+  position: absolute; inset: -14px; border-radius: 50%;
+  border: 1.5px dashed rgba(232, 196, 104, .35);
+  animation: gearTurn 40s linear infinite;
+}
+@keyframes gearTurn {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 .tele-lens-ring {
   position: absolute; inset: 6px; border-radius: 50%;
   border: 1px dashed rgba(232, 196, 104, .45);
 }
+.tele-lens-notches {
+  position: absolute; inset: 12px; border-radius: 50%;
+  border: 1px dotted rgba(232, 196, 104, .55);
+}
+.tele-lens-glare {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none;
+}
+.tele-lens-glare::after {
+  content: ''; position: absolute; top: -30%; left: -30%; width: 160%; height: 60%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.03) 40%, transparent 60%);
+  transform: rotate(-30deg);
+}
+.tele-lens-target {
+  position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; margin: -12px 0 0 -12px;
+  border-radius: 50%; border: 1px solid rgba(232, 196, 104, .7); pointer-events: none;
+}
+.tele-lens.locked .tele-lens-target {
+  border-color: #ff6b9d;
+  animation: targetLockPulse .8s ease-in-out infinite alternate;
+}
+@keyframes targetLockPulse {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1.35); }
+}
+.tele-lens-brackets { position: absolute; inset: 24px; pointer-events: none; }
+.tl-b { position: absolute; width: 10px; height: 10px; border-color: rgba(232, 196, 104, 0.65); border-style: solid; }
+.tl-tl { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
+.tl-tr { top: 0; right: 0; border-width: 1.5px 1.5px 0 0; }
+.tl-bl { bottom: 0; left: 0; border-width: 0 0 1.5px 1.5px; }
+.tl-br { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
+.tele-lens.locked .tl-b { border-color: #ff6b9d; }
+
 .tele-lens::before, .tele-lens::after { content: ''; position: absolute; background: rgba(232, 196, 104, .32); }
 .tele-lens::before { left: 50%; top: 12px; bottom: 12px; width: 1px; }
 .tele-lens::after { top: 50%; left: 12px; right: 12px; height: 1px; }
+
 .tele-coords {
-  position: absolute; bottom: -26px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
   font-family: 'JetBrains Mono', monospace;
-  background: #1f1e1c; color: #e8c468; font-size: .66rem; padding: .18rem .6rem;
-  border: 1px solid rgba(232, 196, 104, .4); border-radius: 999px; white-space: nowrap; letter-spacing: .06em;
+  background: #19181d; color: #e8c468; font-size: .66rem; padding: .2rem .65rem;
+  border: 1px solid rgba(232, 196, 104, .45); border-radius: 999px; white-space: nowrap; letter-spacing: .08em;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transition: all .25s ease;
 }
+.tele-lens.locked .tele-coords {
+  background: #2b141e; color: #ff9bbb; border-color: #ff6b9d;
+  box-shadow: 0 0 14px rgba(255, 107, 157, 0.4);
+}
+
+/* Stardust Sparks on Discovery */
+.tele-stardust-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
+.tele-spark {
+  position: absolute; font-size: 1.15rem; pointer-events: none;
+  animation: sparkFloat 1.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes sparkFloat {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(0deg); }
+  20% { opacity: 1; transform: translate(var(--sdx), var(--sdy)) scale(1.25) rotate(var(--srot)); }
+  100% { opacity: 0; transform: translate(calc(var(--sdx) * 1.6), calc(var(--sdy) - 30px)) scale(0.6) rotate(calc(var(--srot) * 2)); }
+}
+
+/* Folio Completion Banner */
+.tele-complete-banner {
+  margin-top: 1rem; padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #fbf7ee 0%, #f7eee2 100%);
+  border: 1.5px solid #e8c468; border-radius: 12px;
+  box-shadow: 0 4px 18px -4px rgba(232, 196, 104, .35);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  animation: fadeSlide .4s ease;
+}
+.tele-complete-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: .75rem; font-weight: 600;
+  color: #8c6218; letter-spacing: .1em;
+}
+.tele-complete-sub { font-size: .88rem; color: #5a4f47; margin-top: .15rem; }
 
 /* Claude Dossier Footer */
 .claude-dossier { padding: 1.35rem 1.6rem 1.5rem; background: var(--claude-surface); border-top: 1px solid var(--claude-border); }
