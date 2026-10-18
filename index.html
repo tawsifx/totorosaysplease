@@ -695,7 +695,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js"></script>
   <script>if (typeof Phaser === "undefined") { document.write('<script src="js/phaser.min.js"><\/script>'); }</script>
-  <script src="js/game.js?v=2.7"></script>
+  <script type="module" src="/js/main.js"></script>
   <script>
     const WEB3FORMS_KEY = '167aea1e-2696-4fd6-813c-735856d8ed6b';
 
@@ -850,6 +850,8 @@
       switchScreen(from, id, () => { window.scrollTo(0, 0); if (ENTER[id]) ENTER[id](); });
     }
     const goLevel = d => { const t = level + d; if (t >= 0 && t < LEVELS.length) goTo(LEVELS[t].id); };
+    window.goTo = goTo;
+    window.goLevel = goLevel;
 
     Object.keys(OPTIONS).forEach(cat => {
       const grid = document.getElementById('grid-' + cat);
