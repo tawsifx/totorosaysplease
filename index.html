@@ -355,19 +355,62 @@
             <g id="map-spots"></g>
           </svg>
           <div id="globe-veil" class="globe-veil"></div>
-          <div id="globe" class="globe"></div>
+          <div id="globe" class="globe">
+            <div class="globe-ring"></div>
+            <div class="globe-satellite">🛰️</div>
+            <div class="globe-target"></div>
+          </div>
+
+          <div id="radar-sweep" class="radar-sweep">
+            <div class="radar-line"></div>
+          </div>
+          <div id="map-celebration" class="map-celebration"></div>
 
           <div class="map-search">
             <span class="map-search-icon">🔍</span>
-            <div><p class="map-query">Totoro</p><p id="map-status" class="map-status"></p></div>
+            <div><p class="map-query">Totoro Locator</p><p id="map-status" class="map-status"></p></div>
           </div>
           <div id="map-pulse" class="map-pulse"></div>
-          <div id="map-pin" class="map-pin"><svg viewBox="0 0 36 46"><path d="M18 45C18 45 3 28 3 16a15 15 0 0 1 30 0C33 28 18 45 18 45Z" fill="#c4627f" stroke="#fff" stroke-width="2"/><circle cx="18" cy="16" r="6" fill="#fff"/></svg></div>
+          <div id="map-pin" class="map-pin">
+            <svg viewBox="0 0 44 56" class="totoro-pin-svg">
+              <defs>
+                <filter id="totoro-pin-glow" x="-25%" y="-25%" width="150%" height="150%">
+                  <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#e05378" flood-opacity="0.38"/>
+                </filter>
+              </defs>
+              <ellipse cx="22" cy="53" rx="9" ry="3" fill="rgba(60,30,40,0.25)" class="pin-shadow" />
+              <path d="M22 52 C22 52 4 33 4 20 A18 18 0 0 1 40 20 C40 33 22 52 22 52 Z" fill="#e05378" stroke="#ffffff" stroke-width="2.5" filter="url(#totoro-pin-glow)"/>
+              <circle cx="22" cy="20" r="14.5" fill="#fcf8f5" />
+              <!-- Totoro Avatar inside Pin -->
+              <g class="pin-totoro-face">
+                <path d="M14 11 C13 4 16 2 17 9 Z" fill="#787568" class="totoro-ear-l" />
+                <path d="M30 11 C31 4 28 2 27 9 Z" fill="#787568" class="totoro-ear-r" />
+                <ellipse cx="22" cy="22" rx="10" ry="9" fill="#787568" />
+                <ellipse cx="22" cy="24" rx="7" ry="6" fill="#f4eedb" />
+                <path d="M19 22 L22 20 L25 22 M18 25 L20 24 L22 25 M22 25 L24 24 L26 25" stroke="#787568" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                <circle cx="18" cy="18" r="2.2" fill="#fff" />
+                <circle cx="18" cy="18" r="1.1" fill="#222" />
+                <circle cx="26" cy="18" r="2.2" fill="#fff" />
+                <circle cx="26" cy="18" r="1.1" fill="#222" />
+                <ellipse cx="22" cy="19" rx="1.4" ry="0.8" fill="#333" />
+                <line x1="12" y1="18.5" x2="16" y2="19.5" stroke="#444" stroke-width="0.8" />
+                <line x1="12" y1="21.5" x2="16" y2="21" stroke="#444" stroke-width="0.8" />
+                <line x1="28" y1="19.5" x2="32" y2="18.5" stroke="#444" stroke-width="0.8" />
+                <line x1="28" y1="21" x2="32" y2="21.5" stroke="#444" stroke-width="0.8" />
+                <ellipse cx="15.5" cy="21" rx="1.8" ry="1.2" fill="#fca5a5" opacity="0.85" />
+                <ellipse cx="28.5" cy="21" rx="1.8" ry="1.2" fill="#fca5a5" opacity="0.85" />
+                <path d="M22 13 C20 10 23 8 24 11 C24 12 23 13 22 13 Z" fill="#4ade80" />
+              </g>
+            </svg>
+          </div>
         </div>
 
         <div id="map-sheet" class="map-sheet">
           <div class="sheet-head">
-            <div><h2>Totoro</h2><p>Permanent Resident • Moon Walker's Heart, Dhaka</p></div>
+            <div class="flex items-center gap-3">
+              <span class="sheet-totoro-avatar">🐾</span>
+              <div><h2>Totoro</h2><p>Permanent Resident • Moon Walker's Heart, Dhaka</p></div>
+            </div>
             <span class="badge">0.0 km away</span>
           </div>
           <p class="rating">★★★★★ <span>5.0 (3 verified reviews) • "Never leaving."</span></p>
@@ -1586,9 +1629,41 @@
            </g></g>`).join('');
       const spots = [...document.querySelectorAll('.spot')];
 
+      function playAudio(fn) {
+        try {
+          if (window.sfx && typeof window.sfx[fn] === 'function') window.sfx[fn]();
+          else if (window.totoroSfx && typeof window.totoroSfx[fn] === 'function') window.totoroSfx[fn]();
+        } catch (_) {}
+      }
+
+      function spawnCelebrationHearts() {
+        const cel = $('map-celebration');
+        if (!cel) return;
+        cel.innerHTML = '';
+        const items = ['💖', '✨', '🐾', '🌸', '💕', '⭐', '❤️', '🍃'];
+        for (let i = 0; i < 18; i++) {
+          const span = document.createElement('span');
+          span.className = 'cel-item';
+          span.textContent = items[i % items.length];
+          const angle = (i / 18) * 2 * Math.PI + (Math.random() * 0.4 - 0.2);
+          const dist = 60 + Math.random() * 130;
+          const dx = Math.cos(angle) * dist;
+          const dy = Math.sin(angle) * (dist * 0.7) - 40;
+          const rot = (Math.random() * 60 - 30) + 'deg';
+          span.style.setProperty('--dx', `${dx.toFixed(1)}px`);
+          span.style.setProperty('--dy-peak', `${dy.toFixed(1)}px`);
+          span.style.setProperty('--rot', rot);
+          span.style.animationDelay = `${(Math.random() * 0.2).toFixed(2)}s`;
+          cel.appendChild(span);
+        }
+        later(() => { if (cel) cel.innerHTML = ''; }, 2500);
+      }
+
       function reset() {
         timers.forEach(clearTimeout); timers = []; busy = false;
         vp.classList.remove('zoomed', 'revealed'); veil.classList.remove('on'); globe.className = 'globe';
+        $('radar-sweep')?.classList.remove('active');
+        const cel = $('map-celebration'); if (cel) cel.innerHTML = '';
         $('map-pin').classList.remove('drop'); $('map-pulse').classList.remove('on');
         $('map-sheet').classList.remove('show'); $('route-note').textContent = '';
         $('map-reviews-box').hidden = true; $('map-street-box').hidden = true;
@@ -1600,13 +1675,60 @@
         if (busy) return; busy = true;
         const name = spot.dataset.name;
         spots.forEach(s => s !== spot && s.classList.add('dim'));
-        spot.classList.add('picked'); status(`Searching ${name}…`);
-        later(() => { spot.classList.add('miss'); status(`Not at ${name}. Widening the search…`); }, 1300);
-        later(() => { veil.classList.add('on'); globe.classList.add('show'); }, 2300);
-        later(() => { globe.classList.add('spin'); status('Scanning the whole world…'); }, 2900);
-        later(() => { status('Signal found 💗'); globe.classList.add('out'); veil.classList.remove('on'); vp.classList.add('revealed', 'zoomed'); }, 6300);
-        later(() => $('map-pin').classList.add('drop'), 8100);
-        later(() => { $('map-pulse').classList.add('on'); $('map-sheet').classList.add('show'); status('Found 1 result 💗'); }, 8800);
+        spot.classList.add('picked');
+        playAudio('coin');
+        status(`Searching ${name}…`);
+
+        // 1. Not at local spot, widen search
+        later(() => {
+          spot.classList.add('miss');
+          playAudio('bump');
+          status(`Not at ${name}. Activating planetary scan…`);
+        }, 900);
+
+        // 2. Holographic globe & radar scan kicks in
+        later(() => {
+          veil.classList.add('on');
+          globe.classList.add('show');
+          $('radar-sweep')?.classList.add('active');
+          playAudio('powerup');
+        }, 1600);
+
+        // 3. Globe spins & searches
+        later(() => {
+          globe.classList.add('spin');
+          status('Scanning satellite orbits & planetary coordinates…');
+        }, 2200);
+
+        // 4. Heart signal detected!
+        later(() => {
+          status('Heartbeat frequency synchronized 💗');
+          playAudio('checkpoint');
+        }, 3600);
+
+        // 5. Globe zooms out, map reveals heart target
+        later(() => {
+          status('Signal found 💗 Locking onto Moon Walker…');
+          globe.classList.add('out');
+          veil.classList.remove('on');
+          $('radar-sweep')?.classList.remove('active');
+          vp.classList.add('revealed', 'zoomed');
+        }, 4200);
+
+        // 6. Totoro pin drops with bouncy physics
+        later(() => {
+          $('map-pin').classList.add('drop');
+          playAudio('stomp');
+        }, 4900);
+
+        // 7. Pulse expands, sheet slides in, confetti celebration explodes
+        later(() => {
+          $('map-pulse').classList.add('on');
+          $('map-sheet').classList.add('show');
+          status('Found 1 result 💗 Right in your heart');
+          playAudio('win');
+          spawnCelebrationHearts();
+        }, 5400);
       }
       spots.forEach(s => {
         s.addEventListener('click', () => pick(s));
