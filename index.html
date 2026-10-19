@@ -1003,7 +1003,13 @@
         card.className = 'choice-card ui-box';
         card.tabIndex = 0;
         card.innerHTML = `<span class="emoji">${emoji}</span><h3>${name}</h3><p>${tag}</p>`;
-        const pick = () => { userChoices[cat] = name; goTo(NEXT[cat]); };
+        const pick = () => {
+          userChoices[cat] = name;
+          if (typeof player !== 'undefined' && player.updateChoicePriority) {
+            player.updateChoicePriority(userChoices);
+          }
+          goTo(NEXT[cat]);
+        };
         card.addEventListener('click', pick);
         card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
         grid.appendChild(card);
@@ -1065,15 +1071,146 @@
     };
     const WEIGHT = { place: 1.3, food: 1.0, activity: 1.5 };
 
+    /* ---------- High-Performance Audio Cache & Streaming Preloader for Vercel CDN ---------- */
+    const AudioCache = (() => {
+      const CACHE_NAME = 'totoro-soundtrack-v2';
+      const blobUrls = new Map();
+      const inFlight = new Map();
+      let prefetchQueue = [];
+      let isWorkerActive = false;
+
+      function resolveUrl(song) {
+        if (!song || !song.file) return '';
+        return '/' + song.file.split('/').map(encodeURIComponent).join('/');
+      }
+
+      async function getCache() {
+        if (typeof window === 'undefined' || !('caches' in window)) return null;
+        try {
+          return await window.caches.open(CACHE_NAME);
+        } catch {
+          return null;
+        }
+      }
+
+      async function getBlobUrl(id) {
+        if (blobUrls.has(id)) return blobUrls.get(id);
+        const s = SONGS[id];
+        if (!s) return null;
+        const cache = await getCache();
+        const url = resolveUrl(s);
+        if (cache) {
+          try {
+            const match = await cache.match(url);
+            if (match) {
+              const blob = await match.blob();
+              const bUrl = URL.createObjectURL(blob);
+              blobUrls.set(id, bUrl);
+              return bUrl;
+            }
+          } catch {}
+        }
+        return null;
+      }
+
+      async function cacheSong(id) {
+        if (blobUrls.has(id)) return blobUrls.get(id);
+        if (inFlight.has(id)) return inFlight.get(id);
+
+        const s = SONGS[id];
+        if (!s) return null;
+        const url = resolveUrl(s);
+
+        const promise = (async () => {
+          try {
+            const cache = await getCache();
+            if (cache) {
+              const match = await cache.match(url);
+              if (match) {
+                const blob = await match.blob();
+                const bUrl = URL.createObjectURL(blob);
+                blobUrls.set(id, bUrl);
+                return bUrl;
+              }
+              const res = await fetch(url, { mode: 'cors' });
+              if (res.ok) {
+                try { await cache.put(url, res.clone()); } catch {}
+                const blob = await res.blob();
+                const bUrl = URL.createObjectURL(blob);
+                blobUrls.set(id, bUrl);
+                return bUrl;
+              }
+            } else {
+              const res = await fetch(url);
+              if (res.ok) {
+                const blob = await res.blob();
+                const bUrl = URL.createObjectURL(blob);
+                blobUrls.set(id, bUrl);
+                return bUrl;
+              }
+            }
+          } catch {
+            // Ignore background fetch failure; live streaming fallback will handle it
+          } finally {
+            inFlight.delete(id);
+          }
+          return null;
+        })();
+
+        inFlight.set(id, promise);
+        return promise;
+      }
+
+      async function runWorker() {
+        if (isWorkerActive) return;
+        isWorkerActive = true;
+        while (prefetchQueue.length > 0) {
+          const nextId = prefetchQueue.shift();
+          if (nextId && !blobUrls.has(nextId)) {
+            await cacheSong(nextId);
+            // Yield gracefully to browser rendering and mini-game frame rates
+            await new Promise(r => setTimeout(r, 100));
+          }
+        }
+        isWorkerActive = false;
+      }
+
+      function prioritize(ids) {
+        // Move prioritized IDs to front of queue
+        const newQ = [...ids.filter(id => !blobUrls.has(id) && !inFlight.has(id))];
+        for (const existing of prefetchQueue) {
+          if (!newQ.includes(existing)) newQ.push(existing);
+        }
+        prefetchQueue = newQ;
+        if (window.requestIdleCallback) {
+          window.requestIdleCallback(() => runWorker(), { timeout: 1500 });
+        } else {
+          setTimeout(runWorker, 60);
+        }
+      }
+
+      return {
+        getBlobUrl,
+        cacheSong,
+        prioritize,
+        resolveUrl,
+        isCached: id => blobUrls.has(id)
+      };
+    })();
+
     const player = (() => {
       const $ = id => document.getElementById(id);
       const PLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
       const PAUSE_ICON = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
       const SPINNER_ICON = '<svg class="btn-spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.6" fill="none" stroke-dasharray="42" stroke-dashoffset="14" stroke-linecap="round"/></svg>';
 
-      // Single dedicated audio element - eliminates HTTP socket contention and multiple concurrent downloads
+      // Primary dedicated audio element for active playback
       const audio = new Audio();
       audio.preload = 'auto';
+
+      // Standby audio element for pre-buffering next track container & headers
+      const standbyAudio = new Audio();
+      standbyAudio.preload = 'auto';
 
       let list = Object.keys(SONGS);
       let i = 0;
@@ -1084,13 +1221,13 @@
       let isBuffering = false;
       let isPlaying = false;
       let isAwaitingUnlock = false;
+      let bufferTimer = null;
 
       const fmt = t => isFinite(t) && t > 0 ? Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0') : '0:00';
       const fill = (el, pct, buf = pct) => {
         el.style.setProperty('--pct', pct + '%');
         el.style.setProperty('--buf', buf + '%');
       };
-      const encodePath = p => './' + p.split('/').map(s => encodeURIComponent(s)).join('/');
 
       function getDuration() {
         if (isFinite(audio.duration) && audio.duration > 0) return audio.duration;
@@ -1098,41 +1235,58 @@
         return s && s.duration ? s.duration : 0;
       }
 
-      function setBuffering(buffering) {
-        isBuffering = buffering;
-        const btnPlay = $('btn-play');
-        if (btnPlay) {
-          btnPlay.classList.toggle('buffering', buffering);
-          btnPlay.innerHTML = isPlaying ? PAUSE_ICON : (buffering ? SPINNER_ICON : PLAY_ICON);
-        }
-
-        const vLoader = $('vinyl-loader');
-        if (vLoader) {
-          vLoader.classList.toggle('hidden', !buffering);
-        }
-
+      function updateMusicPill() {
         const pSpin = $('music-pill-spinner');
         const pBars = $('music-pill-bars');
         const pTitle = $('music-pill-title');
         const pBtn = $('btn-music-toggle');
-        if (pSpin && pBars && pTitle) {
-          if (buffering) {
-            pSpin.classList.remove('hidden');
-            pBars.classList.add('hidden');
-            pTitle.textContent = isAwaitingUnlock ? 'Tap to play 🎵' : 'Loading music…';
-            if (pBtn) pBtn.textContent = '⏳';
-          } else if (isPlaying) {
-            pSpin.classList.add('hidden');
-            pBars.classList.remove('hidden');
-            const curSong = SONGS[list[i]];
-            pTitle.textContent = curSong ? curSong.title : 'Playing';
-            if (pBtn) pBtn.textContent = '🔊';
-          } else {
-            pSpin.classList.add('hidden');
-            pBars.classList.add('hidden');
-            pTitle.textContent = 'Paused';
-            if (pBtn) pBtn.textContent = '🔈';
+        if (!pSpin || !pBars || !pTitle) return;
+
+        if (isBuffering) {
+          pSpin.classList.remove('hidden');
+          pBars.classList.add('hidden');
+          pTitle.textContent = isAwaitingUnlock ? 'Tap to play 🎵' : 'Loading music…';
+          if (pBtn) pBtn.textContent = '⏳';
+        } else if (isPlaying) {
+          pSpin.classList.add('hidden');
+          pBars.classList.remove('hidden');
+          const curSong = SONGS[list[i]];
+          pTitle.textContent = curSong ? curSong.title : 'Playing';
+          if (pBtn) pBtn.textContent = '🔊';
+        } else {
+          pSpin.classList.add('hidden');
+          pBars.classList.add('hidden');
+          pTitle.textContent = 'Paused';
+          if (pBtn) pBtn.textContent = '🔈';
+        }
+      }
+
+      function setBuffering(buffering) {
+        isBuffering = buffering;
+        clearTimeout(bufferTimer);
+
+        if (buffering) {
+          // Debounce 180ms: fast/cached songs start before this fires, preventing annoying spinner flicker!
+          bufferTimer = setTimeout(() => {
+            if (!isBuffering) return;
+            const btnPlay = $('btn-play');
+            if (btnPlay) {
+              btnPlay.classList.add('buffering');
+              btnPlay.innerHTML = isPlaying ? PAUSE_ICON : SPINNER_ICON;
+            }
+            const vLoader = $('vinyl-loader');
+            if (vLoader) vLoader.classList.remove('hidden');
+            updateMusicPill();
+          }, 180);
+        } else {
+          const btnPlay = $('btn-play');
+          if (btnPlay) {
+            btnPlay.classList.remove('buffering');
+            btnPlay.innerHTML = isPlaying ? PAUSE_ICON : PLAY_ICON;
           }
+          const vLoader = $('vinyl-loader');
+          if (vLoader) vLoader.classList.add('hidden');
+          updateMusicPill();
         }
       }
 
@@ -1150,16 +1304,7 @@
           isAwaitingUnlock = false;
           setBuffering(false);
         } else if (!isBuffering) {
-          const pSpin = $('music-pill-spinner');
-          const pBars = $('music-pill-bars');
-          const pTitle = $('music-pill-title');
-          const pBtn = $('btn-music-toggle');
-          if (pSpin && pBars && pTitle) {
-            pSpin.classList.add('hidden');
-            pBars.classList.add('hidden');
-            pTitle.textContent = 'Paused';
-            if (pBtn) pBtn.textContent = '🔈';
-          }
+          updateMusicPill();
         }
 
         if ('mediaSession' in navigator) {
@@ -1226,17 +1371,21 @@
       }
 
       function renderQueue() {
-        $('queue').innerHTML = '';
+        const qEl = $('queue');
+        if (!qEl) return;
+        qEl.innerHTML = '';
         list.forEach((id, idx) => {
           const li = document.createElement('li');
           const reason = matchedBy[id];
+          const isReady = AudioCache.isCached(id);
           li.className = 'queue-item' + (idx === i ? ' active' : '');
           li.innerHTML =
             `<span class="q-num">${idx === i ? '♪' : idx + 1}</span>` +
             `<div class="q-meta"><span class="q-title">${SONGS[id].title}</span><span class="q-sub">${SONGS[id].artist}</span></div>` +
-            (reason ? `<span class="q-match">Matched ✨</span>` : '');
+            (reason ? `<span class="q-match">Matched ✨</span>` : (isReady ? `<span class="q-ready">⚡ Instant</span>` : ''));
           li.addEventListener('click', () => { i = idx; load(true); });
-          $('queue').appendChild(li);
+          li.addEventListener('pointerenter', () => AudioCache.cacheSong(id));
+          qEl.appendChild(li);
         });
       }
 
@@ -1282,7 +1431,7 @@
         }
       }
 
-      function load(autoPlay = true) {
+      async function load(autoPlay = true) {
         if (!list.length) list = Object.keys(SONGS);
         const id = list[i], s = SONGS[id];
         if (!s) return;
@@ -1290,7 +1439,7 @@
         const token = ++reqId;
         retryCount = 0;
 
-        // Immediate UI feedback — instantly shows known title, artist, and duration (never stuck at 0:00)
+        // Immediate UI feedback — never stuck at 0:00
         $('song-title').textContent = s.title;
         $('song-artist').textContent = s.artist || 'Picked for your date';
         $('song-reason').textContent = matchedBy[id] ? `Paired with: ${matchedBy[id]}` : 'Curated for your evening in Dhaka';
@@ -1303,12 +1452,22 @@
         renderQueue();
         updateMediaSession(s);
 
-        // Clean teardown: immediately halts any previous audio stream & closes socket
-        audio.pause();
-        audio.removeAttribute('src');
-        audio.load();
+        // Preload next track in queue with secondary buffer for gapless playback
+        const nextId = list[(i + 1) % list.length];
+        if (nextId && nextId !== id) {
+          AudioCache.cacheSong(nextId);
+          AudioCache.getBlobUrl(nextId).then(bUrl => {
+            standbyAudio.src = bUrl || AudioCache.resolveUrl(SONGS[nextId]);
+          });
+        }
 
-        audio.src = encodePath(s.file);
+        // Check if track is already in local memory / CacheStorage (0ms latency!)
+        const cachedBlob = await AudioCache.getBlobUrl(id);
+        const targetSrc = cachedBlob || AudioCache.resolveUrl(s);
+
+        // Seamless transition without recreating audio element pipeline
+        audio.pause();
+        audio.src = targetSrc;
 
         if (autoPlay) {
           setBuffering(true);
@@ -1316,6 +1475,13 @@
         } else {
           setBuffering(false);
           syncUI(false);
+        }
+
+        // Cache in background for instant repeat plays
+        if (!cachedBlob) {
+          AudioCache.cacheSong(id).then(bUrl => {
+            if (bUrl) renderQueue();
+          });
         }
       }
 
@@ -1325,7 +1491,7 @@
         load(true);
       };
 
-      // Audio element listeners
+      // Audio event listeners
       audio.addEventListener('play', () => {
         setBuffering(false);
         syncUI(true);
@@ -1352,7 +1518,7 @@
       audio.addEventListener('progress', updateProgress);
       audio.addEventListener('ended', () => go(1));
       audio.addEventListener('error', () => {
-        if (!audio.error || audio.error.code === 1) return; // Ignore user-initiated aborts
+        if (!audio.error || audio.error.code === 1) return;
 
         if (retryCount < 2) {
           retryCount++;
@@ -1361,7 +1527,7 @@
             audio.load();
             if (pos > 0) audio.currentTime = pos;
             audio.play().catch(() => {});
-          }, 500 * retryCount);
+          }, 400 * retryCount);
           return;
         }
 
@@ -1412,6 +1578,7 @@
 
       audio.volume = 0.8;
       fill($('vol'), 80);
+
       // Header music pill controls
       const headerBtn = $('btn-music-toggle');
       if (headerBtn) {
@@ -1438,6 +1605,26 @@
         });
       }
 
+      function computeRanking(choices) {
+        const score = {};
+        matchedBy = {};
+        Object.keys(choices).forEach(c => {
+          const pickName = choices[c];
+          const pair = SONG_FOR[pickName];
+          if (!pair) return;
+          const [pri, sec] = Array.isArray(pair) ? pair : [pair, null];
+          if (pri) {
+            score[pri] = (score[pri] || 0) + WEIGHT[c];
+            matchedBy[pri] = matchedBy[pri] ? `${matchedBy[pri]} & ${pickName}` : pickName;
+          }
+          if (sec) {
+            score[sec] = (score[sec] || 0) + WEIGHT[c] * 0.55;
+            if (!matchedBy[sec]) matchedBy[sec] = pickName;
+          }
+        });
+        return Object.keys(SONGS).sort((a, b) => (score[b] || 0) - (score[a] || 0));
+      }
+
       return {
         start(choices) {
           const sig = [choices.place, choices.food, choices.activity].join('|');
@@ -1446,31 +1633,28 @@
             return;
           }
           lastSig = sig;
-          const score = {};
-          matchedBy = {};
-          Object.keys(choices).forEach(c => {
-            const pickName = choices[c];
-            const pair = SONG_FOR[pickName];
-            if (!pair) return;
-            const [pri, sec] = Array.isArray(pair) ? pair : [pair, null];
-            if (pri) {
-              score[pri] = (score[pri] || 0) + WEIGHT[c];
-              matchedBy[pri] = matchedBy[pri] ? `${matchedBy[pri]} & ${pickName}` : pickName;
-            }
-            if (sec) {
-              score[sec] = (score[sec] || 0) + WEIGHT[c] * 0.55;
-              if (!matchedBy[sec]) matchedBy[sec] = pickName;
-            }
-          });
-          list = Object.keys(SONGS).sort((a, b) => (score[b] || 0) - (score[a] || 0));
+          list = computeRanking(choices);
           i = 0;
+          AudioCache.prioritize(list);
           load(true);
         },
+        updateChoicePriority(choices) {
+          list = computeRanking(choices);
+          AudioCache.prioritize(list);
+        },
         initAutoPlay(choices) {
+          list = computeRanking(choices);
+          AudioCache.prioritize(list);
           this.start(choices);
-        }
+        },
+        getAudioCache: () => AudioCache,
+        getList: () => list,
+        getCurrentIndex: () => i
       };
     })();
+
+    window.player = player;
+    window.AudioCache = player.getAudioCache();
 
     // Start music and loading system immediately as soon as user enters the website
     ensureChoices();
