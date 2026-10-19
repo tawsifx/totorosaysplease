@@ -301,6 +301,10 @@
           <input id="vol" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
         </div>
 
+        <div class="queue-header flex items-center justify-between text-xs text-stone-500 mt-4 mb-1 px-1">
+          <span>Curated Soundtrack (Top 6 Matches)</span>
+          <span class="text-[10px] text-stone-400">Tailored to your date</span>
+        </div>
         <ul id="queue" class="queue"></ul>
       </div>
 
@@ -1176,12 +1180,8 @@
       }
 
       function prioritize(ids) {
-        // Move prioritized IDs to front of queue
-        const newQ = [...ids.filter(id => !blobUrls.has(id) && !inFlight.has(id))];
-        for (const existing of prefetchQueue) {
-          if (!newQ.includes(existing)) newQ.push(existing);
-        }
-        prefetchQueue = newQ;
+        // Exclusively prefetch the active preferential tracks to minimize bandwidth & memory latency
+        prefetchQueue = ids.filter(id => !blobUrls.has(id) && !inFlight.has(id));
         if (window.requestIdleCallback) {
           window.requestIdleCallback(() => runWorker(), { timeout: 1500 });
         } else {
@@ -1212,7 +1212,9 @@
       const standbyAudio = new Audio();
       standbyAudio.preload = 'auto';
 
-      let list = Object.keys(SONGS);
+      const PREFERENTIAL_LIMIT = 6;
+      const allSongKeys = Object.keys(SONGS);
+      let list = allSongKeys.slice(0, PREFERENTIAL_LIMIT);
       let i = 0;
       let lastSig = '';
       let matchedBy = {};
@@ -1432,7 +1434,8 @@
       }
 
       async function load(autoPlay = true) {
-        if (!list.length) list = Object.keys(SONGS);
+        if (!list.length) list = allSongKeys.slice(0, PREFERENTIAL_LIMIT);
+        if (i >= list.length) i = 0;
         const id = list[i], s = SONGS[id];
         if (!s) return;
 
@@ -1622,7 +1625,11 @@
             if (!matchedBy[sec]) matchedBy[sec] = pickName;
           }
         });
-        return Object.keys(SONGS).sort((a, b) => (score[b] || 0) - (score[a] || 0));
+        // Deterministic sort: return strictly the top 6 songs matching preferences
+        return allSongKeys
+          .slice()
+          .sort((a, b) => (score[b] || 0) - (score[a] || 0) || (allSongKeys.indexOf(a) - allSongKeys.indexOf(b)))
+          .slice(0, PREFERENTIAL_LIMIT);
       }
 
       return {
@@ -1633,14 +1640,22 @@
             return;
           }
           lastSig = sig;
+          const curId = list[i];
           list = computeRanking(choices);
-          i = 0;
+          const newIdx = curId ? list.indexOf(curId) : -1;
+          i = newIdx !== -1 ? newIdx : 0;
           AudioCache.prioritize(list);
           load(true);
         },
         updateChoicePriority(choices) {
+          const curId = list[i];
           list = computeRanking(choices);
+          const newIdx = curId ? list.indexOf(curId) : -1;
+          if (newIdx !== -1) {
+            i = newIdx;
+          }
           AudioCache.prioritize(list);
+          renderQueue();
         },
         initAutoPlay(choices) {
           list = computeRanking(choices);

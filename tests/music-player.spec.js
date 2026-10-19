@@ -7,7 +7,7 @@ test.describe("Soundtrack Audio Engine & Music Player", () => {
     await page.waitForFunction(() => !!window.player && !!window.AudioCache && !!window.goTo);
   });
 
-  test("initializes player and AudioCache on window with 11 tracks", async ({ page }) => {
+  test("initializes player and AudioCache on window with 6 preferential tracks", async ({ page }) => {
     const check = await page.evaluate(() => {
       return {
         hasPlayer: typeof window.player === "object",
@@ -24,10 +24,10 @@ test.describe("Soundtrack Audio Engine & Music Player", () => {
     expect(check.hasStart).toBe(true);
     expect(check.hasUpdatePriority).toBe(true);
     expect(check.hasGetList).toBe(true);
-    expect(check.trackCount).toBe(11);
+    expect(check.trackCount).toBe(6);
   });
 
-  test("reorders playlist according to user choices", async ({ page }) => {
+  test("reorders and filters playlist to top 6 tracks according to user choices", async ({ page }) => {
     // Update with choices that pair heavily with 'amar' ('Dhanmondi Lake' + 'Bhuna Khichuri & Beguni' + 'Twilight Lake Walk')
     await page.evaluate(() => {
       window.player.updateChoicePriority({
@@ -38,23 +38,53 @@ test.describe("Soundtrack Audio Engine & Music Player", () => {
     });
 
     const listAfter = await page.evaluate(() => window.player.getList());
-    expect(listAfter.length).toBe(11);
+    expect(listAfter.length).toBe(6);
     expect(listAfter[0]).toBe("amar");
   });
 
-  test("navigates to screen-final and renders 11 playlist queue items with title and artist", async ({ page }) => {
+  test("dynamically switches preferential 6 songs when user selects different preferences", async ({ page }) => {
+    // Preference Set A: Folk / Lake vibe
+    await page.evaluate(() => {
+      window.player.updateChoicePriority({
+        place: "Dhanmondi Lake",
+        food: "Bhuna Khichuri & Beguni",
+        activity: "Twilight Lake Walk"
+      });
+    });
+    const listA = await page.evaluate(() => window.player.getList());
+    expect(listA.length).toBe(6);
+    expect(listA).toContain("amar");
+
+    // Preference Set B: Heritage / Romance vibe ('Lalbagh Fort' + 'Wood-Fired Pizza Night' + 'Postcards & Polaroids')
+    await page.evaluate(() => {
+      window.player.updateChoicePriority({
+        place: "Lalbagh Fort",
+        food: "Wood-Fired Pizza Night",
+        activity: "Postcards & Polaroids"
+      });
+    });
+    const listB = await page.evaluate(() => window.player.getList());
+    expect(listB.length).toBe(6);
+    // Should favor 'lovestory' and 'photograph'
+    expect(listB).toContain("lovestory");
+    expect(listB).toContain("photograph");
+    // Lists should differ based on preferences
+    expect(listA[0]).not.toBe(listB[0]);
+  });
+
+  test("navigates to screen-final and renders 6 playlist queue items with title and artist", async ({ page }) => {
     // Navigate directly to screen-final
     await page.evaluate(() => window.goTo("screen-final"));
     await expect(page.locator("#screen-final")).toHaveClass(/active/);
 
     const items = page.locator("#queue .queue-item");
-    await expect(items).toHaveCount(11);
+    await expect(items).toHaveCount(6);
 
     const firstTitle = await items.first().locator(".q-title").textContent();
     expect(firstTitle?.trim().length).toBeGreaterThan(0);
   });
 
-  test("next and previous track buttons change current index and song metadata", async ({ page }) => {
+  test("next and previous track buttons cycle within the 6 preferential songs", async ({ page }) => {
     await page.evaluate(() => window.goTo("screen-final"));
     await expect(page.locator("#screen-final")).toHaveClass(/active/);
 
@@ -63,7 +93,7 @@ test.describe("Soundtrack Audio Engine & Music Player", () => {
     // Click next track
     await page.click("#btn-next");
     const nextIdx = await page.evaluate(() => window.player.getCurrentIndex());
-    expect(nextIdx).toBe((initialIdx + 1) % 11);
+    expect(nextIdx).toBe((initialIdx + 1) % 6);
 
     const nextTitle = await page.locator("#song-title").textContent();
     expect(nextTitle?.trim().length).toBeGreaterThan(0);
