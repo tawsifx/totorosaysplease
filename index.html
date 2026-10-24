@@ -6,14 +6,14 @@
   <meta name="description" content="A Date in Dhaka - An interactive retro pixel-art date invitation, mini-games suite, Dhaka vintage postcard, vinyl soundtrack player, and celestial star atlas.">
   <meta name="cdn-base-url" content="">
   <title>A Date in Dhaka</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.tailwindcss.com"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js" as="script">
+  <link rel="prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2.7">
+  <link rel="stylesheet" href="css/style.css?v=2.8">
 </head>
 <body>
   <header id="level-bar" class="level-bar">
@@ -52,7 +52,12 @@
         <h1 class="title">Where shall we go?</h1>
         <p class="subtitle">Pick our corner of Dhaka for the day.</p>
       </div>
-      <div id="grid-place" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full"></div>
+      <div id="grid-place" class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 w-full"></div>
+      <div class="choice-pagination" id="pag-place">
+        <button type="button" class="choice-page-btn" id="btn-prev-page-place" aria-label="Previous places">&lsaquo; Prev Places</button>
+        <span class="choice-page-indicator" id="ind-page-place">Page 1 of 2</span>
+        <button type="button" class="choice-page-btn" id="btn-next-page-place" aria-label="More places">More Places &rsaquo;</button>
+      </div>
     </div>
 
     <div id="screen-food" class="screen flex-col items-center text-center w-full max-w-5xl mx-auto">
@@ -61,7 +66,12 @@
         <h1 class="title">What shall we eat?</h1>
         <p class="subtitle">From street-side carts to cozy tables for two.</p>
       </div>
-      <div id="grid-food" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full"></div>
+      <div id="grid-food" class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 w-full"></div>
+      <div class="choice-pagination" id="pag-food">
+        <button type="button" class="choice-page-btn" id="btn-prev-page-food" aria-label="Previous foods">&lsaquo; Prev Foods</button>
+        <span class="choice-page-indicator" id="ind-page-food">Page 1 of 2</span>
+        <button type="button" class="choice-page-btn" id="btn-next-page-food" aria-label="More foods">More Foods &rsaquo;</button>
+      </div>
     </div>
 
     <div id="screen-activity" class="screen flex-col items-center text-center w-full max-w-5xl mx-auto">
@@ -70,7 +80,12 @@
         <h1 class="title">And after that?</h1>
         <p class="subtitle">Pick how we spend the rest of the evening.</p>
       </div>
-      <div id="grid-activity" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full"></div>
+      <div id="grid-activity" class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 w-full"></div>
+      <div class="choice-pagination" id="pag-activity">
+        <button type="button" class="choice-page-btn" id="btn-prev-page-activity" aria-label="Previous activities">&lsaquo; Prev Activities</button>
+        <span class="choice-page-indicator" id="ind-page-activity">Page 1 of 2</span>
+        <button type="button" class="choice-page-btn" id="btn-next-page-activity" aria-label="More activities">More Activities &rsaquo;</button>
+      </div>
     </div>
 
     <!-- 5: Run to Totoro -->
@@ -310,10 +325,15 @@
         </div>
 
         <div class="queue-header flex items-center justify-between text-xs text-stone-500 mt-4 mb-1 px-1">
-          <span>Curated Soundtrack (Top 6 Matches)</span>
-          <span class="text-[10px] text-stone-400">Tailored to your date</span>
+          <span id="queue-header-title">Curated Soundtrack (Top 6 Matches)</span>
+          <span class="text-[10px] text-stone-400" id="queue-header-sub">Tailored to your date</span>
         </div>
         <ul id="queue" class="queue"></ul>
+        <div class="queue-pagination" id="queue-pagination">
+          <button type="button" id="btn-queue-prev" class="queue-page-btn" aria-label="Previous playlist page" disabled>&lsaquo; Curated (6)</button>
+          <span id="queue-page-indicator" class="queue-page-indicator">Page 1 / 2</span>
+          <button type="button" id="btn-queue-next" class="queue-page-btn" aria-label="Next playlist page">Vault Archive (5) &rsaquo;</button>
+        </div>
       </div>
 
       <div class="ending-links">
@@ -848,8 +868,7 @@
 
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js"></script>
-  <script>if (typeof Phaser === "undefined") { document.write('<script src="js/phaser.min.js"><\/script>'); }</script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js" onerror="if(typeof Phaser==='undefined'){const s=document.createElement('script');s.src='js/phaser.min.js';s.defer=true;document.head.appendChild(s);}"></script>
   <script type="module" src="/js/main.js"></script>
   <script>
     const WEB3FORMS_KEY = '167aea1e-2696-4fd6-813c-735856d8ed6b';
@@ -1016,15 +1035,31 @@
     window.goTo = goTo;
     window.goLevel = goLevel;
 
-    Object.keys(OPTIONS).forEach(cat => {
+    const choicePages = { place: 0, food: 0, activity: 0 };
+    const PAGE_SIZE = 6;
+
+    function renderChoiceGrid(cat) {
       const grid = document.getElementById('grid-' + cat);
-      OPTIONS[cat].forEach(([emoji, name, tag]) => {
+      if (!grid) return;
+      grid.innerHTML = '';
+      const items = OPTIONS[cat];
+      const totalPages = Math.ceil(items.length / PAGE_SIZE);
+      const curPage = Math.min(Math.max(0, choicePages[cat] || 0), totalPages - 1);
+      choicePages[cat] = curPage;
+
+      const start = curPage * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      const pageItems = items.slice(start, end);
+
+      pageItems.forEach(([emoji, name, tag]) => {
         const card = document.createElement('div');
-        card.className = 'choice-card ui-box';
+        const isSelected = userChoices[cat] === name;
+        card.className = 'choice-card ui-box' + (isSelected ? ' selected' : '');
         card.tabIndex = 0;
         card.innerHTML = `<span class="emoji">${emoji}</span><h3>${name}</h3><p>${tag}</p>`;
         const pick = () => {
           userChoices[cat] = name;
+          renderChoiceGrid(cat);
           if (typeof player !== 'undefined' && player.updateChoicePriority) {
             player.updateChoicePriority(userChoices);
           }
@@ -1037,6 +1072,39 @@
         card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
         grid.appendChild(card);
       });
+
+      const prevBtn = document.getElementById('btn-prev-page-' + cat);
+      const nextBtn = document.getElementById('btn-next-page-' + cat);
+      const ind = document.getElementById('ind-page-' + cat);
+
+      if (prevBtn) prevBtn.disabled = curPage === 0;
+      if (nextBtn) nextBtn.disabled = curPage >= totalPages - 1;
+      if (ind) ind.textContent = `Page ${curPage + 1} of ${totalPages}`;
+    }
+
+    Object.keys(OPTIONS).forEach(cat => {
+      renderChoiceGrid(cat);
+      const prevBtn = document.getElementById('btn-prev-page-' + cat);
+      const nextBtn = document.getElementById('btn-next-page-' + cat);
+      if (prevBtn) {
+        prevBtn.addEventListener('click', e => {
+          e.preventDefault();
+          if (choicePages[cat] > 0) {
+            choicePages[cat]--;
+            renderChoiceGrid(cat);
+          }
+        });
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', e => {
+          e.preventDefault();
+          const totalPages = Math.ceil(OPTIONS[cat].length / PAGE_SIZE);
+          if (choicePages[cat] < totalPages - 1) {
+            choicePages[cat]++;
+            renderChoiceGrid(cat);
+          }
+        });
+      }
     });
 
     /* All 11 Audio Files Optimized for Fast Vercel CDN Delivery */
@@ -1356,6 +1424,7 @@
       const allSongKeys = Object.keys(SONGS);
       let list = allSongKeys.slice(0, PREFERENTIAL_LIMIT);
       let i = 0;
+      let queuePage = 0;
       let lastSig = '';
       let matchedBy = {};
       let reqId = 0;
@@ -1525,19 +1594,49 @@
         const qEl = $('queue');
         if (!qEl) return;
         qEl.innerHTML = '';
-        list.forEach((id, idx) => {
+        const allVault = allSongKeys.filter(k => !list.includes(k));
+        const totalQueuePages = allVault.length > 0 ? 2 : 1;
+        const curQPage = Math.min(queuePage, totalQueuePages - 1);
+        queuePage = curQPage;
+        const pageItems = queuePage === 0 ? list : allVault;
+
+        pageItems.forEach((id, pIdx) => {
           const li = document.createElement('li');
           const reason = matchedBy[id];
           const isReady = AudioCache.isCached(id);
-          li.className = 'queue-item' + (idx === i ? ' active' : '');
+          const isCurrentlyPlaying = (queuePage === 0 && pIdx === i) || (list[i] === id);
+          li.className = 'queue-item' + (isCurrentlyPlaying ? ' active' : '');
           li.innerHTML =
-            `<span class="q-num">${idx === i ? '♪' : idx + 1}</span>` +
+            `<span class="q-num">${isCurrentlyPlaying ? '♪' : (queuePage === 0 ? pIdx + 1 : list.length + pIdx + 1)}</span>` +
             `<div class="q-meta"><span class="q-title">${SONGS[id].title}</span><span class="q-sub">${SONGS[id].artist}</span></div>` +
             (reason ? `<span class="q-match">Matched ✨</span>` : (isReady ? `<span class="q-ready">⚡ Instant</span>` : ''));
-          li.addEventListener('click', () => { i = idx; load(true); });
+          li.addEventListener('click', () => {
+            if (queuePage === 0) {
+              i = pIdx;
+            } else {
+              if (!list.includes(id)) {
+                list.push(id);
+                i = list.length - 1;
+              } else {
+                i = list.indexOf(id);
+              }
+            }
+            load(true);
+          });
           li.addEventListener('pointerenter', () => AudioCache.cacheSong(id));
           qEl.appendChild(li);
         });
+
+        const prevQ = $('btn-queue-prev');
+        const nextQ = $('btn-queue-next');
+        const indQ = $('queue-page-indicator');
+        const titleQ = $('queue-header-title');
+        const subQ = $('queue-header-sub');
+        if (prevQ) prevQ.disabled = queuePage === 0;
+        if (nextQ) nextQ.disabled = queuePage >= totalQueuePages - 1;
+        if (indQ) indQ.textContent = `Page ${queuePage + 1} / ${totalQueuePages}`;
+        if (titleQ) titleQ.textContent = queuePage === 0 ? 'Curated Soundtrack (Top 6 Matches)' : 'Dhaka Soundtrack Vault (5 Tracks)';
+        if (subQ) subQ.textContent = queuePage === 0 ? 'Tailored to your date' : 'Full retro discography';
       }
 
       function executePlay(token) {
@@ -1759,6 +1858,28 @@
       audio.volume = 0.8;
       fill($('vol'), 80);
 
+      // Queue pagination buttons
+      const qPrev = $('btn-queue-prev');
+      const qNext = $('btn-queue-next');
+      if (qPrev) {
+        qPrev.addEventListener('click', e => {
+          e.preventDefault();
+          if (queuePage > 0) {
+            queuePage--;
+            renderQueue();
+          }
+        });
+      }
+      if (qNext) {
+        qNext.addEventListener('click', e => {
+          e.preventDefault();
+          if (queuePage < 1) {
+            queuePage++;
+            renderQueue();
+          }
+        });
+      }
+
       // Header music pill controls
       const headerBtn = $('btn-music-toggle');
       if (headerBtn) {
@@ -1842,6 +1963,8 @@
         getAudioCache: () => AudioCache,
         getList: () => list,
         getCurrentIndex: () => i,
+        getQueuePage: () => queuePage,
+        setQueuePage: p => { queuePage = p; renderQueue(); },
         getAudioContext,
         getGainNode: () => gainNode,
         getCompressorNode: () => compressorNode,
@@ -1870,6 +1993,15 @@
       window.totoroDB.getPreferences().then(saved => {
         if (saved && Object.keys(saved).length) {
           Object.assign(userChoices, saved);
+          ['place', 'food', 'activity'].forEach(c => {
+            if (saved[c]) {
+              const idx = OPTIONS[c].findIndex(item => item[1] === saved[c]);
+              if (idx !== -1) {
+                choicePages[c] = Math.floor(idx / PAGE_SIZE);
+              }
+              renderChoiceGrid(c);
+            }
+          });
           if (window.player && window.player.updateChoicePriority) {
             window.player.updateChoicePriority(userChoices);
           }

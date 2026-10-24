@@ -1363,3 +1363,89 @@ body {
 .vitals-totoro:hover { transform: scale(1.06); border-color: var(--claude-terracotta); box-shadow: 0 12px 28px -8px rgba(217, 119, 87, .35); }
 .vitals-tap-hint { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: var(--claude-terracotta); margin-top: .1rem; text-transform: uppercase; letter-spacing: .06em; }
 .vitals-dist-note { font-size: .86rem; color: var(--muted); margin-top: .75rem; }
+
+/* Choice Cards Pagination */
+.choice-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+.choice-page-btn {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(60, 50, 45, 0.05);
+}
+.choice-page-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+.choice-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.choice-page-indicator {
+  font-size: 0.82rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 0.35rem 0.85rem;
+  background: rgba(60, 50, 45, 0.05);
+  border-radius: 9999px;
+  letter-spacing: 0.04em;
+}
+.choice-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 2px rgba(178, 72, 104, 0.2);
+}
+
+/* Queue Pagination */
+.queue-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.65rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(60, 50, 45, 0.08);
+}
+.queue-page-btn {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 500;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.queue-page-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+}
+.queue-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.queue-page-indicator {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+}
