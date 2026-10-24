@@ -2,11 +2,11 @@
 
 > An interactive romantic pixel-art adventure set across the heritage lanes and nostalgic memories of Dhaka.
 
-- Canonical URL: https://totorosaysplease.vercel.app/
-- Description: An interactive experience featuring date itinerary selection, retro mini-games (Run to Totoro, Fuchka Chase, Run to the Bus Stop), vintage aerogramme postbox, curated vinyl soundtrack player, and celestial telescope star atlas.
-- Key Sections:
-  - Date Itinerary Planner: TSC, Dhanmondi Lake, Rabindra Sarobar, Hatirjheel, Ahsan Manzil
-  - Mini-Games Suite: Canvas & Phaser arcade games
-  - DU Postcard: Interactive vintage postal desk with procedural chiptune synth SFX
-  - Vinyl Soundtrack Player: 11 curated romantic tracks with 6-song dynamic preference ranking
-  - Epilogues: Dhaka Totoro Locator radar, Celestial Star Atlas, and Totoro's Vitals monitor
+## Documentation & Features
+- [Date Itinerary Planner](https://totorosaysplease.vercel.app/#screen-place): 12 curated Dhaka places, foods, and adventures with paginated browsing.
+- [Retro Mini-Games Suite](https://totorosaysplease.vercel.app/#screen-game): High-performance canvas & Phaser arcade games including Run to Totoro, Fuchka Chase, and Run to the Bus Stop.
+- [DU Postcard](https://totorosaysplease.vercel.app/#screen-letter): Vintage aerogramme postbox with Web Audio chiptune synthesis and IndexedDB persistence.
+- [Vinyl Soundtrack Player](https://totorosaysplease.vercel.app/#screen-final): Curated romantic tracks with dynamic 6-song preference matching and full 11-track vault pagination.
+- [Totoro Locator Radar](https://totorosaysplease.vercel.app/#screen-map): Retro Dhaka GPS radar tracker and review ledger.
+- [Celestial Star Atlas](https://totorosaysplease.vercel.app/#screen-telescope): Astrolabe telescope lens and star discovery catalog.
+- [Totoro Vitals Monitor](https://totorosaysplease.vercel.app/#screen-vitals): Bio-telemetry lead-II ECG cardiac rhythm monitor.
