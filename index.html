@@ -16,6 +16,33 @@
   <link rel="stylesheet" href="css/style.css?v=2.8">
 </head>
 <body>
+  <!-- Site Initial Loading Skeleton Overlay -->
+  <div id="site-skeleton" class="site-skeleton-overlay" role="status" aria-label="Loading A Date in Dhaka..." aria-busy="true">
+    <div class="site-skeleton-header">
+      <div class="skeleton-shimmer skeleton-btn-sm"></div>
+      <div class="site-skeleton-header-center">
+        <div class="skeleton-shimmer skeleton-line" style="width: 80px; height: 10px; margin-bottom: 4px;"></div>
+        <div class="skeleton-shimmer skeleton-line" style="width: 130px; height: 14px;"></div>
+      </div>
+      <div class="skeleton-shimmer skeleton-pill-sm"></div>
+    </div>
+    <div class="site-skeleton-card ui-box">
+      <div class="skeleton-shimmer skeleton-circle" style="width: 64px; height: 64px; margin: 0 auto 1.5rem auto;"></div>
+      <div class="skeleton-shimmer skeleton-line" style="width: 100px; height: 12px; margin: 0 auto 1rem auto;"></div>
+      <div class="skeleton-shimmer skeleton-line" style="width: 82%; height: 28px; margin: 0 auto 0.6rem auto;"></div>
+      <div class="skeleton-shimmer skeleton-line" style="width: 58%; height: 28px; margin: 0 auto 1.25rem auto;"></div>
+      <div class="skeleton-shimmer skeleton-line" style="width: 140px; height: 16px; margin: 0 auto 2rem auto;"></div>
+      <div class="site-skeleton-btn-row">
+        <div class="skeleton-shimmer skeleton-btn" style="width: 110px;"></div>
+        <div class="skeleton-shimmer skeleton-btn" style="width: 95px;"></div>
+      </div>
+    </div>
+    <div class="site-skeleton-brand">
+      <span class="site-skeleton-totoro-icon">🌸</span>
+      <span class="site-skeleton-brand-text">A Date in Dhaka • Retro Suite</span>
+    </div>
+  </div>
+
   <header id="level-bar" class="level-bar">
     <button id="btn-prev-level" class="lvl-btn" aria-label="Back">&lsaquo; Back</button>
     <div class="lvl-center"><p id="lvl-count">Level 1 / 13</p><p id="lvl-name">The Invitation</p></div>
@@ -96,7 +123,16 @@
         <p class="subtitle">Jump over the obstacles with Space, the up arrow, or a tap.</p>
         <button class="game-bgm-toggle" type="button" aria-label="Toggle anime ambient BGM">🎵 Anime BGM: Playing</button>
       </div>
-      <div class="ui-box game-card"><canvas id="game-canvas" tabindex="0"></canvas></div>
+      <div class="ui-box game-card">
+        <div class="game-skeleton" id="game-skeleton-runner" aria-hidden="true">
+          <div class="game-skeleton-badge">
+            <span class="spinner"></span>
+            <span>Loading Run to Totoro…</span>
+          </div>
+          <div class="game-skeleton-bar skeleton-shimmer"></div>
+        </div>
+        <canvas id="game-canvas" tabindex="0"></canvas>
+      </div>
       <p id="game-hint" class="subtitle mt-4"></p>
       <button id="btn-game-continue" class="modern-btn btn-primary mt-4" hidden>Continue &rsaquo;</button>
     </div>
@@ -109,7 +145,16 @@
         <p class="subtitle">Eat every fuchka before the CNGs, rickshaws and crows catch you. Mishti doi scares them off. Clear 3 stages, then find Totoro.</p>
         <button class="game-bgm-toggle" type="button" aria-label="Toggle anime ambient BGM">🎵 Anime BGM: Playing</button>
       </div>
-      <div class="ui-box game-card"><canvas id="pac-canvas" tabindex="0"></canvas></div>
+      <div class="ui-box game-card">
+        <div class="game-skeleton" id="game-skeleton-pac" aria-hidden="true">
+          <div class="game-skeleton-badge">
+            <span class="spinner"></span>
+            <span>Loading Fuchka Chase…</span>
+          </div>
+          <div class="game-skeleton-bar skeleton-shimmer"></div>
+        </div>
+        <canvas id="pac-canvas" tabindex="0"></canvas>
+      </div>
       <p id="pac-hint" class="subtitle mt-4">Arrow keys or WASD to move, or swipe on a touch screen.</p>
     </div>
 
@@ -121,7 +166,16 @@
         <p class="subtitle">Hop over potholes and water, stomp rickshaws and CNGs, and reach Totoro. 3 stages through Dhaka.</p>
         <button class="game-bgm-toggle" type="button" aria-label="Toggle anime ambient BGM">🎵 Anime BGM: Playing</button>
       </div>
-      <div class="ui-box game-card"><canvas id="mario-canvas" tabindex="0"></canvas></div>
+      <div class="ui-box game-card">
+        <div class="game-skeleton" id="game-skeleton-mario" aria-hidden="true">
+          <div class="game-skeleton-badge">
+            <span class="spinner"></span>
+            <span>Loading Run to the Bus Stop…</span>
+          </div>
+          <div class="game-skeleton-bar skeleton-shimmer"></div>
+        </div>
+        <canvas id="mario-canvas" tabindex="0"></canvas>
+      </div>
       <div class="touch-pad">
         <button class="pad-btn" data-k="left" aria-label="Left">&#9664;</button>
         <button class="pad-btn" data-k="right" aria-label="Right">&#9654;</button>
@@ -153,9 +207,13 @@
         <div class="dhaka-postcard-stage">
           <div class="vintage-postcard-card">
             <div class="postcard-visual">
+              <div class="postcard-skeleton skeleton-shimmer" id="postcard-skeleton" aria-hidden="true">
+                <span class="postcard-skeleton-icon">🎨</span>
+                <span class="postcard-skeleton-label">Unfolding Dhaka Vintage Postcard…</span>
+              </div>
               <picture class="postcard-picture">
                 <source srcset="images/dhaka-postcard.webp" type="image/webp">
-                <img src="images/dhaka-postcard.jpg" alt="Dhaka Twilight at Curzon Hall with blooming Krishnachura and vintage rickshaw" class="postcard-img" loading="lazy" decoding="async" width="1376" height="768">
+                <img src="images/dhaka-postcard.jpg" alt="Dhaka Twilight at Curzon Hall with blooming Krishnachura and vintage rickshaw" class="postcard-img" loading="lazy" decoding="async" width="1376" height="768" onload="document.getElementById('postcard-skeleton')?.classList.add('loaded')">
               </picture>
               <!-- Interactive Hotspots on the Postcard -->
               <div id="svg-rickshaws" class="art-hotspot hotspot-rickshaw" tabindex="0" role="button" aria-label="Ring Rickshaw Bell" title="Ring Rickshaw Bell">
@@ -967,7 +1025,13 @@
         if (window.ambientAudio) window.ambientAudio.play();
         if (window.player && window.player.pause) window.player.pause();
         el('btn-game-continue').hidden = true; el('game-hint').textContent = '';
-        const run = () => { if (window.Game) Game.start(() => { el('btn-game-continue').hidden = false; }); };
+        const run = () => {
+          if (window.Game) {
+            Game.start(() => { el('btn-game-continue').hidden = false; });
+            const sk = el('game-skeleton-runner');
+            if (sk) setTimeout(() => sk.classList.add('hidden'), 240);
+          }
+        };
         if (window.Game) run();
         else {
           el('game-hint').textContent = 'Loading game...';
@@ -977,7 +1041,13 @@
       'screen-pac': () => {
         if (window.ambientAudio) window.ambientAudio.play();
         el('pac-hint').textContent = 'Arrow keys or WASD to move, or swipe on a touch screen.';
-        const run = () => { if (window.PacGame) PacGame.start(() => goLevel(1)); };
+        const run = () => {
+          if (window.PacGame) {
+            PacGame.start(() => goLevel(1));
+            const sk = el('game-skeleton-pac');
+            if (sk) setTimeout(() => sk.classList.add('hidden'), 240);
+          }
+        };
         if (window.PacGame) run();
         else {
           el('pac-hint').textContent = 'Loading game...';
@@ -987,7 +1057,13 @@
       'screen-mario': () => {
         if (window.ambientAudio) window.ambientAudio.play();
         el('mario-hint').textContent = 'Arrow keys / AD to run, Space / Up to jump.';
-        const run = () => { if (window.MarioGame) MarioGame.start(() => goLevel(1)); };
+        const run = () => {
+          if (window.MarioGame) {
+            MarioGame.start(() => goLevel(1));
+            const sk = el('game-skeleton-mario');
+            if (sk) setTimeout(() => sk.classList.add('hidden'), 240);
+          }
+        };
         if (window.MarioGame) run();
         else {
           el('mario-hint').textContent = 'Loading game...';
@@ -2009,6 +2085,26 @@
       }).catch(() => {});
     }
     player.initAutoPlay(userChoices);
+
+    // Dismiss Site Initial Loading Skeleton once core app is initialized
+    const hideSiteSkeleton = () => {
+      const sk = document.getElementById('site-skeleton');
+      if (sk && !sk.classList.contains('skeleton-hidden')) {
+        sk.classList.add('skeleton-hidden');
+        setTimeout(() => { if (sk.parentNode) sk.remove(); }, 420);
+      }
+    };
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(hideSiteSkeleton, 160);
+    } else {
+      window.addEventListener('DOMContentLoaded', () => setTimeout(hideSiteSkeleton, 160), { once: true });
+    }
+
+    // Check if postcard image has already finished loading from cache
+    const postcardImg = document.querySelector('.postcard-img');
+    if (postcardImg && postcardImg.complete) {
+      document.getElementById('postcard-skeleton')?.classList.add('loaded');
+    }
 
     /* ---------- Level 9: Interactive Dhaka University Postbox & Inbuilt Web Audio SFX ---------- */
     (() => {
