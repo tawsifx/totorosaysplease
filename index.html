@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="cdn-base-url" content="">
   <title>A Date in Dhaka</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -77,6 +78,7 @@
         <p class="eyebrow">Level 5</p>
         <h1 class="title">Run to Totoro!</h1>
         <p class="subtitle">Jump over the obstacles with Space, the up arrow, or a tap.</p>
+        <button class="game-bgm-toggle" type="button" aria-label="Toggle anime ambient BGM">🎵 Anime BGM: Playing</button>
       </div>
       <div class="ui-box game-card"><canvas id="game-canvas" tabindex="0"></canvas></div>
       <p id="game-hint" class="subtitle mt-4"></p>
@@ -89,6 +91,7 @@
         <p class="eyebrow">Level 6</p>
         <h1 class="title">Fuchka Chase</h1>
         <p class="subtitle">Eat every fuchka before the CNGs, rickshaws and crows catch you. Mishti doi scares them off. Clear 3 stages, then find Totoro.</p>
+        <button class="game-bgm-toggle" type="button" aria-label="Toggle anime ambient BGM">🎵 Anime BGM: Playing</button>
       </div>
       <div class="ui-box game-card"><canvas id="pac-canvas" tabindex="0"></canvas></div>
       <p id="pac-hint" class="subtitle mt-4">Arrow keys or WASD to move, or swipe on a touch screen.</p>
@@ -100,6 +103,7 @@
         <p class="eyebrow">Level 7</p>
         <h1 class="title">Run to the Bus Stop</h1>
         <p class="subtitle">Hop over potholes and water, stomp rickshaws and CNGs, and reach Totoro. 3 stages through Dhaka.</p>
+        <button class="game-bgm-toggle" type="button" aria-label="Toggle anime ambient BGM">🎵 Anime BGM: Playing</button>
       </div>
       <div class="ui-box game-card"><canvas id="mario-canvas" tabindex="0"></canvas></div>
       <div class="touch-pad">
@@ -133,7 +137,10 @@
         <div class="dhaka-postcard-stage">
           <div class="vintage-postcard-card">
             <div class="postcard-visual">
-              <img src="images/dhaka-postcard.jpg" alt="Dhaka Twilight at Curzon Hall with blooming Krishnachura and vintage rickshaw" class="postcard-img">
+              <picture class="postcard-picture">
+                <source srcset="images/dhaka-postcard.webp" type="image/webp">
+                <img src="images/dhaka-postcard.jpg" alt="Dhaka Twilight at Curzon Hall with blooming Krishnachura and vintage rickshaw" class="postcard-img" loading="lazy" decoding="async" width="1376" height="768">
+              </picture>
               <!-- Interactive Hotspots on the Postcard -->
               <div id="svg-rickshaws" class="art-hotspot hotspot-rickshaw" tabindex="0" role="button" aria-label="Ring Rickshaw Bell" title="Ring Rickshaw Bell">
                 <span class="hotspot-pulse">🔔</span>
@@ -937,6 +944,8 @@
 
     const ENTER = {
       'screen-game': () => {
+        if (window.ambientAudio) window.ambientAudio.play();
+        if (window.player && window.player.pause) window.player.pause();
         el('btn-game-continue').hidden = true; el('game-hint').textContent = '';
         const run = () => { if (window.Game) Game.start(() => { el('btn-game-continue').hidden = false; }); };
         if (window.Game) run();
@@ -946,6 +955,7 @@
         }
       },
       'screen-pac': () => {
+        if (window.ambientAudio) window.ambientAudio.play();
         el('pac-hint').textContent = 'Arrow keys or WASD to move, or swipe on a touch screen.';
         const run = () => { if (window.PacGame) PacGame.start(() => goLevel(1)); };
         if (window.PacGame) run();
@@ -955,6 +965,7 @@
         }
       },
       'screen-mario': () => {
+        if (window.ambientAudio) window.ambientAudio.play();
         el('mario-hint').textContent = 'Arrow keys / AD to run, Space / Up to jump.';
         const run = () => { if (window.MarioGame) MarioGame.start(() => goLevel(1)); };
         if (window.MarioGame) run();
@@ -990,6 +1001,10 @@
       navLock = true; setTimeout(() => { navLock = false; }, 500);
       const from = LEVELS[level].id;
       if (LEAVE[from]) LEAVE[from]();
+      const gameScreens = ['screen-game', 'screen-pac', 'screen-mario'];
+      if (!gameScreens.includes(id) && window.ambientAudio) {
+        window.ambientAudio.pause();
+      }
       if (id === 'screen-final') {
         ensureChoices();
         player.start(userChoices);
@@ -1075,7 +1090,7 @@
     };
     const WEIGHT = { place: 1.3, food: 1.0, activity: 1.5 };
 
-    /* ---------- High-Performance Audio Cache & Streaming Preloader for Vercel CDN ---------- */
+    /* ---------- High-Performance Audio Cache & Streaming Preloader with CDN & Web Audio Support ---------- */
     const AudioCache = (() => {
       const CACHE_NAME = 'totoro-soundtrack-v2';
       const blobUrls = new Map();
@@ -1083,9 +1098,24 @@
       let prefetchQueue = [];
       let isWorkerActive = false;
 
+      function getCdnBaseUrl() {
+        if (typeof window !== 'undefined') {
+          if (window.CDN_BASE_URL) return window.CDN_BASE_URL.replace(/\/$/, '');
+          const metaTag = document.querySelector('meta[name="cdn-base-url"]');
+          if (metaTag && metaTag.content) return metaTag.content.trim().replace(/\/$/, '');
+        }
+        return '';
+      }
+
       function resolveUrl(song) {
         if (!song || !song.file) return '';
         return '/' + song.file.split('/').map(encodeURIComponent).join('/');
+      }
+
+      function resolveCdnUrl(song) {
+        const localPath = resolveUrl(song);
+        const cdn = getCdnBaseUrl();
+        return cdn ? `${cdn}${localPath}` : localPath;
       }
 
       async function getCache() {
@@ -1123,30 +1153,44 @@
 
         const s = SONGS[id];
         if (!s) return null;
-        const url = resolveUrl(s);
+        const localUrl = resolveUrl(s);
+        const cdnUrl = resolveCdnUrl(s);
 
         const promise = (async () => {
           try {
             const cache = await getCache();
             if (cache) {
-              const match = await cache.match(url);
+              const match = await cache.match(localUrl);
               if (match) {
                 const blob = await match.blob();
                 const bUrl = URL.createObjectURL(blob);
                 blobUrls.set(id, bUrl);
                 return bUrl;
               }
-              const res = await fetch(url, { mode: 'cors' });
-              if (res.ok) {
-                try { await cache.put(url, res.clone()); } catch {}
+              // Fetch with CORS: try CDN first if configured, then local fallback
+              let res = null;
+              if (cdnUrl !== localUrl) {
+                try { res = await fetch(cdnUrl, { mode: 'cors' }); } catch {}
+              }
+              if (!res || !res.ok) {
+                res = await fetch(localUrl, { mode: 'cors' });
+              }
+              if (res && res.ok) {
+                try { await cache.put(localUrl, res.clone()); } catch {}
                 const blob = await res.blob();
                 const bUrl = URL.createObjectURL(blob);
                 blobUrls.set(id, bUrl);
                 return bUrl;
               }
             } else {
-              const res = await fetch(url);
-              if (res.ok) {
+              let res = null;
+              if (cdnUrl !== localUrl) {
+                try { res = await fetch(cdnUrl); } catch {}
+              }
+              if (!res || !res.ok) {
+                res = await fetch(localUrl);
+              }
+              if (res && res.ok) {
                 const blob = await res.blob();
                 const bUrl = URL.createObjectURL(blob);
                 blobUrls.set(id, bUrl);
@@ -1154,7 +1198,7 @@
               }
             }
           } catch {
-            // Ignore background fetch failure; live streaming fallback will handle it
+            // Live streaming fallback will handle it
           } finally {
             inFlight.delete(id);
           }
@@ -1194,6 +1238,8 @@
         cacheSong,
         prioritize,
         resolveUrl,
+        resolveCdnUrl,
+        getCdnBaseUrl,
         isCached: id => blobUrls.has(id)
       };
     })();
@@ -1211,6 +1257,96 @@
       // Standby audio element for pre-buffering next track container & headers
       const standbyAudio = new Audio();
       standbyAudio.preload = 'auto';
+
+      // Modern Web Audio API Graph Nodes & Hardware-Accelerated Audio Engine
+      let audioCtx = null;
+      let mediaSourceNode = null;
+      let gainNode = null;
+      let compressorNode = null;
+      let analyserNode = null;
+      let isWebAudioInit = false;
+      let visualizerRafId = null;
+
+      function getAudioContext() {
+        if (!audioCtx) {
+          const AudioContextClass = (typeof window !== 'undefined') ? (window.AudioContext || window.webkitAudioContext) : null;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function initModernAudioPipeline() {
+        if (isWebAudioInit) return;
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        try {
+          audio.crossOrigin = 'anonymous';
+          mediaSourceNode = ctx.createMediaElementSource(audio);
+
+          // 1. Gain Node - Smooth, de-zippered master gain and crossfading
+          gainNode = ctx.createGain();
+          gainNode.gain.setValueAtTime(audio.volume || 0.8, ctx.currentTime);
+
+          // 2. Dynamics Compressor Node - Studio mastering limiter to balance dynamic range & prevent clipping
+          compressorNode = ctx.createDynamicsCompressor();
+          compressorNode.threshold.setValueAtTime(-18, ctx.currentTime);
+          compressorNode.knee.setValueAtTime(24, ctx.currentTime);
+          compressorNode.ratio.setValueAtTime(8, ctx.currentTime);
+          compressorNode.attack.setValueAtTime(0.003, ctx.currentTime);
+          compressorNode.release.setValueAtTime(0.25, ctx.currentTime);
+
+          // 3. Analyser Node - Real-time FFT analysis for music visualization & dynamic beat response
+          analyserNode = ctx.createAnalyser();
+          analyserNode.fftSize = 64;
+          analyserNode.smoothingTimeConstant = 0.82;
+
+          // Connect audio graph: Source -> Gain -> Compressor -> Analyser -> Destination
+          mediaSourceNode.connect(gainNode);
+          gainNode.connect(compressorNode);
+          compressorNode.connect(analyserNode);
+          analyserNode.connect(ctx.destination);
+
+          isWebAudioInit = true;
+        } catch (e) {
+          // Graceful fallback to default audio pipeline
+        }
+      }
+
+      function updateVisualizer() {
+        if (!isPlaying || !analyserNode) {
+          if (visualizerRafId) {
+            cancelAnimationFrame(visualizerRafId);
+            visualizerRafId = null;
+          }
+          return;
+        }
+
+        const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+        analyserNode.getByteFrequencyData(dataArray);
+
+        // Map low, mid, high frequencies to the 3 animated pill bars
+        const low = dataArray[2] || 0;
+        const mid = dataArray[8] || 0;
+        const high = dataArray[16] || 0;
+
+        const pBars = $('music-pill-bars');
+        if (pBars) {
+          const spans = pBars.querySelectorAll('span');
+          if (spans.length >= 3) {
+            spans[0].style.height = `${Math.max(20, Math.min(100, (low / 255) * 100))}%`;
+            spans[1].style.height = `${Math.max(25, Math.min(100, (mid / 255) * 100))}%`;
+            spans[2].style.height = `${Math.max(15, Math.min(100, (high / 255) * 100))}%`;
+          }
+        }
+
+        visualizerRafId = requestAnimationFrame(updateVisualizer);
+      }
 
       const PREFERENTIAL_LIMIT = 6;
       const allSongKeys = Object.keys(SONGS);
@@ -1305,8 +1441,17 @@
         if (playing) {
           isAwaitingUnlock = false;
           setBuffering(false);
-        } else if (!isBuffering) {
-          updateMusicPill();
+          if (analyserNode && !visualizerRafId) {
+            visualizerRafId = requestAnimationFrame(updateVisualizer);
+          }
+        } else {
+          if (visualizerRafId) {
+            cancelAnimationFrame(visualizerRafId);
+            visualizerRafId = null;
+          }
+          if (!isBuffering) {
+            updateMusicPill();
+          }
         }
 
         if ('mediaSession' in navigator) {
@@ -1394,12 +1539,26 @@
       function executePlay(token) {
         if (token !== reqId) return;
         setBuffering(true);
+
+        initModernAudioPipeline();
+        getAudioContext();
+
         const p = audio.play();
         if (p && typeof p.then === 'function') {
           p.then(() => {
             if (token !== reqId) return;
             isAwaitingUnlock = false;
             isPlaying = true;
+
+            // Micro fade-in to target volume smoothly
+            if (gainNode && audioCtx) {
+              try {
+                const now = audioCtx.currentTime;
+                gainNode.gain.setValueAtTime(0.0001, now);
+                gainNode.gain.linearRampToValueAtTime(audio.volume || 0.8, now + 0.05);
+              } catch {}
+            }
+
             syncUI(true);
             setBuffering(false);
             $('song-note').innerHTML = '';
@@ -1417,6 +1576,8 @@
               const unlock = () => {
                 isAwaitingUnlock = false;
                 setBuffering(true);
+                initModernAudioPipeline();
+                getAudioContext();
                 if (audio.paused) executePlay(reqId);
                 ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'].forEach(ev => {
                   window.removeEventListener(ev, unlock, true);
@@ -1441,6 +1602,15 @@
 
         const token = ++reqId;
         retryCount = 0;
+
+        // Micro-fade out current track if already playing to prevent digital click artifacts
+        if (gainNode && audioCtx && isPlaying) {
+          try {
+            const now = audioCtx.currentTime;
+            gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+            gainNode.gain.linearRampToValueAtTime(0.0001, now + 0.035);
+          } catch {}
+        }
 
         // Immediate UI feedback — never stuck at 0:00
         $('song-title').textContent = s.title;
@@ -1576,6 +1746,9 @@
       $('vol').addEventListener('input', e => {
         const v = parseFloat(e.target.value);
         audio.volume = v;
+        if (gainNode && audioCtx && audioCtx.state !== 'closed') {
+          gainNode.gain.setTargetAtTime(v, audioCtx.currentTime, 0.02);
+        }
         fill(e.target, v * 100);
       });
 
@@ -1664,12 +1837,28 @@
         },
         getAudioCache: () => AudioCache,
         getList: () => list,
-        getCurrentIndex: () => i
+        getCurrentIndex: () => i,
+        getAudioContext,
+        getGainNode: () => gainNode,
+        getCompressorNode: () => compressorNode,
+        getAnalyserNode: () => analyserNode,
+        isWebAudioActive: () => isWebAudioInit,
+        pause: () => { audio.pause(); syncUI(false); },
+        play: () => executePlay(++reqId)
       };
     })();
 
     window.player = player;
     window.AudioCache = player.getAudioCache();
+
+    // Attach in-game anime ambient BGM toggle listeners
+    document.querySelectorAll('.game-bgm-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.ambientAudio) {
+          window.ambientAudio.toggle();
+        }
+      });
+    });
 
     // Start music and loading system immediately as soon as user enters the website
     ensureChoices();

@@ -2,12 +2,13 @@
 // Orchestrates procedural audio, pixel-art textures, and Phaser game controllers.
 
 import { sfx } from "./audio/sfx.js";
+import { ambientAudio } from "./audio/ambient.js";
 import { buildMasterSprites } from "./sprites/textures.js";
 import { RunnerGame } from "./games/runner.js";
 import { PacGame } from "./games/pac.js";
 import { MarioGame } from "./games/mario.js";
 
-export { sfx, buildMasterSprites, RunnerGame, PacGame, MarioGame };
+export { sfx, ambientAudio, buildMasterSprites, RunnerGame, PacGame, MarioGame };
 
 // Expose on global window object for HTML event listeners and level navigation
 if (typeof window !== "undefined") {
@@ -15,6 +16,8 @@ if (typeof window !== "undefined") {
   window.PacGame = PacGame;
   window.MarioGame = MarioGame;
   window.sfx = sfx;
+  window.ambientAudio = ambientAudio;
+  window.gameAmbient = ambientAudio;
   window.totoroGamesReady = true;
 
   // Signal that games suite is ready

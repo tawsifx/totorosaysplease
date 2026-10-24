@@ -6,6 +6,7 @@ import path from "path";
 test.describe("Modular File System Architecture", () => {
   const expectedModules = [
     "js/audio/sfx.js",
+    "js/audio/ambient.js",
     "js/sprites/primitives.js",
     "js/sprites/textures.js",
     "js/data/runner-config.js",

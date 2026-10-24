@@ -136,4 +136,90 @@ test.describe("Soundtrack Audio Engine & Music Player", () => {
     expect(cacheTest.isCachedFunction).toBe(true);
     expect(cacheTest.prioritizeFunction).toBe(true);
   });
+
+  test("modern audio api integrates AudioContext, GainNode, DynamicsCompressor, and AnalyserNode", async ({ page }) => {
+    const audioEngineCheck = await page.evaluate(async () => {
+      const p = window.player;
+      if (!p) return { error: "Player missing" };
+
+      const ctx = typeof p.getAudioContext === "function" ? p.getAudioContext() : null;
+      const hasAudioContext = !!ctx && typeof ctx.state === "string";
+
+      // Trigger user play to initialize Web Audio pipeline
+      const btnPlay = document.getElementById("btn-play");
+      if (btnPlay) btnPlay.click();
+
+      // Give Web Audio pipeline a moment to initialize
+      await new Promise(r => setTimeout(r, 60));
+
+      const gainNode = typeof p.getGainNode === "function" ? p.getGainNode() : null;
+      const compressorNode = typeof p.getCompressorNode === "function" ? p.getCompressorNode() : null;
+      const analyserNode = typeof p.getAnalyserNode === "function" ? p.getAnalyserNode() : null;
+      const isWebAudioActive = typeof p.isWebAudioActive === "function" ? p.isWebAudioActive() : false;
+
+      return {
+        hasAudioContext,
+        hasGainNode: !!gainNode,
+        hasCompressorNode: !!compressorNode,
+        hasAnalyserNode: !!analyserNode,
+        isWebAudioActive
+      };
+    });
+
+    expect(audioEngineCheck.hasAudioContext).toBe(true);
+    expect(audioEngineCheck.hasGainNode).toBe(true);
+    expect(audioEngineCheck.hasCompressorNode).toBe(true);
+    expect(audioEngineCheck.hasAnalyserNode).toBe(true);
+    expect(audioEngineCheck.isWebAudioActive).toBe(true);
+  });
+
+  test("AudioCache resolves CDN paths dynamically when CDN base is configured", async ({ page }) => {
+    const cdnTest = await page.evaluate(() => {
+      const cache = window.AudioCache;
+      if (!cache) return { error: "AudioCache missing" };
+
+      // Default resolution without CDN
+      const defaultUrl = cache.resolveUrl({ file: "audio/Amar-Mawte.m4a" });
+
+      // Resolution with CDN
+      window.CDN_BASE_URL = "https://cdn.adateindhaka.com";
+      const cdnUrl = cache.resolveCdnUrl({ file: "audio/Amar-Mawte.m4a" });
+      const cdnBase = cache.getCdnBaseUrl();
+
+      // Reset
+      delete window.CDN_BASE_URL;
+
+      return {
+        defaultUrl,
+        cdnUrl,
+        cdnBase
+      };
+    });
+
+    expect(cdnTest.defaultUrl).toBe("/audio/Amar-Mawte.m4a");
+    expect(cdnTest.cdnBase).toBe("https://cdn.adateindhaka.com");
+    expect(cdnTest.cdnUrl).toBe("https://cdn.adateindhaka.com/audio/Amar-Mawte.m4a");
+  });
+
+  test("renders modern compressed postcard picture element with WebP source and fallback", async ({ page }) => {
+    const postcardCheck = await page.evaluate(() => {
+      const picture = document.querySelector(".postcard-visual picture");
+      const webpSource = document.querySelector(".postcard-visual picture source[type='image/webp']");
+      const img = document.querySelector(".postcard-visual img.postcard-img");
+
+      return {
+        hasPicture: !!picture,
+        hasWebpSource: !!webpSource,
+        webpSrcset: webpSource?.getAttribute("srcset"),
+        hasImg: !!img,
+        imgSrc: img?.getAttribute("src")
+      };
+    });
+
+    expect(postcardCheck.hasPicture).toBe(true);
+    expect(postcardCheck.hasWebpSource).toBe(true);
+    expect(postcardCheck.webpSrcset).toContain("dhaka-postcard.webp");
+    expect(postcardCheck.hasImg).toBe(true);
+    expect(postcardCheck.imgSrc).toContain("dhaka-postcard.jpg");
+  });
 });

@@ -21,6 +21,7 @@ function staticAssetsPlugin(dirs = ["audio", "images", "css"]) {
                 ".jpg": "image/jpeg",
                 ".jpeg": "image/jpeg",
                 ".png": "image/png",
+                ".webp": "image/webp",
                 ".svg": "image/svg+xml",
                 ".css": "text/css",
                 ".js": "text/javascript",
@@ -29,6 +30,34 @@ function staticAssetsPlugin(dirs = ["audio", "images", "css"]) {
               if (mimeMap[ext]) {
                 res.setHeader("Content-Type", mimeMap[ext]);
               }
+
+              // CDN simulation: CORS and Byte-Range (HTTP 206) support for efficient audio & image streaming
+              res.setHeader("Accept-Ranges", "bytes");
+              res.setHeader("Access-Control-Allow-Origin", "*");
+              res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+              res.setHeader("Access-Control-Expose-Headers", "Content-Length, Content-Range, Accept-Ranges");
+
+              const stat = fs.statSync(filePath);
+              const fileSize = stat.size;
+              const range = req.headers.range;
+
+              if (range) {
+                const parts = range.replace(/bytes=/, "").split("-");
+                const start = parseInt(parts[0], 10);
+                const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+                if (!isNaN(start) && start < fileSize) {
+                  const safeEnd = Math.min(end, fileSize - 1);
+                  const chunkSize = (safeEnd - start) + 1;
+                  res.writeHead(206, {
+                    "Content-Range": `bytes ${start}-${safeEnd}/${fileSize}`,
+                    "Content-Length": chunkSize
+                  });
+                  const stream = fs.createReadStream(filePath, { start, end: safeEnd });
+                  return stream.pipe(res);
+                }
+              }
+
+              res.setHeader("Content-Length", fileSize);
               const stream = fs.createReadStream(filePath);
               return stream.pipe(res);
             }
