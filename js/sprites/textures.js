@@ -248,109 +248,219 @@ export function buildMasterSprites() {
     a.outline("#5e546e", 16);
   });
 
-  const pedestrianCanvas = makeSprite(64, 24, 2, a => {
+  const pedestrianCanvas = makeSprite(72, 24, 2, a => {
     const poses = [
-      { legs: [[5, 17, 5], [9, 17, 5]], bob: 0, armX: 3, shawlDx: 0 },
-      { legs: [[4, 16, 6], [10, 18, 4]], bob: -1, armX: 2, shawlDx: 1 },
-      { legs: [[5, 17, 5], [9, 17, 5]], bob: 0, armX: 4, shawlDx: 0 },
-      { legs: [[7, 18, 4], [9, 16, 6]], bob: -1, armX: 5, shawlDx: -1 }
+      { legs: [[6, 17, 5], [10, 17, 5]], bob: 0, armX: 4, backArmX: 11, shawlDx: 0 },
+      { legs: [[5, 16, 6], [11, 18, 4]], bob: -1, armX: 3, backArmX: 12, shawlDx: -1 },
+      { legs: [[6, 17, 5], [10, 17, 5]], bob: 0, armX: 5, backArmX: 10, shawlDx: 0 },
+      { legs: [[8, 18, 4], [10, 16, 6]], bob: -1, armX: 6, backArmX: 9, shawlDx: 1 }
     ];
-    const PANJABI = "#9e3d33", PANJABI_SHD = "#7a2b23", PANJABI_HI = "#bf5045";
-    const PAJAMA = "#f7f5f0", PAJAMA_SHD = "#dfdbd3", SANDAL = "#4a3b32";
-    const SHAWL = "#2d7a6e", SHAWL_HI = "#3da898";
+    const PANJABI = "#b5372d", PANJABI_SHD = "#82231b", PANJABI_HI = "#d94e43";
+    const PAJAMA = "#faf7f2", PAJAMA_SHD = "#ded8ce", SANDAL = "#4d362a", SANDAL_HI = "#7d5946";
+    const SHAWL = "#1e7567", SHAWL_SHD = "#134f45", SHAWL_HI = "#32a391", GOLD = "#f7cb45";
 
-    poses.forEach((p, i) => a.at(i * 16, () => {
+    poses.forEach((p, i) => a.at(i * 18, () => {
       const by = p.bob;
-      a.ell(8, 23, 5, 1.5, "rgba(0,0,0,0.15)");
+      // Soft ground shadow
+      a.ell(9, 23, 5.5, 1.4, "rgba(0,0,0,0.18)");
+      // Back swinging arm
+      a.rect(p.backArmX, 12 + by, 2, 4, PANJABI_SHD);
+      a.rect(p.backArmX, 15 + by, 2, 2, SK_SHD);
+      // Pajama legs & leather kolhapuri sandals
       p.legs.forEach(([lx, ly, lh]) => {
         a.rect(lx, ly + by, 2, lh - 1, PAJAMA);
-        a.px(lx + 1, ly + by, PAJAMA_SHD);
-        a.rect(lx - 1, ly + lh - 1 + by, 3, 2, SANDAL);
+        a.px(lx, ly + by, PAJAMA_SHD);
+        a.rect(lx - 1, ly + lh - 1 + by, 4, 2, SANDAL);
+        a.px(lx + 1, ly + lh - 1 + by, SANDAL_HI);
       });
-      a.rect(5, 11 + by, 6, 7, PANJABI);
+      // Embroidered Dhaka Panjabi tunic
+      a.rect(5, 11 + by, 8, 7, PANJABI);
       a.rect(5, 11 + by, 2, 7, PANJABI_SHD);
-      a.rect(6, 11 + by, 2, 3, PANJABI_HI);
-      a.line(8, 11 + by, 8, 15 + by, PANJABI_SHD);
-      a.px(8, 12 + by, "#f5d77f");
-      a.px(8, 14 + by, "#f5d77f");
-      a.line(6 + p.shawlDx, 11 + by, 5 + p.shawlDx, 17 + by, SHAWL);
-      a.line(7 + p.shawlDx, 11 + by, 6 + p.shawlDx, 16 + by, SHAWL_HI);
-      a.ell(8, 6.5 + by, 3.8, 3.8, HAIR);
-      a.ell(8, 5.8 + by, 3.2, 2.5, HAIR_HI);
-      a.ell(8.2, 7.2 + by, 2.8, 2.8, SK_SHD);
-      a.ell(8, 7 + by, 2.5, 2.5, SK);
-      a.rect(6, 4 + by, 4, 2, HAIR);
+      a.rect(7, 11 + by, 3, 4, PANJABI_HI);
+      a.rect(5, 17 + by, 8, 1, GOLD);
+      // Golden nakshi placket buttons
+      a.line(10, 11 + by, 10, 15 + by, PANJABI_SHD);
+      a.px(10, 12 + by, GOLD);
+      a.px(10, 14 + by, GOLD);
+      // Woven shoulder jhola bag
+      a.line(7, 11 + by, 5, 16 + by, "#8c583a");
+      a.rect(4, 15 + by, 3, 3, "#a86b47");
+      a.px(5, 16 + by, GOLD);
+      // Flowing emerald shawl with golden fringe
+      a.line(6 + p.shawlDx, 11 + by, 4 + p.shawlDx, 17 + by, SHAWL_SHD);
+      a.line(7 + p.shawlDx, 11 + by, 5 + p.shawlDx, 17 + by, SHAWL);
+      a.line(8 + p.shawlDx, 11 + by, 6 + p.shawlDx, 16 + by, SHAWL_HI);
+      a.px(4 + p.shawlDx, 18 + by, GOLD);
+      a.px(5 + p.shawlDx, 18 + by, GOLD);
+      // Head, wavy hair & expressive face (facing right)
+      a.ell(9, 6.5 + by, 4, 3.8, HAIR);
+      a.ell(8.5, 5.5 + by, 3.2, 2.2, HAIR_HI);
+      a.ell(9.5, 7.2 + by, 3, 2.8, SK_SHD);
+      a.ell(9.3, 7 + by, 2.7, 2.6, SK);
+      a.rect(6, 4 + by, 5, 2, HAIR);
       a.px(5, 5 + by, HAIR);
-      a.px(9, 6 + by, EYE_DARK);
-      a.px(9, 8 + by, "#d9756c");
+      a.px(6, 7 + by, HAIR);
+      // Eyebrow, eye with white catchlight & warm smile
+      a.line(10, 5 + by, 11, 5 + by, HAIR);
+      a.rect(10, 6 + by, 2, 2, EYE_DARK);
+      a.px(10, 6 + by, WHITE);
+      a.px(10, 8 + by, "#d9756c");
+      a.px(11, 8 + by, "#7a3b32");
+      // Front swinging arm
       a.rect(p.armX, 12 + by, 2, 4, PANJABI);
+      a.px(p.armX + 1, 12 + by, PANJABI_HI);
       a.rect(p.armX, 15 + by, 2, 2, SK);
     }));
-    a.outline("#382320", 16);
+    a.outline("#36201d", 18);
   });
 
-  const cngCanvas = makeSprite(36, 15, 2, a => {
+  const cngCanvas = makeSprite(44, 17, 2, a => {
+    [0, 22].forEach((ox, i) => a.at(ox, () => {
+      const by = i === 1 ? -1 : 0;
+      // Exhaust chug puffs on rear left
+      if (i === 1) {
+        a.ell(1.5, 11, 1.4, 1.2, "#eceff1");
+        a.px(0, 10, "#cfd8dc");
+      } else {
+        a.px(1, 12, "#cfd8dc");
+      }
+      // Domed green canvas canopy & yellow weather trim
+      a.ell(10, 4.5 + by, 7.5, 2.8, "#1b5e20");
+      a.ell(10, 4.2 + by, 6.8, 2.2, "#43a047");
+      a.line(5, 3 + by, 14, 3 + by, "#66bb6a");
+      a.rect(3, 4 + by, 14, 2, "#fdd835");
+      a.line(3, 5 + by, 16, 5 + by, "#f9a825");
+      // Rear passenger cabin & safety grille (famous "Mama CNG" cage)
+      a.rect(4, 6 + by, 6, 4, "#1a2421");
+      a.line(6, 6 + by, 6, 9 + by, "#81c784");
+      a.line(8, 6 + by, 8, 9 + by, "#81c784");
+      a.line(4, 8 + by, 9, 8 + by, "#4caf50");
+      // Driver compartment & angled glass windshield on right
+      a.rect(10, 6 + by, 4, 4, "#263238");
+      a.line(11, 7 + by, 13, 9 + by, "#90a4ae");
+      a.tri([14, 4 + by], [14, 9 + by], [18, 9 + by], "#29b6f6");
+      a.line(14, 5 + by, 17, 8 + by, "#b3e5fc");
+      a.px(15, 6 + by, WHITE);
+      // Lower green steel body & yellow side stripe
+      a.rect(3, 9 + by, 16, 4, "#1b5e20");
+      a.rect(3, 9 + by, 15, 3, "#2e7d32");
+      a.line(4, 10 + by, 17, 10 + by, "#4caf50");
+      a.line(4, 11 + by, 16, 11 + by, "#fdd835");
+      // Rear red taillight & front chrome bumper + bright headlamp
+      a.rect(2, 9 + by, 1, 2, "#ef5350");
+      a.rect(18, 8 + by, 2, 2, "#ffee58");
+      a.px(19, 8 + by, WHITE);
+      // Front green wheel arch / mudguard
+      a.ell(16.5, 12, 3, 2, "#2e7d32");
+      a.ell(5.5, 12, 3, 2, "#1b5e20");
+      // Rear & front wheels with animated alloy spokes
+      a.ell(5.5, 13.5, 2.6, 2.6, "#263238");
+      a.ell(16.5, 13.5, 2.6, 2.6, "#263238");
+      a.ell(5.5, 13.5, 1.4, 1.4, "#90a4ae");
+      a.ell(16.5, 13.5, 1.4, 1.4, "#90a4ae");
+      if (i === 0) {
+        a.px(5, 13, WHITE); a.px(6, 14, "#cfd8dc");
+        a.px(16, 13, WHITE); a.px(17, 14, "#cfd8dc");
+      } else {
+        a.px(6, 13, WHITE); a.px(5, 14, "#cfd8dc");
+        a.px(17, 13, WHITE); a.px(16, 14, "#cfd8dc");
+      }
+    }));
+    a.outline("#113814", 22);
+  });
+
+  const rickCanvas = makeSprite(44, 19, 2, a => {
+    [0, 22].forEach((ox, i) => a.at(ox, () => {
+      const by = i === 1 ? -1 : 0;
+      // Ornate Dhaka Rickshaw folding hood (magenta, gold scalloped border & floral dots)
+      a.ell(7, 6 + by, 5.5, 4.5, "#ad1457");
+      a.ell(7, 5.5 + by, 4.8, 3.8, "#e91e63");
+      a.ell(6.5, 4.5 + by, 3.5, 2.4, "#f48fb1");
+      // Bamboo hood ribs & festive folk-art motifs
+      a.line(7, 2 + by, 4, 7 + by, "#ffd54f");
+      a.line(7, 2 + by, 7, 7 + by, "#ffd54f");
+      a.px(5, 4 + by, "#00e5ff");
+      a.px(8, 4 + by, "#ffeb3b");
+      a.px(6, 3 + by, WHITE);
+      // Golden scalloped hood trim & rear tassel
+      [2, 4, 6, 8, 10].forEach(x => a.px(x, 7 + by, "#ffd54f"));
+      a.px(1, 6 + by, "#ff5252");
+      // Royal blue passenger seat & painted side panel
+      a.rect(3, 8 + by, 8, 4, "#1565c0");
+      a.rect(4, 8 + by, 6, 2, "#42a5f5");
+      a.rect(3, 10 + by, 8, 2, "#ff8f00");
+      a.line(4, 11 + by, 10, 11 + by, "#ffd54f");
+      // Slanted cycle chassis, front fork, handlebars & brass bell
+      a.line(10, 11 + by, 16, 8 + by, "#43a047");
+      a.line(11, 12 + by, 15, 12 + by, "#fbc02d");
+      a.line(16, 7 + by, 17, 14, "#78909c");
+      a.rect(14, 5 + by, 3, 1, "#eceff1");
+      a.px(17, 5 + by, "#ffd54f"); // Brass bell
+      a.px(17, 6 + by, "#e91e63"); // Front tassel
+      // Painted mudguards over rear and front wheels
+      a.ell(6, 13, 3.6, 2, "#e53935");
+      a.ell(17, 13, 3.2, 1.8, "#43a047");
+      // Large spoked cycle-rickshaw wheels
+      a.ell(6, 14.5, 3.2, 3.2, "#263238");
+      a.ell(17, 14.5, 3.2, 3.2, "#263238");
+      a.ell(6, 14.5, 2.1, 2.1, "#cfd8dc");
+      a.ell(17, 14.5, 2.1, 2.1, "#cfd8dc");
+      if (i === 0) {
+        a.line(4, 14, 8, 15, "#ffffff");
+        a.line(6, 12, 6, 17, "#b0bec5");
+        a.line(15, 14, 19, 15, "#ffffff");
+        a.line(17, 12, 17, 17, "#b0bec5");
+      } else {
+        a.line(4, 13, 8, 16, "#ffffff");
+        a.line(5, 16, 7, 13, "#b0bec5");
+        a.line(15, 13, 19, 16, "#ffffff");
+        a.line(16, 16, 18, 13, "#b0bec5");
+      }
+      a.px(6, 14.5, "#ffd54f");
+      a.px(17, 14.5, "#ffd54f");
+    }));
+    a.outline("#263238", 22);
+  });
+
+  const crowCanvas = makeSprite(36, 14, 2, a => {
     [0, 18].forEach((ox, i) => a.at(ox, () => {
-      const by = i === 1 ? -0.5 : 0;
-      a.rect(2, 6 + by, 14, 6, "#2e7d32");
-      a.rect(2, 6 + by, 14, 2, "#43a047");
-      a.rect(2, 4 + by, 12, 3, "#fdd835");
-      a.rect(12, 4 + by, 3, 3, "#81d4fa");
-      a.rect(2, 2 + by, 13, 2, "#2e7d32");
-      a.ell(4.5, 12.5, 2.2, 2.2, "#37474f");
-      a.ell(13.5, 12.5, 2.2, 2.2, "#37474f");
+      const by = i === 0 ? 1 : 0;
+      // Fanned dark indigo tail feathers on left (x = 1..5)
+      a.tri([1, 6 + by], [5, 6 + by], [1, 9 + by], "#1c1b29");
+      a.line(2, 7 + by, 5, 7 + by, "#35334a");
+      // Aerodynamic body (x = 4..12)
+      a.ell(8, 7.5 + by, 4.2, 2.8, "#1c1b29");
+      a.ell(8, 7 + by, 3.6, 2.2, "#2d2b42");
+      // Signature Dhaka House Crow (Corvus splendens) ash-grey neck/breast collar
+      a.ell(10.5, 6.8 + by, 2.2, 2.2, "#6c7085");
+      a.ell(10.5, 6.5 + by, 1.6, 1.6, "#8e94ab");
+      // Glossy dark head (x = 11..14) facing right
+      a.ell(12.5, 5 + by, 2.2, 2.1, "#1c1b29");
+      a.ell(12.2, 4.6 + by, 1.6, 1.4, "#35334a");
+      // Sharp curved beak strictly inside frame (x = 14..16, max slice width is 18)
+      a.tri([14, 4 + by], [16, 5 + by], [14, 6 + by], "#f5b041");
+      a.line(14, 6 + by, 16, 5 + by, "#c27d20");
+      // Bright alert eye with white sclera catchlight
+      a.px(12, 4 + by, WHITE);
+      a.px(13, 4 + by, "#12111a");
+      // Tucked talons underneath
+      a.px(7, 10 + by, "#e67e22");
+      a.px(9, 10 + by, "#e67e22");
+      // 2-frame dynamic flapping wing with iridescent violet-blue sheen
       if (i === 0) {
-        a.px(4.5, 12.5, "#cfd8dc"); a.px(13.5, 12.5, "#cfd8dc");
+        // Frame 0: High upstroke wing
+        a.tri([5, 6 + by], [9, 1], [11, 6 + by], "#252338");
+        a.tri([6, 5 + by], [9, 2], [10, 5 + by], "#48466b");
+        a.line(7, 4 + by, 9, 2, "#7c7aa6");
+        a.px(8, 1, "#7c7aa6");
       } else {
-        a.px(4, 12, "#cfd8dc"); a.px(5, 13, "#cfd8dc");
-        a.px(13, 12, "#cfd8dc"); a.px(14, 13, "#cfd8dc");
-        a.px(1, 11, "#eceff1");
-      }
-      a.rect(15, 7 + by, 2, 2, "#fff59d");
-    }));
-    a.outline("#1b5e20", 18);
-  });
-
-  const rickCanvas = makeSprite(36, 17, 2, a => {
-    [0, 18].forEach((ox, i) => a.at(ox, () => {
-      const sway = i === 1 ? 0.5 : 0;
-      a.ell(6 + sway, 5, 5, 4, "#e91e63");
-      a.ell(6 + sway, 4.5, 4.2, 3.2, "#f48fb1");
-      a.rect(2, 8, 9, 3, "#3f51b5");
-      a.line(11, 10, 15, 8, "#795548");
-      a.line(14, 8, 14, 13, "#795548");
-      a.line(13, 6, 15, 6, "#212121");
-      a.ell(5.5, 13.5, 2.5, 2.5, "#424242");
-      a.ell(14.5, 13.5, 2.5, 2.5, "#424242");
-      if (i === 0) {
-        a.px(5.5, 13.5, "#fff"); a.px(14.5, 13.5, "#fff");
-        a.line(5, 12, 6, 15, "#b0bec5");
-      } else {
-        a.px(5, 13, "#fff"); a.px(6, 14, "#fff");
-        a.px(14, 13, "#fff"); a.px(15, 14, "#fff");
-        a.line(4, 13, 7, 14, "#b0bec5");
-      }
-      a.px(14, 5, "#ffd54f");
-    }));
-    a.outline("#37474f", 18);
-  });
-
-  const crowCanvas = makeSprite(32, 12, 2, a => {
-    [0, 16].forEach((ox, i) => a.at(ox, () => {
-      a.ell(8, 7, 5, 3.5, "#242331");
-      a.ell(8, 6.5, 4, 2.5, "#3d3b52");
-      a.ell(13, 5.5, 2.8, 2.5, "#242331");
-      a.tri([15, 5], [19, 6], [15, 7], "#e8a838");
-      a.px(13, 5, "#fff"); a.px(13.5, 5, "#242331");
-      if (i === 0) {
-        a.tri([5, 5], [9, 1], [11, 5], "#3b3a52");
-        a.line(6, 4, 9, 2, "#67668a");
-      } else {
-        a.tri([4, 6], [7, 10], [10, 6], "#3b3a52");
-        a.line(5, 7, 7, 9, "#67668a");
+        // Frame 1: Swept-down power stroke wing
+        a.tri([5, 6], [8, 12], [11, 6], "#252338");
+        a.tri([6, 7], [8, 11], [10, 7], "#48466b");
+        a.line(6, 7, 8, 10, "#7c7aa6");
       }
     }));
-    a.outline("#12111a", 16);
+    a.outline("#12111a", 18);
   });
 
   const kiteCanvas = makeSprite(11, 15, 3, a => {
@@ -559,16 +669,16 @@ export function initTexturesForScene(scene) {
 
   sliceTexture(scene, "astro", 22 * 3, 29 * 3, 4);
   sliceTexture(scene, "chibi", 16 * 2, 24 * 2, 4);
-  sliceTexture(scene, "pedestrian", 16 * 2, 24 * 2, 4);
-  sliceTexture(scene, "cng", 18 * 2, 15 * 2, 2);
-  sliceTexture(scene, "rick", 18 * 2, 17 * 2, 2);
-  sliceTexture(scene, "crow", 16 * 2, 12 * 2, 2);
-  sliceTexture(scene, "cng_scared", 18 * 2, 15 * 2, 2);
-  sliceTexture(scene, "rick_scared", 18 * 2, 17 * 2, 2);
-  sliceTexture(scene, "crow_scared", 16 * 2, 12 * 2, 2);
-  sliceTexture(scene, "cng_flash", 18 * 2, 15 * 2, 2);
-  sliceTexture(scene, "rick_flash", 18 * 2, 17 * 2, 2);
-  sliceTexture(scene, "crow_flash", 16 * 2, 12 * 2, 2);
+  sliceTexture(scene, "pedestrian", 18 * 2, 24 * 2, 4);
+  sliceTexture(scene, "cng", 22 * 2, 17 * 2, 2);
+  sliceTexture(scene, "rick", 22 * 2, 19 * 2, 2);
+  sliceTexture(scene, "crow", 18 * 2, 14 * 2, 2);
+  sliceTexture(scene, "cng_scared", 22 * 2, 17 * 2, 2);
+  sliceTexture(scene, "rick_scared", 22 * 2, 19 * 2, 2);
+  sliceTexture(scene, "crow_scared", 18 * 2, 14 * 2, 2);
+  sliceTexture(scene, "cng_flash", 22 * 2, 17 * 2, 2);
+  sliceTexture(scene, "rick_flash", 22 * 2, 19 * 2, 2);
+  sliceTexture(scene, "crow_flash", 18 * 2, 14 * 2, 2);
   sliceTexture(scene, "bug", 13 * 3, 11 * 3, 2);
 
   createAnim(scene, "astro_run", "astro", [0, 1], 10, -1);

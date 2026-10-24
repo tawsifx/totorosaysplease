@@ -60,4 +60,50 @@ test.describe("Game 3: Run to the Bus Stop", () => {
 
     expect(afterX).toBeGreaterThan(initialX);
   });
+
+  test("renders enhanced enemy sprites and keeps flying birds facing their flight direction", async ({ page }) => {
+    await page.waitForFunction(() => {
+      const g = window.MarioGame.getInstance ? window.MarioGame.getInstance() : null;
+      const s = g ? g.scene.getScene("MarioScene") : null;
+      return s && s.enemies && s.enemies.length > 0;
+    }, { timeout: 6000 });
+
+    const orientationCheck = await page.evaluate(() => {
+      const g = window.MarioGame.getInstance();
+      const s = g.scene.getScene("MarioScene");
+
+      // Check initial enemy orientations (vx < 0 => flipX === true)
+      const initialValid = s.enemies.every(e => e.sprite.flipX === (e.vx < 0));
+      const flyers = s.enemies.filter(e => e.isFlyer);
+
+      // Force a flyer past minX and maxX to verify turn-around orientation never flies backwards
+      if (flyers.length > 0) {
+        const bird = flyers[0];
+        bird.sprite.x = bird.minX - 5;
+        s.updateEnemies(1000, 0.016);
+        const rightTurnValid = bird.vx > 0 && bird.sprite.flipX === false;
+
+        bird.sprite.x = bird.maxX + 5;
+        s.updateEnemies(1016, 0.016);
+        const leftTurnValid = bird.vx < 0 && bird.sprite.flipX === true;
+
+        return {
+          initialValid,
+          rightTurnValid,
+          leftTurnValid,
+          crowWidth: s.textures.get("crow").getSourceImage().width,
+          rickWidth: s.textures.get("rick").getSourceImage().width,
+          cngWidth: s.textures.get("cng").getSourceImage().width
+        };
+      }
+      return { initialValid, rightTurnValid: false, leftTurnValid: false };
+    });
+
+    expect(orientationCheck.initialValid).toBe(true);
+    expect(orientationCheck.rightTurnValid).toBe(true);
+    expect(orientationCheck.leftTurnValid).toBe(true);
+    expect(orientationCheck.crowWidth).toBe(72);
+    expect(orientationCheck.rickWidth).toBe(88);
+    expect(orientationCheck.cngWidth).toBe(88);
+  });
 });

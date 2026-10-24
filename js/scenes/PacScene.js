@@ -44,16 +44,25 @@ export class PacScene extends SceneBase {
     this.px = tx => PAC_OX + tx * PAC_T + PAC_T / 2;
     this.py = ty => PAC_OY + ty * PAC_T + PAC_T / 2;
 
-    // Draw Maze Walls with smooth rounded Dhaka palette
+    // Draw 3D Beveled Maze Walls with Depth Extrusion & Ambient Floor Shadows
     const wallG = this.add.graphics();
+    const wallBaseColor = (st.wall === 0xefc9d4) ? 0xcfa5b0 : (st.wall === 0xc9dcef) ? 0x9fb4c7 : 0xa4bfa8;
     this.maze.forEach((row, y) => {
       [...row].forEach((c, x) => {
         if (c === "#") {
           const wx = PAC_OX + x * PAC_T + 1, wy = PAC_OY + y * PAC_T + 1;
+          // 3D Soft cast shadow on maze floor
+          wallG.fillStyle(0x362b45, 0.14);
+          wallG.fillRoundedRect(wx + 2, wy + 4, PAC_T - 2, PAC_T - 2, 6);
+          // 3D Extruded wall base (depth face)
+          wallG.fillStyle(wallBaseColor, 1);
+          wallG.fillRoundedRect(wx, wy + 3, PAC_T - 2, PAC_T - 3, 5);
+          // 3D Top face (illuminated)
           wallG.fillStyle(st.wall, 1);
-          wallG.fillRoundedRect(wx, wy, PAC_T - 2, PAC_T - 2, 5);
-          wallG.lineStyle(1.5, 0x433a57, 0.18);
-          wallG.strokeRoundedRect(wx, wy, PAC_T - 2, PAC_T - 2, 5);
+          wallG.fillRoundedRect(wx, wy, PAC_T - 2, PAC_T - 5, 5);
+          // Top highlight bevel rim
+          wallG.lineStyle(1.2, 0xffffff, 0.35);
+          wallG.strokeRoundedRect(wx + 1, wy + 1, PAC_T - 4, PAC_T - 7, 4);
         }
       });
     });
@@ -97,6 +106,9 @@ export class PacScene extends SceneBase {
     this.playerNextDir = [0, 0];
     this.playerSpeed = 110;
 
+    // 3D Perspective Ground Shadow under Chibi
+    this.chibiShadow = this.add.ellipse(this.playerPos.x, this.playerPos.y + 13, 20, 6, 0x241830, 0.25);
+
     this.chibi = this.add.sprite(this.playerPos.x, this.playerPos.y, "chibi", 0).setOrigin(0.5, 0.5);
     this.chibi.play("chibi_idle");
 
@@ -111,10 +123,13 @@ export class PacScene extends SceneBase {
     const stageGhosts = st.ghosts;
     ghostConfigs.forEach(gc => {
       if (!stageGhosts.includes(gc.key)) return;
-      const gSprite = this.add.sprite(this.px(gc.startX), this.py(gc.startY), gc.key, 0).setOrigin(0.5, 0.5);
+      const gx = this.px(gc.startX), gy = this.py(gc.startY);
+      const gShadow = this.add.ellipse(gx, gy + 12, 24, 6, 0x241830, 0.22);
+      const gSprite = this.add.sprite(gx, gy, gc.key, 0).setOrigin(0.5, 0.5);
       gSprite.play(gc.anim);
       this.ghosts.push({
         sprite: gSprite,
+        shadow: gShadow,
         key: gc.key,
         anim: gc.anim,
         eaten: false,
@@ -123,8 +138,8 @@ export class PacScene extends SceneBase {
         startDir: gc.startDir,
         tileX: gc.startX,
         tileY: gc.startY,
-        x: this.px(gc.startX),
-        y: this.py(gc.startY),
+        x: gx,
+        y: gy,
         dir: [...gc.startDir],
         speed: st.speed
       });
@@ -379,6 +394,10 @@ export class PacScene extends SceneBase {
 
     this.chibi.x = p.x;
     this.chibi.y = p.y;
+    if (this.chibiShadow) {
+      this.chibiShadow.x = p.x;
+      this.chibiShadow.y = p.y + 13;
+    }
     this.playerTile = { x: curTileX, y: curTileY };
 
     // Munch fuchka
@@ -491,6 +510,10 @@ export class PacScene extends SceneBase {
 
       g.sprite.x = g.x;
       g.sprite.y = g.y;
+      if (g.shadow) {
+        g.shadow.x = g.x;
+        g.shadow.y = g.y + 12;
+      }
       if (g.dir[0] < 0) g.sprite.setFlipX(true);
       else if (g.dir[0] > 0) g.sprite.setFlipX(false);
     });
@@ -512,6 +535,10 @@ export class PacScene extends SceneBase {
           g.dir = [...g.startDir];
           g.sprite.x = g.x;
           g.sprite.y = g.y;
+          if (g.shadow) {
+            g.shadow.x = g.x;
+            g.shadow.y = g.y + 12;
+          }
           g.sprite.setAlpha(1.0);
           g.sprite.play(g.anim, true);
         } else if (!isScared || g.eaten) {

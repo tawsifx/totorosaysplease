@@ -37,5 +37,23 @@ if (typeof window !== "undefined") {
     } else {
       setTimeout(buildMasterSprites, 60);
     }
+
+    // Interactive 3D Perspective Tilt on Game Cards for Desktop Hover
+    if (window.matchMedia && window.matchMedia("(hover: hover)").matches) {
+      document.querySelectorAll(".game-card").forEach(card => {
+        card.addEventListener("pointermove", e => {
+          const rect = card.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          const tiltX = -y * 3.5;
+          const tiltY = x * 3.5;
+          card.style.transform = `perspective(1200px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) scale3d(1.008, 1.008, 1.008)`;
+        });
+        card.addEventListener("pointerleave", () => {
+          card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+        });
+      });
+    }
   }
 }

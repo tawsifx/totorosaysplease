@@ -70,6 +70,9 @@ export class RunnerScene extends SceneBase {
       { sprite: this.add.sprite(680, 25, "cloud").setAlpha(0.8), sp: 22 }
     ];
 
+    // 3D Perspective Ground Shadow under Player Astro
+    this.astroShadow = this.add.ellipse(110, RUN_GROUND + 1, 32, 6, 0x4a403b, 0.28);
+
     // Player Astro (raincoat girl)
     this.astro = this.add.sprite(110, RUN_GROUND, "astro", 0).setOrigin(0.5, 1);
     this.astro.play("astro_run");
@@ -244,8 +247,10 @@ export class RunnerScene extends SceneBase {
       const tag = isSpike ? "spike" : isRocks ? "rocks" : "rock";
       const hitW = isRocks ? 60 : isSpike ? 24 : 30;
       const hitH = isSpike ? 26 : 22;
+      const shadowW = isRocks ? 54 : isSpike ? 22 : 28;
+      const shadow = this.add.ellipse(RUN_W + 30, RUN_GROUND + 1, shadowW, 6, 0x4a403b, 0.22);
       const obs = this.add.sprite(RUN_W + 30, RUN_GROUND, tag).setOrigin(0.5, 1);
-      this.obsList.push({ sprite: obs, isBug: false, hitW, hitH });
+      this.obsList.push({ sprite: obs, shadow, isBug: false, hitW, hitH });
     }
   }
 
@@ -342,6 +347,15 @@ export class RunnerScene extends SceneBase {
         }
       }
 
+      // Update 3D perspective contact shadow under player Astro
+      if (this.astroShadow) {
+        const jumpHeight = Math.max(0, RUN_GROUND - this.astro.y);
+        const shadowScale = Math.max(0.35, 1 - jumpHeight / 150);
+        this.astroShadow.x = this.astro.x;
+        this.astroShadow.setScale(shadowScale, shadowScale);
+        this.astroShadow.setAlpha(Math.max(0.06, 0.28 * (1 - jumpHeight / 170)));
+      }
+
       // Collectibles spawning
       this.nextItem -= this.speed * dt;
       if (this.nextItem <= 0 && this.dist < RUN_GOAL - 500) {
@@ -357,14 +371,16 @@ export class RunnerScene extends SceneBase {
           this.nextObs = 320 + Math.random() * 260 + (RUN_PHYSICS.maxSpeed - this.speed) * 0.7;
         }
       } else if (!this.totoro) {
+        this.totoroShadow = this.add.ellipse(RUN_W + 60, RUN_GROUND + 2, 74, 12, 0x4a403b, 0.26);
         this.totoro = this.add.sprite(RUN_W + 60, RUN_GROUND, "totoro").setOrigin(0.5, 1);
       }
 
-      // Update & check collectibles
+      // Update & check collectibles with 3D Y-axis spinning
       for (let i = this.itemList.length - 1; i >= 0; i--) {
         const it = this.itemList[i];
         it.sprite.x -= this.speed * dt;
         it.sprite.y = it.baseY + Math.sin(time * 0.006 + it.phase) * 6;
+        it.sprite.scaleX = Math.cos(time * 0.006 + it.phase); // 3D Y-axis perspective rotation
 
         const astroCenterX = this.astro.x;
         const astroCenterY = this.astro.y - 35;
@@ -386,10 +402,11 @@ export class RunnerScene extends SceneBase {
         }
       }
 
-      // Update & check obstacles
+      // Update & check obstacles and contact shadows
       for (let i = this.obsList.length - 1; i >= 0; i--) {
         const o = this.obsList[i];
         o.sprite.x -= this.speed * dt;
+        if (o.shadow) o.shadow.x = o.sprite.x;
         if (o.isBug) o.sprite.y = o.baseY + Math.sin(time * 0.007 + o.phase) * 14;
 
         const obsCenterY = o.isBug ? o.sprite.y : o.sprite.y - o.hitH / 2;
@@ -405,6 +422,7 @@ export class RunnerScene extends SceneBase {
         }
 
         if (o.sprite.x < -80) {
+          if (o.shadow) o.shadow.destroy();
           o.sprite.destroy();
           this.obsList.splice(i, 1);
         }
@@ -413,6 +431,7 @@ export class RunnerScene extends SceneBase {
       // Totoro encounter & victory sequence
       if (this.totoro) {
         this.totoro.x -= this.speed * dt;
+        if (this.totoroShadow) this.totoroShadow.x = this.totoro.x;
         if (this.totoro.x <= this.astro.x + 85) {
           this.state = "won";
           this.astro.play("astro_idle");
