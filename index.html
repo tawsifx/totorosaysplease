@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A Date in Dhaka - An interactive retro pixel-art date invitation, mini-games suite, Dhaka vintage postcard, vinyl soundtrack player, and celestial star atlas.">
   <meta name="cdn-base-url" content="">
   <title>A Date in Dhaka</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,7 +17,7 @@
 </head>
 <body>
   <header id="level-bar" class="level-bar">
-    <button id="btn-prev-level" class="lvl-btn" aria-label="Previous level">&lsaquo; Back</button>
+    <button id="btn-prev-level" class="lvl-btn" aria-label="Back">&lsaquo; Back</button>
     <div class="lvl-center"><p id="lvl-count">Level 1 / 13</p><p id="lvl-name">The Invitation</p></div>
     <div id="header-music-pill" class="header-music-pill" title="Soundtrack Player">
       <span id="music-pill-spinner" class="pill-spinner"></span>
@@ -29,7 +30,7 @@
     <button id="btn-next-level" class="lvl-btn" aria-label="Skip this level">Skip &rsaquo;</button>
     <div class="lvl-progress"><span id="lvl-fill"></span></div>
   </header>
-  <div id="app-container" class="min-h-screen flex-col items-center justify-center p-4 md:p-8">
+  <main id="app-container" role="main" class="min-h-screen flex-col items-center justify-center p-4 md:p-8">
 
     <!-- 1: Invitation -->
     <div id="screen-invite" class="screen active flex-col items-center text-center w-full max-w-xl mx-auto ui-box p-10 md:p-14">
@@ -845,7 +846,7 @@
       </div>
     </div>
 
-  </div>
+  </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.86.0/phaser.min.js"></script>
   <script>if (typeof Phaser === "undefined") { document.write('<script src="js/phaser.min.js"><\/script>'); }</script>

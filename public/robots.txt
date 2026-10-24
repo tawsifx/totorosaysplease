@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://totorosaysplease.vercel.app/sitemap.xml

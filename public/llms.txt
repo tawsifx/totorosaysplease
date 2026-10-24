@@ -1,0 +1,12 @@
+# A Date in Dhaka
+
+> An interactive romantic pixel-art adventure set across the heritage lanes and nostalgic memories of Dhaka.
+
+- Canonical URL: https://totorosaysplease.vercel.app/
+- Description: An interactive experience featuring date itinerary selection, retro mini-games (Run to Totoro, Fuchka Chase, Run to the Bus Stop), vintage aerogramme postbox, curated vinyl soundtrack player, and celestial telescope star atlas.
+- Key Sections:
+  - Date Itinerary Planner: TSC, Dhanmondi Lake, Rabindra Sarobar, Hatirjheel, Ahsan Manzil
+  - Mini-Games Suite: Canvas & Phaser arcade games
+  - DU Postcard: Interactive vintage postal desk with procedural chiptune synth SFX
+  - Vinyl Soundtrack Player: 11 curated romantic tracks with 6-song dynamic preference ranking
+  - Epilogues: Dhaka Totoro Locator radar, Celestial Star Atlas, and Totoro's Vitals monitor
