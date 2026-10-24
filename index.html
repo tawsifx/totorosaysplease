@@ -1028,6 +1028,9 @@
           if (typeof player !== 'undefined' && player.updateChoicePriority) {
             player.updateChoicePriority(userChoices);
           }
+          if (typeof window !== 'undefined' && window.totoroDB) {
+            window.totoroDB.savePreferences(userChoices).catch(() => {});
+          }
           goTo(NEXT[cat]);
         };
         card.addEventListener('click', pick);
@@ -1863,6 +1866,16 @@
 
     // Start music and loading system immediately as soon as user enters the website
     ensureChoices();
+    if (typeof window !== 'undefined' && window.totoroDB) {
+      window.totoroDB.getPreferences().then(saved => {
+        if (saved && Object.keys(saved).length) {
+          Object.assign(userChoices, saved);
+          if (window.player && window.player.updateChoicePriority) {
+            window.player.updateChoicePriority(userChoices);
+          }
+        }
+      }).catch(() => {});
+    }
     player.initAutoPlay(userChoices);
 
     /* ---------- Level 9: Interactive Dhaka University Postbox & Inbuilt Web Audio SFX ---------- */
@@ -2052,6 +2065,9 @@
         }
         dhakaSfx.waxSeal();
         spawnFloatingFX($('btn-letter'), ['💌', '💖', '✨'], 6);
+        if (typeof window !== 'undefined' && window.totoroDB) {
+          window.totoroDB.savePostcard(text, userChoices).catch(() => {});
+        }
         if (!WEB3FORMS_KEY) return status('Letter sealed! Click Continue below.');
 
         $('btn-letter').disabled = true;
@@ -2407,6 +2423,9 @@
           const isNewlyFound = !FOUND.has(matched.id);
           if (isNewlyFound) {
             FOUND.add(matched.id);
+            if (typeof window !== 'undefined' && window.totoroDB) {
+              window.totoroDB.recordStarDiscovery(matched.id, matched.title, matched.tag).catch(() => {});
+            }
             $('tele-progress').textContent = `CATALOGUED: ${FOUND.size} / 4`;
             playLockChime(matched.id === 'moonwalker');
             spawnStardust(xPct, yPct, matched.id === 'moonwalker');

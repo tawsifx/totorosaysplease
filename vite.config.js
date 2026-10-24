@@ -98,6 +98,16 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
-    target: "esnext"
+    target: "esnext",
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("/js/storage/")) return "chunk-storage-db";
+          if (id.includes("/js/audio/")) return "chunk-audio-engine";
+          if (id.includes("/js/scenes/") || id.includes("/js/games/") || id.includes("/js/sprites/")) return "chunk-games-suite";
+          if (id.includes("/js/data/")) return "chunk-game-configs";
+        }
+      }
+    }
   }
 });

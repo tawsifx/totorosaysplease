@@ -7,8 +7,9 @@ import { buildMasterSprites } from "./sprites/textures.js";
 import { RunnerGame } from "./games/runner.js";
 import { PacGame } from "./games/pac.js";
 import { MarioGame } from "./games/mario.js";
+import { totoroDB, IndexedDatabase } from "./storage/db.js";
 
-export { sfx, ambientAudio, buildMasterSprites, RunnerGame, PacGame, MarioGame };
+export { sfx, ambientAudio, buildMasterSprites, RunnerGame, PacGame, MarioGame, totoroDB, IndexedDatabase };
 
 // Expose on global window object for HTML event listeners and level navigation
 if (typeof window !== "undefined") {
@@ -18,7 +19,13 @@ if (typeof window !== "undefined") {
   window.sfx = sfx;
   window.ambientAudio = ambientAudio;
   window.gameAmbient = ambientAudio;
+  window.totoroDB = totoroDB;
+  window.db = totoroDB;
+  window.IndexedDatabase = IndexedDatabase;
   window.totoroGamesReady = true;
+
+  // Initialize and warm IndexedDB in background
+  totoroDB.open().catch(() => {});
 
   // Signal that games suite is ready
   window.dispatchEvent(new CustomEvent("gamesready"));
