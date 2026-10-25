@@ -125,6 +125,9 @@ export class RunnerScene extends SceneBase {
         this.jumpVel = RUN_PHYSICS.jumpImpulse;
         this.coyoteTimer = 0;
         sfx.jump();
+        if (typeof window !== "undefined" && window.activeStage3D) {
+          window.activeStage3D.onJump();
+        }
         this.astro.play("astro_jump");
         for (let i = 0; i < 5; i++) {
           this.spawnDust(
@@ -394,6 +397,9 @@ export class RunnerScene extends SceneBase {
           }
           this.score += it.points;
           this.scoreText.setText("Score: " + this.score);
+          if (typeof window !== "undefined" && window.activeStage3D) {
+            window.activeStage3D.onScore();
+          }
           it.sprite.destroy();
           this.itemList.splice(i, 1);
         } else if (it.sprite.x < -40) {
@@ -436,6 +442,9 @@ export class RunnerScene extends SceneBase {
           this.state = "won";
           this.astro.play("astro_idle");
           sfx.win();
+          if (typeof window !== "undefined" && window.activeStage3D) {
+            window.activeStage3D.onWin();
+          }
           this.msgText.setText("You found Totoro! 💕");
           for (let i = 0; i < 20; i++) {
             const h = this.add.sprite(this.totoro.x + (Math.random() * 110 - 20), this.totoro.y - 60, "heart");

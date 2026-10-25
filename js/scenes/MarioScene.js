@@ -40,6 +40,10 @@ export class MarioScene extends SceneBase {
     this.setupAutoCleanup();
     initTexturesForScene(this);
 
+    if (typeof window !== "undefined" && window.activeStage3D) {
+      window.activeStage3D.setStage(this.levelIdx);
+    }
+
     const s = MARIO_LEVELS[this.levelIdx] || MARIO_LEVELS[0];
     const lvlGrid = buildLevel(s);
     this.levelWidthPx = s.w * TS;
@@ -524,6 +528,9 @@ export class MarioScene extends SceneBase {
       this.coyoteTimer = 0;
       this.jumpBuffer = 0;
       sfx.jump();
+      if (typeof window !== "undefined" && window.activeStage3D) {
+        window.activeStage3D.onJump();
+      }
       for (let i = 0; i < 4; i++) {
         this.spawnDust(p.x + (Math.random() * 10 - 5), p.y - 2, (Math.random() - 0.5) * 35, -(Math.random() * 20 + 8));
       }
@@ -726,6 +733,9 @@ export class MarioScene extends SceneBase {
           sfx.coin();
           this.score += 100;
           this.spawnScorePopup(it.sprite.x, it.sprite.y, "+100", "#d4972c");
+          if (typeof window !== "undefined" && window.activeStage3D) {
+            window.activeStage3D.onScore();
+          }
         } else if (it.type === "heart") {
           sfx.powerup();
           this.lives++;
@@ -769,6 +779,9 @@ export class MarioScene extends SceneBase {
       this.p.vx = 0;
       this.player.play("chibi_idle");
       sfx.win();
+      if (typeof window !== "undefined" && window.activeStage3D) {
+        window.activeStage3D.onWin();
+      }
 
       if (this.totoro) {
         this.tweens.add({ targets: this.totoro, y: this.totoro.y - 12, yoyo: true, duration: 180, repeat: 3 });

@@ -10,7 +10,7 @@ export default defineConfig({
   fullyParallel: false,
   reporter: "list",
   use: {
-    baseURL: "http://localhost:4173",
+    baseURL: "http://localhost:4178",
     channel: "chrome",
     headless: true,
     viewport: { width: 1280, height: 800 },
@@ -18,9 +18,9 @@ export default defineConfig({
     trace: "on-first-retry"
   },
   webServer: {
-    command: "npx vite --port 4173",
-    port: 4173,
-    reuseExistingServer: true,
+    command: "npx vite --port 4178",
+    port: 4178,
+    reuseExistingServer: false,
     stdout: "ignore",
     stderr: "pipe"
   }

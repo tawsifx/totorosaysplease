@@ -8,14 +8,16 @@ import { RunnerGame } from "./games/runner.js";
 import { PacGame } from "./games/pac.js";
 import { MarioGame } from "./games/mario.js";
 import { totoroDB, IndexedDatabase } from "./storage/db.js";
+import { Stage3D } from "./3d/stage3d.js";
 
-export { sfx, ambientAudio, buildMasterSprites, RunnerGame, PacGame, MarioGame, totoroDB, IndexedDatabase };
+export { sfx, ambientAudio, buildMasterSprites, RunnerGame, PacGame, MarioGame, totoroDB, IndexedDatabase, Stage3D };
 
 // Expose on global window object for HTML event listeners and level navigation
 if (typeof window !== "undefined") {
   window.Game = RunnerGame;
   window.PacGame = PacGame;
   window.MarioGame = MarioGame;
+  window.Stage3D = Stage3D;
   window.sfx = sfx;
   window.ambientAudio = ambientAudio;
   window.gameAmbient = ambientAudio;

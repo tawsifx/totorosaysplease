@@ -27,6 +27,10 @@ export class PacScene extends SceneBase {
     this.setupAutoCleanup();
     initTexturesForScene(this);
 
+    if (typeof window !== "undefined" && window.activeStage3D) {
+      window.activeStage3D.setStage(this.stageIdx);
+    }
+
     const st = PAC_STAGES[this.stageIdx] || PAC_STAGES[0];
     const rawMaze = makeMaze(st.seed).map(r => [...r]);
 
@@ -411,10 +415,16 @@ export class PacScene extends SceneBase {
         this.eatenFuchka++;
         this.score += 20;
         this.fuchkaText.setText(`Fuchka: ${this.eatenFuchka} / ${this.totalFuchka}`);
+        if (typeof window !== "undefined" && window.activeStage3D && this.eatenFuchka % 4 === 0) {
+          window.activeStage3D.onScore();
+        }
 
         if (this.dots.length === 0) {
           this.state = "clear";
           sfx.win();
+          if (typeof window !== "undefined" && window.activeStage3D) {
+            window.activeStage3D.onWin();
+          }
           this.banner.setText(this.stageIdx < 2 ? "Stage Cleared!" : "You found Totoro!").setVisible(true);
           this.time.delayedCall(1600, () => {
             if (this.stageIdx < 2) {

@@ -20,6 +20,7 @@ test.describe("Modular File System Architecture", () => {
     "js/games/runner.js",
     "js/games/pac.js",
     "js/games/mario.js",
+    "js/3d/stage3d.js",
     "js/main.js"
   ];
 
@@ -39,5 +40,6 @@ test.describe("Modular File System Architecture", () => {
     expect(mainContent).toContain("MarioGame");
     expect(mainContent).toContain("sfx");
     expect(mainContent).toContain("buildMasterSprites");
+    expect(mainContent).toContain("Stage3D");
   });
 });
