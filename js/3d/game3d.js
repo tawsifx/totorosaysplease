@@ -9,75 +9,63 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const SCALE = 0.01; // 100 Phaser pixels = 1.0 Three.js world unit at z = 0
 
-// External 3D Crow Model (GLB) Asset Loader (PSX Animals Free by heyheythere, CC BY 4.0)
-let _crowGltfTemplate = null;
+// External 3D Flying Bird Model (GLB) Asset Loader (Three.js Animated Flying Bird with Morph Targets)
+let _flyingBirdMeshTemplate = null;
+let _flyingBirdAnimationClip = null;
 const _pendingCrowMeshes = new Set();
 
 function initExternalCrowModel() {
   if (typeof window === "undefined") return;
   try {
     const loader = new GLTFLoader();
-    const texLoader = new THREE.TextureLoader();
-    texLoader.load(
-      "/models/crow_atlas.png",
-      (atlasTex) => {
-        atlasTex.magFilter = THREE.NearestFilter;
-        atlasTex.minFilter = THREE.NearestFilter;
-        loader.load(
-          "/models/crow.glb",
-          (gltf) => {
-            const crowScene = gltf.scene;
-            crowScene.traverse((child) => {
-              if (child.isMesh) {
-                child.material = new THREE.MeshPhongMaterial({
-                  map: atlasTex,
-                  specular: 0x4a5568,
-                  shininess: 90
-                });
-              }
-            });
-            // Orient bird to face forward (+X)
-            crowScene.rotation.y = Math.PI / 2;
-            crowScene.scale.set(0.72, 0.72, 0.72);
-            _crowGltfTemplate = crowScene;
+    loader.load(
+      "/models/flying_bird.glb",
+      (gltf) => {
+        const mesh = gltf.scene.getObjectByName("mesh_0");
+        if (mesh && gltf.animations && gltf.animations.length) {
+          _flyingBirdMeshTemplate = mesh;
+          _flyingBirdAnimationClip = gltf.animations[0];
 
-            // Upgrade any currently active placeholder meshes
-            for (const grp of _pendingCrowMeshes) {
-              if (grp && grp.parent) {
-                while (grp.children.length > 0) {
-                  grp.remove(grp.children[0]);
-                }
-                const model = _crowGltfTemplate.clone(true);
-                grp.add(model);
-                const wingL = model.getObjectByName("crow_wing_l");
-                const wingR = model.getObjectByName("crow_wing_r");
-                grp.userData.isGltf = true;
-                grp.userData.model = model;
-                grp.userData.wingL = wingL;
-                grp.userData.wingR = wingR;
-                grp.userData.setFlap = (flap) => {
-                  if (wingL && wingR) {
-                    wingL.rotation.z = flap;
-                    wingR.rotation.z = -flap;
-                  }
-                };
+          // Upgrade any currently pending/active placeholder meshes
+          for (const grp of _pendingCrowMeshes) {
+            if (grp && grp.parent) {
+              while (grp.children.length > 0) {
+                grp.remove(grp.children[0]);
               }
+              const birdMesh = _flyingBirdMeshTemplate.clone();
+              birdMesh.material = new THREE.MeshPhongMaterial({
+                color: 0x181a22,
+                emissive: 0x080910,
+                emissiveIntensity: 0.28,
+                specular: 0x6878a0,
+                shininess: 140,
+                flatShading: true
+              });
+              birdMesh.rotation.y = Math.PI / 2;
+              birdMesh.scale.set(0.0032, 0.0032, 0.0032);
+              grp.add(birdMesh);
+
+              const mixer = new THREE.AnimationMixer(birdMesh);
+              const action = mixer.clipAction(_flyingBirdAnimationClip);
+              action.setDuration(0.55);
+              action.play();
+              mixer.update(Math.random() * 2.0);
+
+              grp.userData.isGltf = true;
+              grp.userData.mesh = birdMesh;
+              grp.userData.mixer = mixer;
             }
-            _pendingCrowMeshes.clear();
-          },
-          undefined,
-          (err) => {
-            console.warn("External /models/crow.glb fallback to procedural model", err);
           }
-        );
+          _pendingCrowMeshes.clear();
+        }
       },
       undefined,
       (err) => {
-        console.warn("External /models/crow_atlas.png load error", err);
+        console.warn("External /models/flying_bird.glb fallback to procedural flying model", err);
       }
     );
   } catch (err) {
-    console.warn("External crow asset initialization skipped:", err);
+    console.warn("External flying bird asset initialization skipped:", err);
   }
 }
 
@@ -866,32 +854,41 @@ export const MeshFactory3D = {
   createCrow() {
     const group = new THREE.Group();
 
-    // If external 3D Crow GLB model is loaded, clone it
-    if (_crowGltfTemplate) {
-      const model = _crowGltfTemplate.clone(true);
-      group.add(model);
-      const wingL = model.getObjectByName("crow_wing_l");
-      const wingR = model.getObjectByName("crow_wing_r");
+    // If external 3D flying bird GLB model is ready, clone and animate it
+    if (_flyingBirdMeshTemplate && _flyingBirdAnimationClip) {
+      const birdMesh = _flyingBirdMeshTemplate.clone();
+      birdMesh.material = new THREE.MeshPhongMaterial({
+        color: 0x181a22,
+        emissive: 0x080910,
+        emissiveIntensity: 0.28,
+        specular: 0x6878a0,
+        shininess: 140,
+        flatShading: true
+      });
+      // Orient horizontally facing forward (+X)
+      birdMesh.rotation.y = Math.PI / 2;
+      birdMesh.scale.set(0.0032, 0.0032, 0.0032);
+      group.add(birdMesh);
+
+      const mixer = new THREE.AnimationMixer(birdMesh);
+      const action = mixer.clipAction(_flyingBirdAnimationClip);
+      action.setDuration(0.55); // fast energetic flapping flight
+      action.play();
+      mixer.update(Math.random() * 2.0);
+
       group.userData = {
         isGltf: true,
-        model,
-        wingL,
-        wingR,
-        setFlap(flap) {
-          if (wingL && wingR) {
-            wingL.rotation.z = flap;
-            wingR.rotation.z = -flap;
-          }
-        }
+        mesh: birdMesh,
+        mixer
       };
       return group;
     }
 
-    // High-fidelity fallback model with authentic Dhaka House Crow (Corvus splendens) anatomy
+    // High-fidelity horizontal flying fallback model with aerodynamic body & outstretched wings
     const featherMat = new THREE.MeshPhongMaterial({
-      color: 0x1a1a24,
-      emissive: 0x0a0a14,
-      emissiveIntensity: 0.22,
+      color: 0x181a22,
+      emissive: 0x080910,
+      emissiveIntensity: 0.25,
       specular: 0x5c6bc0,
       shininess: 140
     });
@@ -912,60 +909,55 @@ export const MeshFactory3D = {
     const eyeWhiteMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 200 });
     const eyePupilMat = new THREE.MeshPhongMaterial({ color: 0x000000, shininess: 100 });
 
-    // Aerodynamic body & chest
-    const body = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 10), featherMat);
+    // Streamlined horizontal fuselage body (in full horizontal flight)
+    const body = new THREE.Mesh(new THREE.ConeGeometry(0.065, 0.24, 10), featherMat);
     body.rotation.z = -Math.PI / 2;
-    body.scale.set(1.0, 1.0, 0.7);
+    body.scale.set(1.0, 1.0, 0.65);
     group.add(body);
 
-    // Dhaka House Crow ash-grey neck collar
-    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.065, 0.05, 10), collarMat);
+    // Dhaka House Crow ash-grey collar
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.058, 0.05, 10), collarMat);
     collar.rotation.z = -Math.PI / 2;
-    collar.position.set(0.06, 0.02, 0);
+    collar.position.set(0.065, 0.015, 0);
     group.add(collar);
 
     // Head
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.052, 10, 10), featherMat);
-    head.position.set(0.10, 0.035, 0);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.046, 10, 10), featherMat);
+    head.position.set(0.105, 0.025, 0);
     group.add(head);
 
-    // Beak
-    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.075, 8), beakMat);
+    // Aerodynamic Beak
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.075, 8), beakMat);
     beak.rotation.z = -Math.PI / 2;
-    beak.position.set(0.165, 0.035, 0);
+    beak.position.set(0.165, 0.025, 0);
     group.add(beak);
 
     // Alert Eyes
-    [-0.038, 0.038].forEach((ez) => {
-      const eyeW = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), eyeWhiteMat);
-      eyeW.position.set(0.115, 0.045, ez);
-      const eyeP = new THREE.Mesh(new THREE.SphereGeometry(0.007, 6, 6), eyePupilMat);
-      eyeP.position.set(0.120, 0.045, ez * 1.05);
+    [-0.034, 0.034].forEach((ez) => {
+      const eyeW = new THREE.Mesh(new THREE.SphereGeometry(0.010, 6, 6), eyeWhiteMat);
+      eyeW.position.set(0.118, 0.035, ez);
+      const eyeP = new THREE.Mesh(new THREE.SphereGeometry(0.006, 6, 6), eyePupilMat);
+      eyeP.position.set(0.122, 0.035, ez * 1.05);
       group.add(eyeW, eyeP);
     });
 
-    // Fanned tail
-    const tail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.08), featherMat);
-    tail.position.set(-0.13, -0.01, 0);
-    tail.rotation.z = 0.2;
+    // Streamlined tail feathers trailing horizontally behind in flight
+    const tail = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.008, 0.07), featherMat);
+    tail.position.set(-0.14, 0.0, 0);
     group.add(tail);
 
-    // Sculpted Wings
-    const wingGeo = new THREE.BoxGeometry(0.14, 0.014, 0.18);
+    // Horizontal outstretched flapping wings
+    const wingGeo = new THREE.BoxGeometry(0.13, 0.010, 0.17);
     const wingL = new THREE.Mesh(wingGeo, featherMat);
-    wingL.position.set(0.01, 0.03, 0.10);
+    wingL.position.set(0.01, 0.02, 0.095);
     const wingR = new THREE.Mesh(wingGeo, featherMat);
-    wingR.position.set(0.01, 0.03, -0.10);
+    wingR.position.set(0.01, 0.02, -0.095);
     group.add(wingL, wingR);
 
     group.userData = {
       isGltf: false,
       wingL,
-      wingR,
-      setFlap(flap) {
-        wingL.rotation.x = flap;
-        wingR.rotation.x = -flap;
-      }
+      wingR
     };
 
     _pendingCrowMeshes.add(group);
@@ -1265,9 +1257,8 @@ export class Runner3DFX extends BaseGame3DFX {
       mesh.position.set(this.toX(o.sprite.x), this.toY(sy), 0.1);
       if (o.isBug) {
         mesh.rotation.y = Math.PI;
-        if (mesh.userData.setFlap) {
-          const flap = Math.sin(time * 0.02) * 0.7;
-          mesh.userData.setFlap(flap);
+        if (mesh.userData.mixer) {
+          mesh.userData.mixer.update(dt);
         } else if (mesh.userData.wingL && mesh.userData.wingR) {
           const flap = Math.sin(time * 0.02) * 0.7;
           mesh.userData.wingL.rotation.x = flap;
@@ -1471,14 +1462,14 @@ export class Mario3DFX extends BaseGame3DFX {
         for (const w of mesh.userData.wheels) {
           w.rotation.z -= Math.abs(e.vx) * dt * 0.14;
         }
-      } else if (mesh.userData.setFlap) {
-        const flap = Math.sin(time * 0.018 + (e.phase || 0)) * 0.68;
-        mesh.userData.setFlap(flap);
-        mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.12;
-      } else if (mesh.userData.wingL && mesh.userData.wingR) {
-        const flap = Math.sin(time * 0.018 + (e.phase || 0)) * 0.68;
-        mesh.userData.wingL.rotation.x = flap;
-        mesh.userData.wingR.rotation.x = -flap;
+      } else {
+        if (mesh.userData.mixer) {
+          mesh.userData.mixer.update(dt);
+        } else if (mesh.userData.wingL && mesh.userData.wingR) {
+          const flap = Math.sin(time * 0.018 + (e.phase || 0)) * 0.68;
+          mesh.userData.wingL.rotation.x = flap;
+          mesh.userData.wingR.rotation.x = -flap;
+        }
         mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.12;
       }
     }
