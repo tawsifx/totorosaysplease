@@ -16,21 +16,21 @@ export const MeshFactory3D = {
   createCoin() {
     const group = new THREE.Group();
 
-    // Radiant Gold Material with pure white mirror-like specular glint
+    // Natural warm metallic gold / antique brass material (warm tone, subtle specular, no blinding yellow/glare)
     const goldMat = new THREE.MeshPhongMaterial({
-      color: 0xffd700,
-      emissive: 0xffa000,
-      emissiveIntensity: 0.38,
-      specular: 0xffffff,
-      shininess: 180
+      color: 0xc89b38,
+      emissive: 0x2c1d05,
+      emissiveIntensity: 0.10,
+      specular: 0xccb077,
+      shininess: 45
     });
 
     const rimMat = new THREE.MeshPhongMaterial({
-      color: 0xffea75,
-      emissive: 0xffaa00,
-      emissiveIntensity: 0.45,
-      specular: 0xffffff,
-      shininess: 220
+      color: 0xbe8f30,
+      emissive: 0x261904,
+      emissiveIntensity: 0.10,
+      specular: 0xc4a66a,
+      shininess: 40
     });
 
     // Coin cylinder disc
@@ -38,26 +38,26 @@ export const MeshFactory3D = {
     disc.rotation.x = Math.PI / 2;
     group.add(disc);
 
-    // Bevelled shiny outer torus rim
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.108, 0.018, 10, 24), rimMat);
+    // Bevelled outer torus rim
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.108, 0.016, 10, 24), rimMat);
     group.add(rim);
 
-    // Faceted 3D Star emblem on front & back
+    // Subtle embossed relief star on front & back
     const starMat = new THREE.MeshPhongMaterial({
-      color: 0xffffff,
-      emissive: 0xffe066,
-      emissiveIntensity: 0.5,
-      specular: 0xffffff,
-      shininess: 250
+      color: 0xd8aa44,
+      emissive: 0x2c1d05,
+      emissiveIntensity: 0.10,
+      specular: 0xd9c288,
+      shininess: 45
     });
-    const starFront = new THREE.Mesh(new THREE.OctahedronGeometry(0.045, 0), starMat);
-    starFront.position.z = 0.024;
-    starFront.scale.set(1.0, 1.0, 0.35);
+    const starFront = new THREE.Mesh(new THREE.OctahedronGeometry(0.042, 0), starMat);
+    starFront.position.z = 0.022;
+    starFront.scale.set(1.0, 1.0, 0.3);
     group.add(starFront);
 
-    const starBack = new THREE.Mesh(new THREE.OctahedronGeometry(0.045, 0), starMat);
-    starBack.position.z = -0.024;
-    starBack.scale.set(1.0, 1.0, 0.35);
+    const starBack = new THREE.Mesh(new THREE.OctahedronGeometry(0.042, 0), starMat);
+    starBack.position.z = -0.022;
+    starBack.scale.set(1.0, 1.0, 0.3);
     group.add(starBack);
 
     return group;
@@ -988,10 +988,16 @@ export class Runner3DFX extends BaseGame3DFX {
       }
       mesh.position.set(this.toX(it.sprite.x), this.toY(it.sprite.y), 0.12);
 
-      // Dynamic rotation with sweeping specular glints
-      mesh.rotation.y = time * 0.0055 + (it.phase || 0);
-      mesh.rotation.x = Math.sin(time * 0.004 + (it.phase || 0)) * 0.22;
-      mesh.rotation.z = Math.cos(time * 0.003 + (it.phase || 0)) * 0.16;
+      // Smooth natural collectible animation (clean upright coin spin)
+      if (it.key === "cha_cup") {
+        mesh.rotation.y = Math.sin(time * 0.002 + (it.phase || 0)) * 0.35;
+        mesh.rotation.x = 0;
+        mesh.rotation.z = 0;
+      } else {
+        mesh.rotation.y = time * 0.0038 + (it.phase || 0);
+        mesh.rotation.x = 0;
+        mesh.rotation.z = 0;
+      }
 
       if (mesh.userData.puffs) {
         mesh.userData.puffs.forEach((p, idx) => {
@@ -1186,10 +1192,15 @@ export class Mario3DFX extends BaseGame3DFX {
       if (it.type === "kite") {
         mesh.rotation.z = Math.sin(time * 0.0035 + (it.phase || 0)) * 0.22;
         mesh.rotation.y = Math.cos(time * 0.0045 + (it.phase || 0)) * 0.35;
+      } else if (it.type === "heart") {
+        mesh.rotation.y = time * 0.0035 + (it.phase || 0);
+        mesh.rotation.x = 0;
+        mesh.rotation.z = Math.sin(time * 0.003 + (it.phase || 0)) * 0.08;
       } else {
-        mesh.rotation.y = time * 0.0055 + (it.phase || 0);
-        mesh.rotation.x = Math.sin(time * 0.004 + (it.phase || 0)) * 0.22;
-        mesh.rotation.z = Math.cos(time * 0.003 + (it.phase || 0)) * 0.16;
+        // Smooth classic upright coin spin
+        mesh.rotation.y = time * 0.0038 + (it.phase || 0);
+        mesh.rotation.x = 0;
+        mesh.rotation.z = 0;
       }
     }
 
