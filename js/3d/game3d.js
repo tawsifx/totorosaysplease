@@ -5,8 +5,83 @@
 // Note: Totoro preserves its authentic 2D pixel-art sprite design with zero 3D override.
 
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const SCALE = 0.01; // 100 Phaser pixels = 1.0 Three.js world unit at z = 0
+
+// External 3D Crow Model (GLB) Asset Loader (PSX Animals Free by heyheythere, CC BY 4.0)
+let _crowGltfTemplate = null;
+const _pendingCrowMeshes = new Set();
+
+function initExternalCrowModel() {
+  if (typeof window === "undefined") return;
+  try {
+    const loader = new GLTFLoader();
+    const texLoader = new THREE.TextureLoader();
+    texLoader.load(
+      "/models/crow_atlas.png",
+      (atlasTex) => {
+        atlasTex.magFilter = THREE.NearestFilter;
+        atlasTex.minFilter = THREE.NearestFilter;
+        loader.load(
+          "/models/crow.glb",
+          (gltf) => {
+            const crowScene = gltf.scene;
+            crowScene.traverse((child) => {
+              if (child.isMesh) {
+                child.material = new THREE.MeshPhongMaterial({
+                  map: atlasTex,
+                  specular: 0x4a5568,
+                  shininess: 90
+                });
+              }
+            });
+            // Orient bird to face forward (+X)
+            crowScene.rotation.y = Math.PI / 2;
+            crowScene.scale.set(0.72, 0.72, 0.72);
+            _crowGltfTemplate = crowScene;
+
+            // Upgrade any currently active placeholder meshes
+            for (const grp of _pendingCrowMeshes) {
+              if (grp && grp.parent) {
+                while (grp.children.length > 0) {
+                  grp.remove(grp.children[0]);
+                }
+                const model = _crowGltfTemplate.clone(true);
+                grp.add(model);
+                const wingL = model.getObjectByName("crow_wing_l");
+                const wingR = model.getObjectByName("crow_wing_r");
+                grp.userData.isGltf = true;
+                grp.userData.model = model;
+                grp.userData.wingL = wingL;
+                grp.userData.wingR = wingR;
+                grp.userData.setFlap = (flap) => {
+                  if (wingL && wingR) {
+                    wingL.rotation.z = flap;
+                    wingR.rotation.z = -flap;
+                  }
+                };
+              }
+            }
+            _pendingCrowMeshes.clear();
+          },
+          undefined,
+          (err) => {
+            console.warn("External /models/crow.glb fallback to procedural model", err);
+          }
+        );
+      },
+      undefined,
+      (err) => {
+        console.warn("External /models/crow_atlas.png load error", err);
+      }
+    );
+  } catch (err) {
+    console.warn("External crow asset initialization skipped:", err);
+  }
+}
+
+initExternalCrowModel();
 
 /**
  * Shared Luminous 3D Mesh Builders
@@ -790,33 +865,110 @@ export const MeshFactory3D = {
 
   createCrow() {
     const group = new THREE.Group();
-    const featherMat = new THREE.MeshPhongMaterial({ color: 0x2b2d42, emissive: 0x10111a, emissiveIntensity: 0.25, specular: 0x88bbff, shininess: 150 });
-    const wingMat = new THREE.MeshPhongMaterial({ color: 0x3d405b, emissive: 0x161824, emissiveIntensity: 0.28, specular: 0x99ccff, shininess: 160 });
-    const beakMat = new THREE.MeshPhongMaterial({ color: 0xffc107, emissive: 0x664400, emissiveIntensity: 0.45, specular: 0xffffff, shininess: 200 });
 
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 10), featherMat);
-    body.scale.set(1.35, 0.85, 0.9);
+    // If external 3D Crow GLB model is loaded, clone it
+    if (_crowGltfTemplate) {
+      const model = _crowGltfTemplate.clone(true);
+      group.add(model);
+      const wingL = model.getObjectByName("crow_wing_l");
+      const wingR = model.getObjectByName("crow_wing_r");
+      group.userData = {
+        isGltf: true,
+        model,
+        wingL,
+        wingR,
+        setFlap(flap) {
+          if (wingL && wingR) {
+            wingL.rotation.z = flap;
+            wingR.rotation.z = -flap;
+          }
+        }
+      };
+      return group;
+    }
+
+    // High-fidelity fallback model with authentic Dhaka House Crow (Corvus splendens) anatomy
+    const featherMat = new THREE.MeshPhongMaterial({
+      color: 0x1a1a24,
+      emissive: 0x0a0a14,
+      emissiveIntensity: 0.22,
+      specular: 0x5c6bc0,
+      shininess: 140
+    });
+    const collarMat = new THREE.MeshPhongMaterial({
+      color: 0x546e7a,
+      emissive: 0x1b272c,
+      emissiveIntensity: 0.18,
+      specular: 0x90a4ae,
+      shininess: 100
+    });
+    const beakMat = new THREE.MeshPhongMaterial({
+      color: 0xffa000,
+      emissive: 0x553300,
+      emissiveIntensity: 0.35,
+      specular: 0xffffff,
+      shininess: 180
+    });
+    const eyeWhiteMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 200 });
+    const eyePupilMat = new THREE.MeshPhongMaterial({ color: 0x000000, shininess: 100 });
+
+    // Aerodynamic body & chest
+    const body = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 10), featherMat);
+    body.rotation.z = -Math.PI / 2;
+    body.scale.set(1.0, 1.0, 0.7);
     group.add(body);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 10), featherMat);
-    head.position.set(0.09, 0.04, 0);
+    // Dhaka House Crow ash-grey neck collar
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.065, 0.05, 10), collarMat);
+    collar.rotation.z = -Math.PI / 2;
+    collar.position.set(0.06, 0.02, 0);
+    group.add(collar);
+
+    // Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.052, 10, 10), featherMat);
+    head.position.set(0.10, 0.035, 0);
     group.add(head);
 
-    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.08, 8), beakMat);
+    // Beak
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.075, 8), beakMat);
     beak.rotation.z = -Math.PI / 2;
-    beak.position.set(0.16, 0.04, 0);
+    beak.position.set(0.165, 0.035, 0);
     group.add(beak);
 
-    const wingGeo = new THREE.BoxGeometry(0.11, 0.018, 0.16);
-    const wingL = new THREE.Mesh(wingGeo, wingMat);
-    wingL.position.set(0, 0.02, 0.09);
-    group.add(wingL);
+    // Alert Eyes
+    [-0.038, 0.038].forEach((ez) => {
+      const eyeW = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), eyeWhiteMat);
+      eyeW.position.set(0.115, 0.045, ez);
+      const eyeP = new THREE.Mesh(new THREE.SphereGeometry(0.007, 6, 6), eyePupilMat);
+      eyeP.position.set(0.120, 0.045, ez * 1.05);
+      group.add(eyeW, eyeP);
+    });
 
-    const wingR = new THREE.Mesh(wingGeo, wingMat);
-    wingR.position.set(0, 0.02, -0.09);
-    group.add(wingR);
+    // Fanned tail
+    const tail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.08), featherMat);
+    tail.position.set(-0.13, -0.01, 0);
+    tail.rotation.z = 0.2;
+    group.add(tail);
 
-    group.userData = { wingL, wingR };
+    // Sculpted Wings
+    const wingGeo = new THREE.BoxGeometry(0.14, 0.014, 0.18);
+    const wingL = new THREE.Mesh(wingGeo, featherMat);
+    wingL.position.set(0.01, 0.03, 0.10);
+    const wingR = new THREE.Mesh(wingGeo, featherMat);
+    wingR.position.set(0.01, 0.03, -0.10);
+    group.add(wingL, wingR);
+
+    group.userData = {
+      isGltf: false,
+      wingL,
+      wingR,
+      setFlap(flap) {
+        wingL.rotation.x = flap;
+        wingR.rotation.x = -flap;
+      }
+    };
+
+    _pendingCrowMeshes.add(group);
     return group;
   },
 
@@ -1113,7 +1265,10 @@ export class Runner3DFX extends BaseGame3DFX {
       mesh.position.set(this.toX(o.sprite.x), this.toY(sy), 0.1);
       if (o.isBug) {
         mesh.rotation.y = Math.PI;
-        if (mesh.userData.wingL && mesh.userData.wingR) {
+        if (mesh.userData.setFlap) {
+          const flap = Math.sin(time * 0.02) * 0.7;
+          mesh.userData.setFlap(flap);
+        } else if (mesh.userData.wingL && mesh.userData.wingR) {
           const flap = Math.sin(time * 0.02) * 0.7;
           mesh.userData.wingL.rotation.x = flap;
           mesh.userData.wingR.rotation.x = -flap;
@@ -1316,6 +1471,10 @@ export class Mario3DFX extends BaseGame3DFX {
         for (const w of mesh.userData.wheels) {
           w.rotation.z -= Math.abs(e.vx) * dt * 0.14;
         }
+      } else if (mesh.userData.setFlap) {
+        const flap = Math.sin(time * 0.018 + (e.phase || 0)) * 0.68;
+        mesh.userData.setFlap(flap);
+        mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.12;
       } else if (mesh.userData.wingL && mesh.userData.wingR) {
         const flap = Math.sin(time * 0.018 + (e.phase || 0)) * 0.68;
         mesh.userData.wingL.rotation.x = flap;

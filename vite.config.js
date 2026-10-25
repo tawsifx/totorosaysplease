@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import fs from "node:fs";
 import path from "node:path";
 
-function staticAssetsPlugin(dirs = ["audio", "images", "css"]) {
+function staticAssetsPlugin(dirs = ["audio", "images", "css", "models"]) {
   return {
     name: "static-assets-handler",
     configureServer(server) {
@@ -25,7 +25,8 @@ function staticAssetsPlugin(dirs = ["audio", "images", "css"]) {
                 ".svg": "image/svg+xml",
                 ".css": "text/css",
                 ".js": "text/javascript",
-                ".json": "application/json"
+                ".json": "application/json",
+                ".glb": "model/gltf-binary"
               };
               if (mimeMap[ext]) {
                 res.setHeader("Content-Type", mimeMap[ext]);
@@ -87,6 +88,9 @@ function staticAssetsPlugin(dirs = ["audio", "images", "css"]) {
 
 export default defineConfig({
   plugins: [staticAssetsPlugin()],
+  optimizeDeps: {
+    include: ["three", "three/addons/loaders/GLTFLoader.js"]
+  },
   server: {
     port: 5173,
     host: true
