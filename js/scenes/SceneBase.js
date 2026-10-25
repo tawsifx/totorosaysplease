@@ -25,11 +25,14 @@ export class SceneBase extends BaseClass {
   }
 
   setupAutoCleanup() {
-    this.events.once("shutdown", () => {
+    const cleanAll = () => {
       this.cleanupListeners();
-    });
-    this.events.once("destroy", () => {
-      this.cleanupListeners();
-    });
+      if (this.fx3d && typeof this.fx3d.destroy === "function") {
+        this.fx3d.destroy();
+        this.fx3d = null;
+      }
+    };
+    this.events.once("shutdown", cleanAll);
+    this.events.once("destroy", cleanAll);
   }
 }

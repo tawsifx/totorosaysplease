@@ -5,6 +5,7 @@ import { SceneBase } from "./SceneBase.js";
 import { initTexturesForScene } from "../sprites/textures.js";
 import { sfx } from "../audio/sfx.js";
 import { TS, MR, MARIO_W, MARIO_H, MARIO_LEVELS, buildLevel } from "../data/mario-config.js";
+import { Mario3DFX } from "../3d/game3d.js";
 
 export const marioKeys = { left: false, right: false, jump: false };
 
@@ -39,10 +40,6 @@ export class MarioScene extends SceneBase {
   create() {
     this.setupAutoCleanup();
     initTexturesForScene(this);
-
-    if (typeof window !== "undefined" && window.activeStage3D) {
-      window.activeStage3D.setStage(this.levelIdx);
-    }
 
     const s = MARIO_LEVELS[this.levelIdx] || MARIO_LEVELS[0];
     const lvlGrid = buildLevel(s);
@@ -261,6 +258,9 @@ export class MarioScene extends SceneBase {
     };
     this.addWindowListener("keydown", onKeyDown);
     this.addWindowListener("keyup", onKeyUp);
+
+    // Initialize Real-Time Three.js 3D Layer directly over game canvas
+    this.fx3d = new Mario3DFX(this);
   }
 
   renderBackdrop(s) {
@@ -486,6 +486,10 @@ export class MarioScene extends SceneBase {
       this.checkCheckpoints();
       this.checkGoal();
     }
+
+    if (this.fx3d) {
+      this.fx3d.sync(time, dt);
+    }
   }
 
   updatePlayerPhysics(dt) {
@@ -528,8 +532,8 @@ export class MarioScene extends SceneBase {
       this.coyoteTimer = 0;
       this.jumpBuffer = 0;
       sfx.jump();
-      if (typeof window !== "undefined" && window.activeStage3D) {
-        window.activeStage3D.onJump();
+      if (this.fx3d) {
+        this.fx3d.onJump(p.x, p.y, this.cameras.main.scrollX);
       }
       for (let i = 0; i < 4; i++) {
         this.spawnDust(p.x + (Math.random() * 10 - 5), p.y - 2, (Math.random() - 0.5) * 35, -(Math.random() * 20 + 8));
@@ -571,6 +575,7 @@ export class MarioScene extends SceneBase {
           sfx.bump();
           if (b.isBrick && b.sprite) {
             this.tweens.add({ targets: b.sprite, y: b.y - 6, yoyo: true, duration: 60 });
+            if (this.fx3d) this.fx3d.onBlockBump(b, false, this.cameras.main.scrollX);
           } else if (this.qBlocks.includes(b)) {
             this.bumpQBlock(b);
           }
@@ -635,6 +640,9 @@ export class MarioScene extends SceneBase {
     this.tweens.add({ targets: b.sprite, y: b.y - 6, yoyo: true, duration: 60 });
 
     const isHeart = Math.random() < 0.25;
+    if (this.fx3d) {
+      this.fx3d.onBlockBump(b, isHeart, this.cameras.main.scrollX);
+    }
     const itemKey = isHeart ? "heart" : "coin";
     const item = this.add.sprite(b.x + TS / 2, b.y, itemKey).setOrigin(0.5, 0.5);
     this.tweens.add({
@@ -695,6 +703,9 @@ export class MarioScene extends SceneBase {
           this.hudScore.setText(`Score: ${this.score}`);
           this.spawnBurst(ex, ey, 0xffd54f);
           this.spawnScorePopup(ex, ey - 10, "+200", "#e05378");
+          if (this.fx3d) {
+            this.fx3d.onStomp(ex, ey, this.cameras.main.scrollX);
+          }
           if (e.shadow) e.shadow.destroy();
           e.sprite.destroy();
           this.enemies.splice(i, 1);
@@ -733,9 +744,6 @@ export class MarioScene extends SceneBase {
           sfx.coin();
           this.score += 100;
           this.spawnScorePopup(it.sprite.x, it.sprite.y, "+100", "#d4972c");
-          if (typeof window !== "undefined" && window.activeStage3D) {
-            window.activeStage3D.onScore();
-          }
         } else if (it.type === "heart") {
           sfx.powerup();
           this.lives++;
@@ -747,6 +755,9 @@ export class MarioScene extends SceneBase {
           this.score += 500;
           this.spawnBurst(it.sprite.x, it.sprite.y, 0xff8da9);
           this.spawnScorePopup(it.sprite.x, it.sprite.y, "+500 Kite!", "#e05378");
+        }
+        if (this.fx3d) {
+          this.fx3d.onCollect(it.sprite.x, it.sprite.y, it.type, this.cameras.main.scrollX);
         }
         this.hudScore.setText(`Score: ${this.score}`);
         it.sprite.destroy();
@@ -779,8 +790,8 @@ export class MarioScene extends SceneBase {
       this.p.vx = 0;
       this.player.play("chibi_idle");
       sfx.win();
-      if (typeof window !== "undefined" && window.activeStage3D) {
-        window.activeStage3D.onWin();
+      if (this.fx3d) {
+        this.fx3d.onWin(this.goalX + 40, this.p.y, this.cameras.main.scrollX);
       }
 
       if (this.totoro) {

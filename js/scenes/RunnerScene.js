@@ -5,6 +5,7 @@ import { SceneBase } from "./SceneBase.js";
 import { initTexturesForScene } from "../sprites/textures.js";
 import { sfx } from "../audio/sfx.js";
 import { RUN_W, RUN_H, RUN_GROUND, RUN_GOAL, RUN_PHYSICS } from "../data/runner-config.js";
+import { Runner3DFX } from "../3d/game3d.js";
 
 export class RunnerScene extends SceneBase {
   constructor() {
@@ -39,6 +40,7 @@ export class RunnerScene extends SceneBase {
   create() {
     this.setupAutoCleanup();
     initTexturesForScene(this);
+    this.fx3d = new Runner3DFX(this);
 
     // Distant Dhaka Skyline Parallax
     this.skyline = this.add.graphics();
@@ -125,8 +127,8 @@ export class RunnerScene extends SceneBase {
         this.jumpVel = RUN_PHYSICS.jumpImpulse;
         this.coyoteTimer = 0;
         sfx.jump();
-        if (typeof window !== "undefined" && window.activeStage3D) {
-          window.activeStage3D.onJump();
+        if (this.fx3d) {
+          this.fx3d.onJump(this.astro.x, RUN_GROUND);
         }
         this.astro.play("astro_jump");
         for (let i = 0; i < 5; i++) {
@@ -397,8 +399,8 @@ export class RunnerScene extends SceneBase {
           }
           this.score += it.points;
           this.scoreText.setText("Score: " + this.score);
-          if (typeof window !== "undefined" && window.activeStage3D) {
-            window.activeStage3D.onScore();
+          if (this.fx3d) {
+            this.fx3d.onCollect(it.sprite.x, it.sprite.y, it.key === "cha_cup");
           }
           it.sprite.destroy();
           this.itemList.splice(i, 1);
@@ -442,8 +444,8 @@ export class RunnerScene extends SceneBase {
           this.state = "won";
           this.astro.play("astro_idle");
           sfx.win();
-          if (typeof window !== "undefined" && window.activeStage3D) {
-            window.activeStage3D.onWin();
+          if (this.fx3d) {
+            this.fx3d.onWin(this.totoro.x, this.totoro.y);
           }
           this.msgText.setText("You found Totoro! 💕");
           for (let i = 0; i < 20; i++) {
@@ -479,5 +481,9 @@ export class RunnerScene extends SceneBase {
     this.fillBar.fillStyle(0xe05378, 1);
     this.fillBar.fillRoundedRect(24, 22, Math.max(1, p * 220), 8, 4);
     this.pctText.setText(Math.floor(p * 100) + "%");
+
+    if (this.fx3d) {
+      this.fx3d.sync(time, dt);
+    }
   }
 }

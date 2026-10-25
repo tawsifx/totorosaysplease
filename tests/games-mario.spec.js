@@ -106,4 +106,36 @@ test.describe("Game 3: Run to the Bus Stop", () => {
     expect(orientationCheck.rickWidth).toBe(88);
     expect(orientationCheck.cngWidth).toBe(88);
   });
+
+  test("renders Three.js 3D in-game meshes and shockwave effects directly inside the platformer without a separate diorama", async ({ page }) => {
+    await expect(page.locator(".stage-3d-toggle-btn")).toHaveCount(0);
+
+    const fx3dState = await page.evaluate(() => {
+      const g = window.MarioGame.getInstance();
+      const s = g.scene.getScene("MarioScene");
+      if (!s || !s.fx3d) return null;
+      s.fx3d.onJump(s.p.x, s.p.y, s.cameras.main.scrollX);
+      s.fx3d.sync(1200, 0.016);
+      return {
+        hasScene: !!s.fx3d.scene,
+        hasCamera: !!s.fx3d.camera,
+        blockCount: s.fx3d.blockMeshes.size,
+        itemCount: s.fx3d.itemMeshes.size,
+        enemyCount: s.fx3d.enemyMeshes.size,
+        hasTotoro3D: !!s.fx3d.totoroMesh,
+        shockwaves: s.fx3d.shockwaves.length,
+        shards: s.fx3d.shards.length
+      };
+    });
+
+    expect(fx3dState).not.toBeNull();
+    expect(fx3dState.hasScene).toBe(true);
+    expect(fx3dState.hasCamera).toBe(true);
+    expect(fx3dState.blockCount).toBeGreaterThan(5);
+    expect(fx3dState.itemCount).toBeGreaterThan(0);
+    expect(fx3dState.enemyCount).toBeGreaterThan(0);
+    expect(fx3dState.hasTotoro3D).toBe(true);
+    expect(fx3dState.shockwaves).toBeGreaterThan(0);
+    expect(fx3dState.shards).toBeGreaterThan(0);
+  });
 });

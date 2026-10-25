@@ -47,5 +47,25 @@ test.describe("Game 1: Run to Totoro", () => {
       return s ? s.dist : 0;
     });
     expect(dist).toBeGreaterThan(50);
+
+    // Verify in-game Three.js 3D FX layer is active on RunnerScene without a diorama
+    await expect(page.locator(".stage-3d-toggle-btn")).toHaveCount(0);
+    const runner3DState = await page.evaluate(() => {
+      const g = window.Game.getInstance();
+      const s = g.scene.getScene("RunnerScene");
+      if (!s || !s.fx3d) return null;
+      s.fx3d.onJump(s.astro.x, 248);
+      return {
+        hasScene: !!s.fx3d.scene,
+        clouds3D: s.fx3d.clouds3D.length,
+        petals3D: s.fx3d.petals.length,
+        shockwaves: s.fx3d.shockwaves.length
+      };
+    });
+    expect(runner3DState).not.toBeNull();
+    expect(runner3DState.hasScene).toBe(true);
+    expect(runner3DState.clouds3D).toBe(4);
+    expect(runner3DState.petals3D).toBeGreaterThan(0);
+    expect(runner3DState.shockwaves).toBeGreaterThan(0);
   });
 });
