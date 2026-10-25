@@ -303,48 +303,91 @@ export const MeshFactory3D = {
     footDeck.position.set(0.02, 0.075, 0);
     group.add(footDeck);
 
-    // 2. The Iconic Dhaka Canopy Hood (Arched Vault Rexine with Decorative Appliqué Stripes)
-    const hoodRadius = 0.14;
-    const hoodLength = 0.22;
-    const hood = new THREE.Mesh(new THREE.CylinderGeometry(hoodRadius, hoodRadius, hoodLength, 18, 1, false, 0, Math.PI), hoodMat);
-    hood.rotation.x = Math.PI / 2;
-    hood.position.set(-0.09, 0.22, 0);
+    // 2. The Authentic Dhaka Canopy Hood (Emerges from the back, curves over head, opens in front)
+    // Outer Hood Shell Profile: rises vertically behind passenger backrest at x = -0.18, curves over the head to front visor at x = -0.02
+    const hoodThickness = 0.016;
+    const hoodShape = new THREE.Shape();
+    hoodShape.moveTo(-0.18, 0.16);
+    hoodShape.lineTo(-0.18, 0.25);
+    hoodShape.quadraticCurveTo(-0.16, 0.33, -0.02, 0.30);
+    hoodShape.lineTo(-0.02, 0.30 - hoodThickness);
+    hoodShape.quadraticCurveTo(-0.15, 0.31, -0.18 + hoodThickness, 0.25);
+    hoodShape.lineTo(-0.18 + hoodThickness, 0.16);
+    hoodShape.closePath();
+
+    const hoodGeo = new THREE.ExtrudeGeometry(hoodShape, { depth: 0.22, bevelEnabled: false });
+    hoodGeo.translate(0, 0, -0.11);
+    const hood = new THREE.Mesh(hoodGeo, hoodMat);
     group.add(hood);
 
-    // Dhaka Traditional Appliqué Bands (Orange, Yellow, Cyan arch stripes)
-    const bandGeo = new THREE.CylinderGeometry(hoodRadius + 0.003, hoodRadius + 0.003, 0.035, 18, 1, false, 0, Math.PI);
-    const bandO = new THREE.Mesh(bandGeo, hoodStripeOrange);
-    bandO.rotation.x = Math.PI / 2;
-    bandO.position.set(-0.09, 0.22, 0.055);
+    // Side Rexine Panels (enclosing the rear sides of the passenger compartment)
+    const sideShape = new THREE.Shape();
+    sideShape.moveTo(-0.18, 0.16);
+    sideShape.lineTo(-0.18, 0.25);
+    sideShape.quadraticCurveTo(-0.16, 0.33, -0.02, 0.30);
+    sideShape.lineTo(-0.02, 0.22);
+    sideShape.quadraticCurveTo(-0.10, 0.18, -0.18, 0.16);
+    sideShape.closePath();
 
-    const bandY = new THREE.Mesh(bandGeo, hoodStripeYellow);
-    bandY.rotation.x = Math.PI / 2;
-    bandY.position.set(-0.09, 0.22, 0.0);
+    const sideGeoL = new THREE.ExtrudeGeometry(sideShape, { depth: 0.005, bevelEnabled: false });
+    sideGeoL.translate(0, 0, 0.105);
+    const sideL = new THREE.Mesh(sideGeoL, hoodMat);
 
-    const bandB = new THREE.Mesh(bandGeo, hoodStripeBlue);
-    bandB.rotation.x = Math.PI / 2;
-    bandB.position.set(-0.09, 0.22, -0.055);
-    group.add(bandO, bandY, bandB);
+    const sideGeoR = new THREE.ExtrudeGeometry(sideShape, { depth: 0.005, bevelEnabled: false });
+    sideGeoR.translate(0, 0, -0.110);
+    const sideR = new THREE.Mesh(sideGeoR, hoodMat);
+    group.add(sideL, sideR);
 
-    // Chrome Structural Canopy Rib Arches
-    const ribGeo = new THREE.TorusGeometry(hoodRadius + 0.005, 0.005, 6, 16, Math.PI);
-    const ribFront = new THREE.Mesh(ribGeo, chromeMat);
-    ribFront.rotation.y = Math.PI / 2;
-    ribFront.position.set(-0.09, 0.22, 0.11);
-    const ribBack = new THREE.Mesh(ribGeo, chromeMat);
-    ribBack.rotation.y = Math.PI / 2;
-    ribBack.position.set(-0.09, 0.22, -0.11);
-    group.add(ribFront, ribBack);
+    // Dhaka Traditional Appliqué Bands (Orange, Yellow, Cyan arch stripes wrapping the hood)
+    const stripeShape = new THREE.Shape();
+    stripeShape.moveTo(-0.182, 0.18);
+    stripeShape.lineTo(-0.182, 0.252);
+    stripeShape.quadraticCurveTo(-0.162, 0.332, -0.018, 0.302);
+    stripeShape.lineTo(-0.018, 0.296);
+    stripeShape.quadraticCurveTo(-0.158, 0.324, -0.176, 0.25);
+    stripeShape.lineTo(-0.176, 0.18);
+    stripeShape.closePath();
 
-    // Hanging Scalloped Tassels / Fringes along Canopy Rim
-    const fringeTrim = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.016, 0.23), fringeMat);
-    fringeTrim.position.set(-0.09, 0.22, 0);
+    const makeStripe = (mat, zPos) => {
+      const geo = new THREE.ExtrudeGeometry(stripeShape, { depth: 0.034, bevelEnabled: false });
+      geo.translate(0, 0, zPos - 0.017);
+      return new THREE.Mesh(geo, mat);
+    };
+
+    group.add(makeStripe(hoodStripeOrange, 0.055));
+    group.add(makeStripe(hoodStripeYellow, 0.0));
+    group.add(makeStripe(hoodStripeBlue, -0.055));
+
+    // Chrome Structural Canopy Rib Arch along Front Visor Opening
+    const visorRim = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.014, 0.226), chromeMat);
+    visorRim.position.set(-0.02, 0.30, 0);
+    group.add(visorRim);
+
+    // Classic Scissor Folding Struts on Left and Right Sides (folding canopy mechanism)
+    [-0.115, 0.115].forEach((sz) => {
+      // Rear strut
+      const strutRear = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.12, 6), chromeMat);
+      strutRear.position.set(-0.13, 0.21, sz);
+      strutRear.rotation.z = 0.55;
+      // Front strut
+      const strutFront = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.13, 6), chromeMat);
+      strutFront.position.set(-0.07, 0.23, sz);
+      strutFront.rotation.z = -0.55;
+      // Center hinge pin
+      const hinge = new THREE.Mesh(new THREE.SphereGeometry(0.006, 6, 6), trimGoldMat);
+      hinge.position.set(-0.10, 0.17, sz);
+      group.add(strutRear, strutFront, hinge);
+    });
+
+    // Scalloped Golden Fringe along the Front Visor Rim
+    const fringeTrim = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.018, 0.224), fringeMat);
+    fringeTrim.position.set(-0.02, 0.29, 0);
     group.add(fringeTrim);
 
-    // Miniature Hanging Tassels (front hem of the hood)
-    for (let tz = -0.09; tz <= 0.091; tz += 0.036) {
-      const tassel = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.007, 0.024, 6), trimGoldMat);
-      tassel.position.set(0.03, 0.205, tz);
+    // Miniature Hanging Tassels along the front canopy opening
+    for (let tz = -0.095; tz <= 0.096; tz += 0.032) {
+      const tassel = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0065, 0.022, 6), trimGoldMat);
+      tassel.position.set(-0.02, 0.275, tz);
       group.add(tassel);
     }
 
