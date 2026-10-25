@@ -106,7 +106,6 @@ export default defineConfig({
           if (id.includes("/js/audio/")) return "chunk-audio-engine";
           if (id.includes("/js/scenes/") || id.includes("/js/games/") || id.includes("/js/sprites/")) return "chunk-games-suite";
           if (id.includes("/js/data/")) return "chunk-game-configs";
-          if (id.includes("three") || id.includes("/js/3d/")) return "chunk-three-3d";
         }
       }
     }

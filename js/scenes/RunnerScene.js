@@ -23,7 +23,6 @@ export class RunnerScene extends SceneBase {
     this.nextObs = 600;
     this.nextItem = 350;
     this.totoro = null;
-    this.dustTimer = 0;
     this.heartTimer = 0;
     this.petalTimer = 0;
     this.coyoteTimer = 0;
@@ -31,7 +30,6 @@ export class RunnerScene extends SceneBase {
 
     this.obsList = [];
     this.itemList = [];
-    this.dustList = [];
     this.heartList = [];
     this.petalList = [];
     this.floatingTexts = [];
@@ -127,18 +125,7 @@ export class RunnerScene extends SceneBase {
         this.jumpVel = RUN_PHYSICS.jumpImpulse;
         this.coyoteTimer = 0;
         sfx.jump();
-        if (this.fx3d) {
-          this.fx3d.onJump(this.astro.x, RUN_GROUND);
-        }
         this.astro.play("astro_jump");
-        for (let i = 0; i < 5; i++) {
-          this.spawnDust(
-            this.astro.x - 8 + (Math.random() * 8 - 4),
-            RUN_GROUND - 2,
-            -(Math.random() * 25 + 15),
-            -(Math.random() * 20 + 5)
-          );
-        }
       }
     };
 
@@ -206,11 +193,6 @@ export class RunnerScene extends SceneBase {
     buildings.forEach(([x, y, w, h]) => {
       this.skyline.fillRect(x, y, w, h);
     });
-  }
-
-  spawnDust(x, y, vx, vy) {
-    const d = this.add.circle(x, y, Math.random() * 1.5 + 1.5, 0xe6ded6, 0.85);
-    this.dustList.push({ circle: d, vx, vy, life: 1.0 });
   }
 
   spawnPetal() {
@@ -308,19 +290,6 @@ export class RunnerScene extends SceneBase {
       }
     }
 
-    // Dust particles
-    for (let i = this.dustList.length - 1; i >= 0; i--) {
-      const d = this.dustList[i];
-      d.circle.x += d.vx * dt;
-      d.circle.y += d.vy * dt;
-      d.life -= dt * 1.6;
-      d.circle.setAlpha(Math.max(0, d.life));
-      if (d.life <= 0) {
-        d.circle.destroy();
-        this.dustList.splice(i, 1);
-      }
-    }
-
     if (this.state === "running") {
       this.dist += this.speed * dt;
       this.speed = Math.min(RUN_PHYSICS.maxSpeed, RUN_PHYSICS.initialSpeed + (this.dist / RUN_GOAL) * 110);
@@ -330,13 +299,6 @@ export class RunnerScene extends SceneBase {
         this.coyoteTimer = 0.12;
       } else {
         this.coyoteTimer = Math.max(0, this.coyoteTimer - dt);
-      }
-
-      // Footstep dust
-      this.dustTimer -= dt;
-      if (this.dustTimer <= 0 && this.astro.y >= RUN_GROUND) {
-        this.dustTimer = 0.18;
-        this.spawnDust(this.astro.x - 10, RUN_GROUND - 1, -this.speed * 0.25, -(Math.random() * 10 + 5));
       }
 
       // Variable jump gravity
@@ -399,9 +361,6 @@ export class RunnerScene extends SceneBase {
           }
           this.score += it.points;
           this.scoreText.setText("Score: " + this.score);
-          if (this.fx3d) {
-            this.fx3d.onCollect(it.sprite.x, it.sprite.y, it.key === "cha_cup");
-          }
           it.sprite.destroy();
           this.itemList.splice(i, 1);
         } else if (it.sprite.x < -40) {
@@ -444,9 +403,6 @@ export class RunnerScene extends SceneBase {
           this.state = "won";
           this.astro.play("astro_idle");
           sfx.win();
-          if (this.fx3d) {
-            this.fx3d.onWin(this.totoro.x, this.totoro.y);
-          }
           this.msgText.setText("You found Totoro! 💕");
           for (let i = 0; i < 20; i++) {
             const h = this.add.sprite(this.totoro.x + (Math.random() * 110 - 20), this.totoro.y - 60, "heart");

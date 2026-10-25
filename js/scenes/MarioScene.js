@@ -30,9 +30,7 @@ export class MarioScene extends SceneBase {
     this.prevJumpKey = false;
     this.checkpointX = 2 * TS;
     this.checkpointY = 10 * TS;
-    this.dustTimer = 0;
     this.petalTimer = 0;
-    this.dustList = [];
     this.petalList = [];
     this.clouds = [];
   }
@@ -382,16 +380,9 @@ export class MarioScene extends SceneBase {
     g.fillCircle(sx + sw / 2, sy + 16, 18);
   }
 
-  spawnDust(x, y, vx, vy, color = 0xe6ded6) {
-    const d = this.add.circle(x, y, Math.random() * 1.6 + 1.4, color, 0.85);
-    this.dustList.push({ circle: d, vx, vy, life: 1.0 });
-  }
-
   spawnBurst(x, y, color = 0xffd54f) {
-    for (let i = 0; i < 6; i++) {
-      const ang = (Math.PI * 2 * i) / 6;
-      this.spawnDust(x, y, Math.cos(ang) * 45, Math.sin(ang) * 45 - 15, color);
-    }
+    const c = this.add.circle(x, y, 12, color, 0.7);
+    this.tweens.add({ targets: c, scale: 2.2, alpha: 0, duration: 250, onComplete: () => c.destroy() });
   }
 
   spawnScorePopup(x, y, text, color = "#e05378") {
@@ -460,19 +451,6 @@ export class MarioScene extends SceneBase {
       }
     }
 
-    // Dust & burst particles
-    for (let i = this.dustList.length - 1; i >= 0; i--) {
-      const d = this.dustList[i];
-      d.circle.x += d.vx * dt;
-      d.circle.y += d.vy * dt;
-      d.life -= dt * 2.0;
-      d.circle.setAlpha(Math.max(0, d.life));
-      if (d.life <= 0) {
-        d.circle.destroy();
-        this.dustList.splice(i, 1);
-      }
-    }
-
     if (this.invulnTimer > 0) {
       this.invulnTimer -= dt;
       this.player.setAlpha(Math.floor(time / 100) % 2 === 0 ? 0.35 : 1);
@@ -532,12 +510,6 @@ export class MarioScene extends SceneBase {
       this.coyoteTimer = 0;
       this.jumpBuffer = 0;
       sfx.jump();
-      if (this.fx3d) {
-        this.fx3d.onJump(p.x, p.y, this.cameras.main.scrollX);
-      }
-      for (let i = 0; i < 4; i++) {
-        this.spawnDust(p.x + (Math.random() * 10 - 5), p.y - 2, (Math.random() - 0.5) * 35, -(Math.random() * 20 + 8));
-      }
     }
 
     // Variable jump gravity: float when holding jump, short hop on quick tap
@@ -562,10 +534,6 @@ export class MarioScene extends SceneBase {
       if (p.x + p.w / 2 > b.x && p.x - p.w / 2 < b.x + b.w &&
           p.y > b.y && p.y - p.h < b.y + b.h) {
         if (p.vy > 0) {
-          if (!wasGrounded && p.vy > 180) {
-            this.spawnDust(p.x - 6, b.y - 1, -20, -10);
-            this.spawnDust(p.x + 6, b.y - 1, 20, -10);
-          }
           p.y = b.y;
           p.vy = 0;
           p.grounded = true;
@@ -575,19 +543,12 @@ export class MarioScene extends SceneBase {
           sfx.bump();
           if (b.isBrick && b.sprite) {
             this.tweens.add({ targets: b.sprite, y: b.y - 6, yoyo: true, duration: 60 });
-            if (this.fx3d) this.fx3d.onBlockBump(b, false, this.cameras.main.scrollX);
+            if (this.fx3d) this.fx3d.onBlockBump(b);
           } else if (this.qBlocks.includes(b)) {
             this.bumpQBlock(b);
           }
         }
       }
-    }
-
-    // Running footstep dust
-    this.dustTimer -= dt;
-    if (p.grounded && Math.abs(p.vx) > 90 && this.dustTimer <= 0) {
-      this.dustTimer = 0.18;
-      this.spawnDust(p.x - Math.sign(p.vx) * 6, p.y - 2, -p.vx * 0.2, -12);
     }
 
     if (!p.grounded) {
@@ -641,7 +602,7 @@ export class MarioScene extends SceneBase {
 
     const isHeart = Math.random() < 0.25;
     if (this.fx3d) {
-      this.fx3d.onBlockBump(b, isHeart, this.cameras.main.scrollX);
+      this.fx3d.onBlockBump(b);
     }
     const itemKey = isHeart ? "heart" : "coin";
     const item = this.add.sprite(b.x + TS / 2, b.y, itemKey).setOrigin(0.5, 0.5);
@@ -703,9 +664,6 @@ export class MarioScene extends SceneBase {
           this.hudScore.setText(`Score: ${this.score}`);
           this.spawnBurst(ex, ey, 0xffd54f);
           this.spawnScorePopup(ex, ey - 10, "+200", "#e05378");
-          if (this.fx3d) {
-            this.fx3d.onStomp(ex, ey, this.cameras.main.scrollX);
-          }
           if (e.shadow) e.shadow.destroy();
           e.sprite.destroy();
           this.enemies.splice(i, 1);
@@ -756,9 +714,6 @@ export class MarioScene extends SceneBase {
           this.spawnBurst(it.sprite.x, it.sprite.y, 0xff8da9);
           this.spawnScorePopup(it.sprite.x, it.sprite.y, "+500 Kite!", "#e05378");
         }
-        if (this.fx3d) {
-          this.fx3d.onCollect(it.sprite.x, it.sprite.y, it.type, this.cameras.main.scrollX);
-        }
         this.hudScore.setText(`Score: ${this.score}`);
         it.sprite.destroy();
         this.items.splice(i, 1);
@@ -790,9 +745,6 @@ export class MarioScene extends SceneBase {
       this.p.vx = 0;
       this.player.play("chibi_idle");
       sfx.win();
-      if (this.fx3d) {
-        this.fx3d.onWin(this.goalX + 40, this.p.y, this.cameras.main.scrollX);
-      }
 
       if (this.totoro) {
         this.tweens.add({ targets: this.totoro, y: this.totoro.y - 12, yoyo: true, duration: 180, repeat: 3 });

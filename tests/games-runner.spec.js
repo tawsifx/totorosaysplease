@@ -54,18 +54,17 @@ test.describe("Game 1: Run to Totoro", () => {
       const g = window.Game.getInstance();
       const s = g.scene.getScene("RunnerScene");
       if (!s || !s.fx3d) return null;
-      s.fx3d.onJump(s.astro.x, 248);
       return {
         hasScene: !!s.fx3d.scene,
         clouds3D: s.fx3d.clouds3D.length,
-        petals3D: s.fx3d.petals.length,
-        shockwaves: s.fx3d.shockwaves.length
+        hasDustList: Array.isArray(s.dustList),
+        hasTotoro3D: !!s.fx3d.totoroMesh
       };
     });
     expect(runner3DState).not.toBeNull();
     expect(runner3DState.hasScene).toBe(true);
     expect(runner3DState.clouds3D).toBe(4);
-    expect(runner3DState.petals3D).toBeGreaterThan(0);
-    expect(runner3DState.shockwaves).toBeGreaterThan(0);
+    expect(runner3DState.hasDustList).toBe(false);
+    expect(runner3DState.hasTotoro3D).toBe(false);
   });
 });

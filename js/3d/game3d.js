@@ -1,87 +1,108 @@
-// js/3d/game3d.js - Real-Time In-Game Three.js 3D Engine & Effects Layer
-// Enhances "Run to the Bus Stop" (Mario) and "Run to Totoro!" (Dino/Runner) directly inside the game canvas
-// with 3D Rickshaws, 3D CNGs, 3D Flapping Crows, 3D Extruded ? Blocks, 3D Spinning Gold Coins,
-// 3D Steaming Clay Cha Cups, 3D Crystalline Obstacles, 3D Voxel Totoro, and 3D Torus Shockwaves.
+// js/3d/game3d.js - Real-Time In-Game Three.js 3D Engine with Luminous Specular Lighting
+// Enhances "Run to the Bus Stop" (Mario) and "Run to Totoro!" (Dino/Runner) with
+// bright, gleaming 3D Gold Coins, Steaming Clay Cha Cups, Ruby Hearts, Diamond Kites,
+// Question Blocks, Rickshaws, CNGs, Flapping Crows, and Crystalline Obstacles.
+// Note: Totoro preserves its authentic 2D pixel-art sprite design with zero 3D override.
 
 import * as THREE from "three";
 
 const SCALE = 0.01; // 100 Phaser pixels = 1.0 Three.js world unit at z = 0
 
 /**
- * Shared 3D Mesh Builders (Totoro, Coins, Hearts, Cha Cups, Vehicles, Obstacles, Particles)
+ * Shared Luminous 3D Mesh Builders
+ * Uses bright MeshPhongMaterial with vivid specular highlights and self-luminous emissive glow.
  */
 export const MeshFactory3D = {
   createCoin() {
     const group = new THREE.Group();
-    const goldMat = new THREE.MeshStandardMaterial({
-      color: 0xffcf40,
-      metalness: 0.72,
-      roughness: 0.22,
-      emissive: 0x5a3e00,
-      emissiveIntensity: 0.25
-    });
-    const rimMat = new THREE.MeshStandardMaterial({
-      color: 0xffe875,
-      metalness: 0.8,
-      roughness: 0.18
+
+    // Radiant Gold Material with pure white mirror-like specular glint
+    const goldMat = new THREE.MeshPhongMaterial({
+      color: 0xffd700,
+      emissive: 0xffa000,
+      emissiveIntensity: 0.38,
+      specular: 0xffffff,
+      shininess: 180
     });
 
-    // Coin disc
-    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.036, 20), goldMat);
+    const rimMat = new THREE.MeshPhongMaterial({
+      color: 0xffea75,
+      emissive: 0xffaa00,
+      emissiveIntensity: 0.45,
+      specular: 0xffffff,
+      shininess: 220
+    });
+
+    // Coin cylinder disc
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.115, 0.038, 24), goldMat);
     disc.rotation.x = Math.PI / 2;
     group.add(disc);
 
-    // Embossed outer torus rim
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.018, 8, 20), rimMat);
+    // Bevelled shiny outer torus rim
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.108, 0.018, 10, 24), rimMat);
     group.add(rim);
 
-    // Center emblem bar
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.09, 0.048), rimMat);
-    group.add(bar);
+    // Faceted 3D Star emblem on front & back
+    const starMat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      emissive: 0xffe066,
+      emissiveIntensity: 0.5,
+      specular: 0xffffff,
+      shininess: 250
+    });
+    const starFront = new THREE.Mesh(new THREE.OctahedronGeometry(0.045, 0), starMat);
+    starFront.position.z = 0.024;
+    starFront.scale.set(1.0, 1.0, 0.35);
+    group.add(starFront);
+
+    const starBack = new THREE.Mesh(new THREE.OctahedronGeometry(0.045, 0), starMat);
+    starBack.position.z = -0.024;
+    starBack.scale.set(1.0, 1.0, 0.35);
+    group.add(starBack);
 
     return group;
   },
 
   createChaCup() {
     const group = new THREE.Group();
-    const clayMat = new THREE.MeshStandardMaterial({
-      color: 0xc86432,
-      roughness: 0.65,
-      metalness: 0.08
-    });
-    const rimMat = new THREE.MeshStandardMaterial({
-      color: 0xdf7f42,
-      roughness: 0.55
-    });
-    const teaMat = new THREE.MeshStandardMaterial({
-      color: 0xe6b88a,
-      roughness: 0.25,
-      metalness: 0.15,
-      emissive: 0x4a2c11,
-      emissiveIntensity: 0.2
+
+    const clayMat = new THREE.MeshPhongMaterial({
+      color: 0xdf6d38,
+      emissive: 0x6e2808,
+      emissiveIntensity: 0.3,
+      specular: 0xffd2b8,
+      shininess: 90
     });
 
-    // Tapered terracotta bhar (clay cup)
-    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.065, 0.16, 16), clayMat);
+    const teaMat = new THREE.MeshPhongMaterial({
+      color: 0xf5caa0,
+      emissive: 0x8a4b1d,
+      emissiveIntensity: 0.45,
+      specular: 0xffffff,
+      shininess: 180
+    });
+
+    // Terracotta clay cup body
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.068, 0.17, 20), clayMat);
     group.add(cup);
 
     // Lip rim
-    const lip = new THREE.Mesh(new THREE.TorusGeometry(0.092, 0.014, 8, 16), rimMat);
+    const lip = new THREE.Mesh(new THREE.TorusGeometry(0.096, 0.016, 8, 20), clayMat);
     lip.rotation.x = Math.PI / 2;
-    lip.position.y = 0.075;
+    lip.position.y = 0.082;
     group.add(lip);
 
-    // Milk tea liquid surface
-    const tea = new THREE.Mesh(new THREE.CylinderGeometry(0.086, 0.086, 0.015, 14), teaMat);
-    tea.position.y = 0.068;
+    // Steaming hot milk tea surface
+    const tea = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.015, 16), teaMat);
+    tea.position.y = 0.075;
     group.add(tea);
 
-    // 3D Steam puffs
-    const steamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 });
+    // Rising steam puffs
+    const steamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.78 });
     const puffs = [];
     for (let i = 0; i < 3; i++) {
-      const puff = new THREE.Mesh(new THREE.SphereGeometry(0.025 + i * 0.006, 8, 8), steamMat);
-      puff.position.set((i - 1) * 0.025, 0.12 + i * 0.045, 0);
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(0.026 + i * 0.007, 8, 8), steamMat);
+      puff.position.set((i - 1) * 0.025, 0.13 + i * 0.048, 0);
       group.add(puff);
       puffs.push(puff);
     }
@@ -91,25 +112,25 @@ export const MeshFactory3D = {
 
   createHeart() {
     const group = new THREE.Group();
-    const heartMat = new THREE.MeshStandardMaterial({
-      color: 0xf25c84,
-      roughness: 0.25,
-      metalness: 0.15,
-      emissive: 0x6e1430,
-      emissiveIntensity: 0.35
+    const heartMat = new THREE.MeshPhongMaterial({
+      color: 0xff2a6d,
+      emissive: 0x990033,
+      emissiveIntensity: 0.45,
+      specular: 0xffffff,
+      shininess: 190
     });
 
-    const leftLobe = new THREE.Mesh(new THREE.SphereGeometry(0.062, 12, 12), heartMat);
-    leftLobe.position.set(-0.042, 0.035, 0);
+    const leftLobe = new THREE.Mesh(new THREE.SphereGeometry(0.065, 14, 14), heartMat);
+    leftLobe.position.set(-0.044, 0.038, 0);
     group.add(leftLobe);
 
-    const rightLobe = new THREE.Mesh(new THREE.SphereGeometry(0.062, 12, 12), heartMat);
-    rightLobe.position.set(0.042, 0.035, 0);
+    const rightLobe = new THREE.Mesh(new THREE.SphereGeometry(0.065, 14, 14), heartMat);
+    rightLobe.position.set(0.044, 0.038, 0);
     group.add(rightLobe);
 
-    const bottomCone = new THREE.Mesh(new THREE.ConeGeometry(0.098, 0.12, 12), heartMat);
+    const bottomCone = new THREE.Mesh(new THREE.ConeGeometry(0.102, 0.13, 14), heartMat);
     bottomCone.rotation.x = Math.PI;
-    bottomCone.position.set(0, -0.035, 0);
+    bottomCone.position.set(0, -0.038, 0);
     group.add(bottomCone);
 
     return group;
@@ -117,96 +138,110 @@ export const MeshFactory3D = {
 
   createKite() {
     const group = new THREE.Group();
-    const kiteMat = new THREE.MeshStandardMaterial({
-      color: 0xff5e8e,
-      roughness: 0.35,
-      metalness: 0.1,
+    const kiteMat = new THREE.MeshPhongMaterial({
+      color: 0xff1493,
+      emissive: 0x660033,
+      emissiveIntensity: 0.35,
+      specular: 0xfff0aa,
+      shininess: 140,
       side: THREE.DoubleSide
     });
-    const accentMat = new THREE.MeshStandardMaterial({
-      color: 0xffd54f,
-      roughness: 0.3
+    const goldMat = new THREE.MeshPhongMaterial({
+      color: 0xffd700,
+      emissive: 0x885500,
+      emissiveIntensity: 0.45,
+      specular: 0xffffff,
+      shininess: 200
     });
 
-    // Diamond body (rotated 3D box)
-    const diamond = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 0.02), kiteMat);
+    // Diamond kite body
+    const diamond = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.17, 0.022), kiteMat);
     diamond.rotation.z = Math.PI / 4;
     group.add(diamond);
 
     // Inner gold diamond
-    const inner = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 0.028), accentMat);
+    const inner = new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.095, 0.03), goldMat);
     inner.rotation.z = Math.PI / 4;
     group.add(inner);
 
-    // Tail ribbons
-    const tail1 = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.09, 6), accentMat);
-    tail1.position.set(0, -0.14, 0);
-    group.add(tail1);
+    // Fluttering tail ribbon
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.038, 0.10, 8), goldMat);
+    tail.position.set(0, -0.15, 0);
+    group.add(tail);
 
     return group;
   },
 
   createQuestionBlock() {
     const group = new THREE.Group();
-    const goldMat = new THREE.MeshStandardMaterial({
-      color: 0xf7b93e,
-      metalness: 0.45,
-      roughness: 0.28,
-      emissive: 0x4d3200,
-      emissiveIntensity: 0.18
+
+    const goldMat = new THREE.MeshPhongMaterial({
+      color: 0xffc107,
+      emissive: 0xff8f00,
+      emissiveIntensity: 0.38,
+      specular: 0xffffff,
+      shininess: 160
     });
-    const trimMat = new THREE.MeshStandardMaterial({
-      color: 0xffe07d,
-      metalness: 0.55,
-      roughness: 0.2
+    const trimMat = new THREE.MeshPhongMaterial({
+      color: 0xffe082,
+      emissive: 0xffa000,
+      emissiveIntensity: 0.42,
+      specular: 0xffffff,
+      shininess: 220
     });
-    const dotMat = new THREE.MeshStandardMaterial({
-      color: 0xfff8e7,
-      emissive: 0xffea9f,
-      emissiveIntensity: 0.4
+    const emblemMat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.75,
+      specular: 0xffffff,
+      shininess: 250
     });
 
-    // Core 3D extruded block
+    // Core cube
     const core = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), goldMat);
     group.add(core);
 
-    // Raised bevel frame
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.305, 0.305, 0.22), trimMat);
+    // Raised polished frame
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.31, 0.24), trimMat);
     group.add(frame);
 
-    // 3D "?" emblem relief on front
-    const qTop = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.045, 0.03), dotMat);
-    qTop.position.set(0, 0.065, 0.145);
+    // Luminous "?" relief on front
+    const qTop = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.048, 0.032), emblemMat);
+    qTop.position.set(0, 0.068, 0.145);
     group.add(qTop);
 
-    const qMid = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.06, 0.03), dotMat);
-    qMid.position.set(0.03, 0.025, 0.145);
+    const qMid = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.065, 0.032), emblemMat);
+    qMid.position.set(0.035, 0.026, 0.145);
     group.add(qMid);
 
-    const qDot = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.048, 0.03), dotMat);
-    qDot.position.set(0, -0.07, 0.145);
+    const qDot = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.032), emblemMat);
+    qDot.position.set(0, -0.072, 0.145);
     group.add(qDot);
 
-    group.userData = { core, frame, used: false };
+    group.userData = { core, frame };
     return group;
   },
 
   createBrickBlock(colorHex = 0xc96846) {
     const group = new THREE.Group();
-    const brickMat = new THREE.MeshStandardMaterial({
+    const brickMat = new THREE.MeshPhongMaterial({
       color: colorHex,
-      roughness: 0.65,
-      metalness: 0.08
+      emissive: 0x3d1a10,
+      emissiveIntensity: 0.22,
+      specular: 0xffd8cc,
+      shininess: 70
     });
-    const mortarMat = new THREE.MeshStandardMaterial({
-      color: 0x8f4329,
-      roughness: 0.8
+    const mortarMat = new THREE.MeshPhongMaterial({
+      color: 0x73351f,
+      emissive: 0x240e07,
+      emissiveIntensity: 0.18,
+      specular: 0xaa6655,
+      shininess: 40
     });
 
     const base = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.30, 0.24), mortarMat);
     group.add(base);
 
-    // Upper and lower 3D brick courses
     const topBrick = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.12, 0.26), brickMat);
     topBrick.position.set(0, 0.065, 0);
     group.add(topBrick);
@@ -224,53 +259,52 @@ export const MeshFactory3D = {
 
   createRickshaw() {
     const group = new THREE.Group();
-    const hoodMat = new THREE.MeshStandardMaterial({ color: 0xe63956, roughness: 0.4 });
-    const trimMat = new THREE.MeshStandardMaterial({ color: 0xffd166, metalness: 0.5, roughness: 0.25 });
-    const seatMat = new THREE.MeshStandardMaterial({ color: 0x118ab2, roughness: 0.5 });
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x2b2d42, roughness: 0.7 });
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0xd9d9d9, metalness: 0.7, roughness: 0.25 });
+    const hoodMat = new THREE.MeshPhongMaterial({ color: 0xff2a55, emissive: 0x5a0014, emissiveIntensity: 0.3, specular: 0xffffff, shininess: 120 });
+    const trimMat = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0x774400, emissiveIntensity: 0.4, specular: 0xffffff, shininess: 200 });
+    const seatMat = new THREE.MeshPhongMaterial({ color: 0x00b4d8, emissive: 0x003f5c, emissiveIntensity: 0.25, specular: 0xddf4ff, shininess: 100 });
+    const tireMat = new THREE.MeshPhongMaterial({ color: 0x22222b, specular: 0x666677, shininess: 50 });
+    const chromeMat = new THREE.MeshPhongMaterial({ color: 0xf5f5f5, specular: 0xffffff, shininess: 240 });
 
-    // 3D Hood Canopy (Dhaka colorful rickshaw hood)
-    const hood = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.22, 12, 1, false, 0, Math.PI), hoodMat);
+    // Canopy Hood
+    const hood = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.22, 14, 1, false, 0, Math.PI), hoodMat);
     hood.rotation.x = Math.PI / 2;
     hood.position.set(-0.08, 0.18, 0);
     group.add(hood);
 
-    // Gold decorative hood band
+    // Gold trim band
     const band = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.035, 0.23), trimMat);
     band.position.set(-0.08, 0.18, 0);
     group.add(band);
 
-    // Passenger Seat & Footboard
+    // Seat & frame
     const seat = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.20), seatMat);
     seat.position.set(-0.08, 0.11, 0);
     group.add(seat);
 
-    const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.03, 0.16), frameMat);
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.03, 0.16), chromeMat);
     chassis.position.set(0.0, 0.07, 0);
     group.add(chassis);
 
-    // Handlebars & Front fork
-    const fork = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.18, 8), frameMat);
+    // Front fork
+    const fork = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.18, 8), chromeMat);
     fork.position.set(0.14, 0.14, 0);
     fork.rotation.z = 0.2;
     group.add(fork);
 
-    // 3D Spoked Wheels (Rear pair + Front wheel)
+    // 3D Spoked wheels
     const wheels = [];
-    const wheelPositions = [
+    [
       [-0.10, 0.075, 0.11],
       [-0.10, 0.075, -0.11],
       [0.16, 0.075, 0.0]
-    ];
-    wheelPositions.forEach(([wx, wy, wz]) => {
+    ].forEach(([wx, wy, wz]) => {
       const wGroup = new THREE.Group();
       wGroup.position.set(wx, wy, wz);
       const tire = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.016, 8, 16), tireMat);
       wGroup.add(tire);
-      const spoke1 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.012), frameMat);
-      const spoke2 = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.12, 0.012), frameMat);
-      wGroup.add(spoke1, spoke2);
+      const sp1 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.012), chromeMat);
+      const sp2 = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.12, 0.012), chromeMat);
+      wGroup.add(sp1, sp2);
       group.add(wGroup);
       wheels.push(wGroup);
     });
@@ -281,40 +315,33 @@ export const MeshFactory3D = {
 
   createCNG() {
     const group = new THREE.Group();
-    const greenMat = new THREE.MeshStandardMaterial({ color: 0x1b9aaa, roughness: 0.35, metalness: 0.2 });
-    const bodyGreen = new THREE.MeshStandardMaterial({ color: 0x06a77d, roughness: 0.32, metalness: 0.25 });
-    const roofMat = new THREE.MeshStandardMaterial({ color: 0x2b2d42, roughness: 0.6 });
-    const glassMat = new THREE.MeshStandardMaterial({ color: 0xa8dadc, roughness: 0.15, metalness: 0.6 });
-    const lampMat = new THREE.MeshStandardMaterial({ color: 0xffe66d, emissive: 0xffb703, emissiveIntensity: 0.8 });
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x22222b, roughness: 0.75 });
+    const greenMat = new THREE.MeshPhongMaterial({ color: 0x00c853, emissive: 0x004d1a, emissiveIntensity: 0.32, specular: 0xd4ffd4, shininess: 150 });
+    const roofMat = new THREE.MeshPhongMaterial({ color: 0x212529, specular: 0x555566, shininess: 60 });
+    const glassMat = new THREE.MeshPhongMaterial({ color: 0xe0f7fa, emissive: 0x003344, emissiveIntensity: 0.15, specular: 0xffffff, shininess: 220 });
+    const lampMat = new THREE.MeshPhongMaterial({ color: 0xffea00, emissive: 0xffd600, emissiveIntensity: 0.95, specular: 0xffffff, shininess: 250 });
+    const tireMat = new THREE.MeshPhongMaterial({ color: 0x1a1a24, specular: 0x555566, shininess: 50 });
 
-    // Lower 3D Cabin
-    const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.13, 0.22), bodyGreen);
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.13, 0.22), greenMat);
     cabin.position.set(0, 0.11, 0);
     group.add(cabin);
 
-    // Rounded Front Nose
     const nose = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 0.13, 12), greenMat);
     nose.position.set(0.16, 0.11, 0);
     group.add(nose);
 
-    // Top Canopy Roof
     const roof = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.04, 0.21), roofMat);
     roof.position.set(-0.02, 0.24, 0);
     group.add(roof);
 
-    // Windshield
     const glass = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.09, 0.18), glassMat);
     glass.position.set(0.12, 0.19, 0);
     glass.rotation.z = 0.22;
     group.add(glass);
 
-    // Glowing Yellow Headlight
-    const headlight = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), lampMat);
+    const headlight = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 10), lampMat);
     headlight.position.set(0.22, 0.12, 0);
     group.add(headlight);
 
-    // 3 Wheels
     const wheels = [];
     [
       [-0.11, 0.055, 0.11],
@@ -333,38 +360,23 @@ export const MeshFactory3D = {
 
   createCrow() {
     const group = new THREE.Group();
-    const featherMat = new THREE.MeshStandardMaterial({
-      color: 0x2b2d42,
-      roughness: 0.4,
-      metalness: 0.35
-    });
-    const wingMat = new THREE.MeshStandardMaterial({
-      color: 0x3d405b,
-      roughness: 0.35,
-      metalness: 0.4
-    });
-    const beakMat = new THREE.MeshStandardMaterial({
-      color: 0xffb703,
-      roughness: 0.3
-    });
+    const featherMat = new THREE.MeshPhongMaterial({ color: 0x2b2d42, emissive: 0x10111a, emissiveIntensity: 0.25, specular: 0x88bbff, shininess: 150 });
+    const wingMat = new THREE.MeshPhongMaterial({ color: 0x3d405b, emissive: 0x161824, emissiveIntensity: 0.28, specular: 0x99ccff, shininess: 160 });
+    const beakMat = new THREE.MeshPhongMaterial({ color: 0xffc107, emissive: 0x664400, emissiveIntensity: 0.45, specular: 0xffffff, shininess: 200 });
 
-    // Body
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 10), featherMat);
     body.scale.set(1.35, 0.85, 0.9);
     group.add(body);
 
-    // Head
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 10), featherMat);
     head.position.set(0.09, 0.04, 0);
     group.add(head);
 
-    // Beak (pointing right +X)
     const beak = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.08, 8), beakMat);
     beak.rotation.z = -Math.PI / 2;
     beak.position.set(0.16, 0.04, 0);
     group.add(beak);
 
-    // Articulated 3D Flapping Wings
     const wingGeo = new THREE.BoxGeometry(0.11, 0.018, 0.16);
     const wingL = new THREE.Mesh(wingGeo, wingMat);
     wingL.position.set(0, 0.02, 0.09);
@@ -380,15 +392,20 @@ export const MeshFactory3D = {
 
   createRockCluster(isLarge = false) {
     const group = new THREE.Group();
-    const rockMat = new THREE.MeshStandardMaterial({
-      color: 0x8d8278,
-      roughness: 0.75,
-      metalness: 0.12,
+    const rockMat = new THREE.MeshPhongMaterial({
+      color: 0x9e9287,
+      emissive: 0x2d2621,
+      emissiveIntensity: 0.2,
+      specular: 0xffffff,
+      shininess: 120,
       flatShading: true
     });
-    const accentMat = new THREE.MeshStandardMaterial({
-      color: 0xa89b91,
-      roughness: 0.68,
+    const accentMat = new THREE.MeshPhongMaterial({
+      color: 0xbdb0a4,
+      emissive: 0x332a24,
+      emissiveIntensity: 0.2,
+      specular: 0xffffff,
+      shininess: 130,
       flatShading: true
     });
 
@@ -414,23 +431,26 @@ export const MeshFactory3D = {
 
   createSpikeHazard() {
     const group = new THREE.Group();
-    const coneMat = new THREE.MeshStandardMaterial({
-      color: 0xe05378,
-      roughness: 0.35,
-      metalness: 0.3,
-      emissive: 0x4a1022,
-      emissiveIntensity: 0.2
+    const coneMat = new THREE.MeshPhongMaterial({
+      color: 0xf72585,
+      emissive: 0x66002b,
+      emissiveIntensity: 0.35,
+      specular: 0xffffff,
+      shininess: 180
     });
-    const bandMat = new THREE.MeshStandardMaterial({
-      color: 0xfff3b0,
-      roughness: 0.3
+    const bandMat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      emissive: 0xffea75,
+      emissiveIntensity: 0.4,
+      specular: 0xffffff,
+      shininess: 220
     });
 
     const spike = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.26, 12), coneMat);
     spike.position.set(0, 0.13, 0);
     group.add(spike);
 
-    const band = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.015, 8, 12), bandMat);
+    const band = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.015, 8, 14), bandMat);
     band.rotation.x = Math.PI / 2;
     band.position.set(0, 0.12, 0);
     group.add(band);
@@ -438,69 +458,16 @@ export const MeshFactory3D = {
     return group;
   },
 
-  createTotoro3D() {
-    const group = new THREE.Group();
-    const furMat = new THREE.MeshStandardMaterial({ color: 0x7b8287, roughness: 0.65 });
-    const bellyMat = new THREE.MeshStandardMaterial({ color: 0xf4efe6, roughness: 0.55 });
-    const leafMat = new THREE.MeshStandardMaterial({ color: 0x38b000, roughness: 0.4 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3 });
-
-    // Plump 3D Body
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), furMat);
-    body.scale.set(1.0, 1.18, 0.92);
-    body.position.set(0, 0.26, 0);
-    group.add(body);
-
-    // Cream Belly Patch
-    const belly = new THREE.Mesh(new THREE.SphereGeometry(0.19, 14, 14), bellyMat);
-    belly.scale.set(0.88, 1.0, 0.55);
-    belly.position.set(0, 0.23, 0.12);
-    group.add(belly);
-
-    // 3D Ears
-    const earGeo = new THREE.ConeGeometry(0.045, 0.16, 10);
-    const earL = new THREE.Mesh(earGeo, furMat);
-    earL.position.set(-0.11, 0.56, 0);
-    earL.rotation.z = 0.18;
-    group.add(earL);
-
-    const earR = new THREE.Mesh(earGeo, furMat);
-    earR.position.set(0.11, 0.56, 0);
-    earR.rotation.z = -0.18;
-    group.add(earR);
-
-    // Eyes
-    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), darkMat);
-    eyeL.position.set(-0.08, 0.42, 0.19);
-    group.add(eyeL);
-
-    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), darkMat);
-    eyeR.position.set(0.08, 0.42, 0.19);
-    group.add(eyeR);
-
-    // 3D Swaying Leaf Umbrella
-    const umbrella = new THREE.Group();
-    umbrella.position.set(0.20, 0.36, 0.08);
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.38, 8), darkMat);
-    stem.position.set(0, 0.14, 0);
-    umbrella.add(stem);
-
-    const canopy = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.12, 14), leafMat);
-    canopy.position.set(0, 0.34, 0);
-    umbrella.add(canopy);
-    group.add(umbrella);
-
-    group.userData = { earL, earR, umbrella };
-    return group;
-  },
-
   createCloud3D() {
     const group = new THREE.Group();
-    const cloudMat = new THREE.MeshStandardMaterial({
+    const cloudMat = new THREE.MeshPhongMaterial({
       color: 0xffffff,
-      roughness: 0.85,
+      emissive: 0xddeeff,
+      emissiveIntensity: 0.2,
+      specular: 0xffffff,
+      shininess: 80,
       transparent: true,
-      opacity: 0.72
+      opacity: 0.78
     });
     const p1 = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 10), cloudMat);
     const p2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), cloudMat);
@@ -513,7 +480,7 @@ export const MeshFactory3D = {
 };
 
 /**
- * Base Three.js Overlay Controller attached directly inside `.game-card`
+ * Base Three.js Overlay Controller with Multi-Angle Studio Lighting
  */
 class BaseGame3DFX {
   constructor(canvasId, width, height) {
@@ -532,13 +499,9 @@ class BaseGame3DFX {
 
     this.renderer = null;
     this.domElement = null;
-    this.shockwaves = [];
-    this.shards = [];
-    this.petals = [];
 
     this._initRenderer();
     this._initLights();
-    this._initPetals();
   }
 
   _initRenderer() {
@@ -547,7 +510,6 @@ class BaseGame3DFX {
     const parent = hostCanvas ? hostCanvas.parentElement : null;
     if (!parent) return;
 
-    // Remove any stale overlay inside this card
     const existing = parent.querySelector(".game-3d-overlay");
     if (existing) existing.remove();
 
@@ -569,151 +531,36 @@ class BaseGame3DFX {
   }
 
   _initLights() {
-    this.ambientLight = new THREE.AmbientLight(0xfff5eb, 1.15);
+    // 1. Strong Ambient Base (prevents dark unlit faces)
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
     this.scene.add(this.ambientLight);
 
-    this.dirLight = new THREE.DirectionalLight(0xffe8c2, 1.9);
-    this.dirLight.position.set(3, 5, 6);
-    this.scene.add(this.dirLight);
+    // 2. Natural Sky & Ground Contrast
+    this.hemiLight = new THREE.HemisphereLight(0xfffaed, 0x90a4ae, 1.3);
+    this.scene.add(this.hemiLight);
 
-    this.pointLight = new THREE.PointLight(0xffb703, 1.5, 6);
-    this.pointLight.position.set(0, 0.8, 1.5);
+    // 3. Bright Key Light from Front-Top-Right (creates brilliant specular glints)
+    this.keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    this.keyLight.position.set(4, 6, 8);
+    this.scene.add(this.keyLight);
+
+    // 4. Warm Rim/Fill Light from Left (ensures edge radiance)
+    this.rimLight = new THREE.DirectionalLight(0xfff0dd, 1.8);
+    this.rimLight.position.set(-5, 3, 6);
+    this.scene.add(this.rimLight);
+
+    // 5. Specular PointLight tracking player/camera
+    this.pointLight = new THREE.PointLight(0xfff8d6, 2.4, 14, 1.0);
+    this.pointLight.position.set(0, 0.8, 2.5);
     this.scene.add(this.pointLight);
   }
 
-  _initPetals() {
-    const petalGeo = new THREE.BoxGeometry(0.045, 0.028, 0.008);
-    const petalColors = [0xf25c84, 0xff8da9, 0xffb703, 0xfbcfe8];
-    for (let i = 0; i < 14; i++) {
-      const mat = new THREE.MeshStandardMaterial({
-        color: petalColors[i % petalColors.length],
-        roughness: 0.4
-      });
-      const mesh = new THREE.Mesh(petalGeo, mat);
-      mesh.position.set(
-        (Math.random() - 0.5) * this.wUnits,
-        (Math.random() - 0.5) * this.hUnits,
-        0.15 + Math.random() * 0.4
-      );
-      this.scene.add(mesh);
-      this.petals.push({
-        mesh,
-        vx: -(0.4 + Math.random() * 0.6),
-        vy: -(0.15 + Math.random() * 0.25),
-        rx: 1.5 + Math.random() * 2.5,
-        ry: 1.5 + Math.random() * 2.5,
-        rz: 1.0 + Math.random() * 2.0,
-        phase: Math.random() * 6.28
-      });
-    }
-  }
-
-  /**
-   * Convert Phaser canvas coordinates (sx, sy) to Three.js world coordinates at z = 0
-   */
   toX(sx) {
     return (sx - this.width / 2) * SCALE;
   }
 
   toY(sy) {
     return (this.height / 2 - sy) * SCALE;
-  }
-
-  /**
-   * Spawn a 3D expanding Torus shockwave ring at Phaser screen coords (sx, sy)
-   */
-  spawnShockwave(sx, sy, colorHex = 0xffe066) {
-    const mat = new THREE.MeshBasicMaterial({
-      color: colorHex,
-      transparent: true,
-      opacity: 0.85
-    });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.018, 8, 20), mat);
-    ring.position.set(this.toX(sx), this.toY(sy), 0.15);
-    ring.rotation.x = Math.PI / 2.4;
-    this.scene.add(ring);
-    this.shockwaves.push({ mesh: ring, mat, scale: 1.0, life: 1.0 });
-  }
-
-  /**
-   * Spawn 3D tumbling polyhedral shards/sparkles at Phaser screen coords (sx, sy)
-   */
-  spawnBurst3D(sx, sy, colorHex = 0xffcf40, count = 8) {
-    const geo = new THREE.OctahedronGeometry(0.038, 0);
-    const wx = this.toX(sx);
-    const wy = this.toY(sy);
-    for (let i = 0; i < count; i++) {
-      const mat = new THREE.MeshStandardMaterial({
-        color: colorHex,
-        metalness: 0.5,
-        roughness: 0.2,
-        transparent: true,
-        opacity: 1.0
-      });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(wx, wy, 0.2);
-      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
-      const speed = 0.8 + Math.random() * 1.1;
-      this.scene.add(mesh);
-      this.shards.push({
-        mesh,
-        mat,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed + 0.5,
-        vz: (Math.random() - 0.5) * 1.2,
-        rx: (Math.random() - 0.5) * 10,
-        ry: (Math.random() - 0.5) * 10,
-        life: 1.0
-      });
-    }
-  }
-
-  updateCommonFX(time, dt) {
-    // 1. Update 3D tumbling Krishnachura petals
-    const halfW = this.wUnits / 2 + 0.4;
-    const halfH = this.hUnits / 2 + 0.4;
-    for (const p of this.petals) {
-      p.mesh.position.x += p.vx * dt;
-      p.mesh.position.y += (p.vy + Math.sin(time * 0.003 + p.phase) * 0.08) * dt;
-      p.mesh.rotation.x += p.rx * dt;
-      p.mesh.rotation.y += p.ry * dt;
-      p.mesh.rotation.z += p.rz * dt;
-      if (p.mesh.position.x < -halfW) p.mesh.position.x = halfW;
-      if (p.mesh.position.y < -halfH) p.mesh.position.y = halfH;
-    }
-
-    // 2. Update 3D Torus Shockwaves
-    for (let i = this.shockwaves.length - 1; i >= 0; i--) {
-      const sw = this.shockwaves[i];
-      sw.life -= dt * 2.6;
-      sw.scale += dt * 3.8;
-      sw.mesh.scale.set(sw.scale, sw.scale, 1);
-      sw.mat.opacity = Math.max(0, sw.life);
-      if (sw.life <= 0) {
-        this.scene.remove(sw.mesh);
-        sw.mesh.geometry.dispose();
-        sw.mat.dispose();
-        this.shockwaves.splice(i, 1);
-      }
-    }
-
-    // 3. Update 3D Polyhedral Shards
-    for (let i = this.shards.length - 1; i >= 0; i--) {
-      const s = this.shards[i];
-      s.life -= dt * 2.1;
-      s.vy -= 3.2 * dt; // 3D gravity
-      s.mesh.position.x += s.vx * dt;
-      s.mesh.position.y += s.vy * dt;
-      s.mesh.position.z += s.vz * dt;
-      s.mesh.rotation.x += s.rx * dt;
-      s.mesh.rotation.y += s.ry * dt;
-      s.mat.opacity = Math.max(0, s.life);
-      if (s.life <= 0) {
-        this.scene.remove(s.mesh);
-        s.mat.dispose();
-        this.shards.splice(i, 1);
-      }
-    }
   }
 
   render() {
@@ -737,7 +584,8 @@ class BaseGame3DFX {
 }
 
 /**
- * Runner3DFX - In-Game Three.js 3D Engine for Level 5: "Run to Totoro!" (Dino/Runner Game)
+ * Runner3DFX - In-Game Three.js 3D Engine for Level 5: "Run to Totoro!"
+ * Totoro retains its original 2D sprite design with zero 3D override.
  */
 export class Runner3DFX extends BaseGame3DFX {
   constructor(phaserScene) {
@@ -745,10 +593,9 @@ export class Runner3DFX extends BaseGame3DFX {
     this.phaserScene = phaserScene;
     this.itemMeshes = new Map();
     this.obsMeshes = new Map();
-    this.totoroMesh = null;
     this.clouds3D = [];
 
-    // Create 3D Parallax Clouds in deep Z-space
+    // 3D Parallax Clouds in deep Z-space
     for (let i = 0; i < 4; i++) {
       const c = MeshFactory3D.createCloud3D();
       c.position.set((i - 1.5) * 2.2, 0.85 + (i % 2) * 0.25, -0.8);
@@ -757,26 +604,9 @@ export class Runner3DFX extends BaseGame3DFX {
     }
   }
 
-  onJump(sx, sy) {
-    this.spawnShockwave(sx, sy, 0xe05378);
-    this.spawnBurst3D(sx, sy, 0xf7cb45, 6);
-  }
-
-  onCollect(sx, sy, isChai) {
-    this.spawnShockwave(sx, sy, isChai ? 0xdf7f28 : 0xffcf40);
-    this.spawnBurst3D(sx, sy, isChai ? 0xdf7f28 : 0xffcf40, 10);
-  }
-
-  onWin(sx, sy) {
-    this.spawnShockwave(sx, sy - 30, 0xf25c84);
-    this.spawnBurst3D(sx, sy - 40, 0xf25c84, 16);
-  }
-
   sync(time, dt) {
     const sc = this.phaserScene;
     if (!sc) return;
-
-    this.updateCommonFX(time, dt);
 
     // 1. Update 3D Parallax Clouds
     for (const c of this.clouds3D) {
@@ -784,7 +614,7 @@ export class Runner3DFX extends BaseGame3DFX {
       if (c.mesh.position.x < -4.8) c.mesh.position.x = 4.8;
     }
 
-    // 2. Sync 3D Collectibles (3D Spinning Gold Coins & 3D Steaming Clay Cha Cups)
+    // 2. Sync Luminous 3D Collectibles (Brilliant Gold Coins & Steaming Clay Cha Cups)
     const activeItems = new Set(sc.itemList || []);
     for (const [it, mesh] of this.itemMeshes.entries()) {
       if (!activeItems.has(it) || !it.sprite || !it.sprite.active) {
@@ -800,20 +630,23 @@ export class Runner3DFX extends BaseGame3DFX {
         mesh = it.key === "cha_cup" ? MeshFactory3D.createChaCup() : MeshFactory3D.createCoin();
         this.scene.add(mesh);
         this.itemMeshes.set(it, mesh);
-        if (this.renderer) it.sprite.setAlpha(0.01); // Let 3D mesh shine while preserving 2D sprite state
+        if (this.renderer) it.sprite.setAlpha(0.01);
       }
       mesh.position.set(this.toX(it.sprite.x), this.toY(it.sprite.y), 0.12);
-      mesh.rotation.y = time * 0.0045 + (it.phase || 0);
-      mesh.rotation.z = Math.sin(time * 0.003 + (it.phase || 0)) * 0.15;
+
+      // Dynamic rotation with sweeping specular glints
+      mesh.rotation.y = time * 0.0055 + (it.phase || 0);
+      mesh.rotation.x = Math.sin(time * 0.004 + (it.phase || 0)) * 0.22;
+      mesh.rotation.z = Math.cos(time * 0.003 + (it.phase || 0)) * 0.16;
 
       if (mesh.userData.puffs) {
         mesh.userData.puffs.forEach((p, idx) => {
-          p.position.y = 0.11 + ((time * 0.0015 + idx * 0.33) % 1) * 0.12;
+          p.position.y = 0.12 + ((time * 0.0016 + idx * 0.33) % 1) * 0.13;
         });
       }
     }
 
-    // 3. Sync 3D Obstacles (3D Crystalline Boulders, 3D Road Spikes, 3D Flapping Bugs)
+    // 3. Sync Luminous 3D Obstacles (Crystalline Boulders, Spikes, Flapping Bugs)
     const activeObs = new Set(sc.obsList || []);
     for (const [o, mesh] of this.obsMeshes.entries()) {
       if (!activeObs.has(o) || !o.sprite || !o.sprite.active) {
@@ -843,33 +676,16 @@ export class Runner3DFX extends BaseGame3DFX {
       const sy = o.isBug ? o.sprite.y : o.sprite.y;
       mesh.position.set(this.toX(o.sprite.x), this.toY(sy), 0.1);
       if (o.isBug) {
-        mesh.rotation.y = Math.PI; // Facing left toward runner
+        mesh.rotation.y = Math.PI;
         if (mesh.userData.wingL && mesh.userData.wingR) {
-          const flap = Math.sin(time * 0.018) * 0.65;
+          const flap = Math.sin(time * 0.02) * 0.7;
           mesh.userData.wingL.rotation.x = flap;
           mesh.userData.wingR.rotation.x = -flap;
         }
       }
     }
 
-    // 4. Sync 3D Voxel Totoro at the Finish
-    if (sc.totoro && sc.totoro.active) {
-      if (!this.totoroMesh) {
-        this.totoroMesh = MeshFactory3D.createTotoro3D();
-        this.scene.add(this.totoroMesh);
-        if (this.renderer) sc.totoro.setAlpha(0.01);
-      }
-      const bounce = sc.state === "won" ? Math.abs(Math.sin(time * 0.008)) * 0.14 : 0;
-      this.totoroMesh.position.set(this.toX(sc.totoro.x), this.toY(sc.totoro.y) + bounce, 0.15);
-      this.totoroMesh.rotation.y = -0.35 + Math.sin(time * 0.002) * 0.12;
-      const breath = Math.sin(time * 0.003) * 0.04;
-      this.totoroMesh.scale.set(1 + breath, 1 - breath * 0.8, 1 + breath);
-      if (this.totoroMesh.userData.umbrella) {
-        this.totoroMesh.userData.umbrella.rotation.z = Math.sin(time * 0.0025) * 0.1;
-      }
-    }
-
-    // Follow player X with dynamic pointLight
+    // Dynamic light tracking player
     if (sc.astro) {
       this.pointLight.position.x = this.toX(sc.astro.x);
       this.pointLight.position.y = this.toY(sc.astro.y - 35);
@@ -880,7 +696,8 @@ export class Runner3DFX extends BaseGame3DFX {
 }
 
 /**
- * Mario3DFX - In-Game Three.js 3D Engine for Level 7: "Run to the Bus Stop" (Mario Platformer)
+ * Mario3DFX - In-Game Three.js 3D Engine for Level 7: "Run to the Bus Stop"
+ * Totoro retains its original 2D pixel-art sprite design with zero 3D override.
  */
 export class Mario3DFX extends BaseGame3DFX {
   constructor(phaserScene) {
@@ -889,8 +706,6 @@ export class Mario3DFX extends BaseGame3DFX {
     this.blockMeshes = new Map();
     this.itemMeshes = new Map();
     this.enemyMeshes = new Map();
-    this.totoroMesh = null;
-    this.clouds3D = [];
 
     this._applyStageLighting(phaserScene.levelIdx || 0);
     this._buildBlocks3D();
@@ -898,18 +713,27 @@ export class Mario3DFX extends BaseGame3DFX {
 
   _applyStageLighting(stageIdx) {
     if (stageIdx === 0) {
-      // Dhanmondi Sunset
-      this.ambientLight.color.setHex(0xfff5e6);
-      this.dirLight.color.setHex(0xffdf9e);
+      // Dhanmondi Sunset: Warm golden radiance
+      this.ambientLight.color.setHex(0xfffaf0);
+      this.ambientLight.intensity = 1.9;
+      this.keyLight.color.setHex(0xfff5e0);
+      this.keyLight.intensity = 2.8;
+      this.rimLight.color.setHex(0xffe2b3);
     } else if (stageIdx === 1) {
-      // Hatirjheel Twilight
-      this.ambientLight.color.setHex(0xfce4ec);
-      this.dirLight.color.setHex(0xff9ebb);
+      // Hatirjheel Twilight: Vibrant rose-gold luster
+      this.ambientLight.color.setHex(0xfff0f5);
+      this.ambientLight.intensity = 1.8;
+      this.keyLight.color.setHex(0xffe6f0);
+      this.keyLight.intensity = 2.7;
+      this.rimLight.color.setHex(0xff99bb);
     } else {
-      // Old Dhaka Lantern Night
-      this.ambientLight.color.setHex(0xe2dbf0);
-      this.dirLight.color.setHex(0xffd166);
-      this.pointLight.intensity = 2.4;
+      // Old Dhaka Night: Crisp lantern radiance
+      this.ambientLight.color.setHex(0xede7f6);
+      this.ambientLight.intensity = 1.7;
+      this.keyLight.color.setHex(0xfff8e7);
+      this.keyLight.intensity = 2.9;
+      this.rimLight.color.setHex(0xffd54f);
+      this.pointLight.intensity = 3.2;
     }
   }
 
@@ -932,54 +756,17 @@ export class Mario3DFX extends BaseGame3DFX {
         }
       }
     }
-
-    // 3D Totoro waiting at the Bus Stop Goal
-    if (sc.goalX) {
-      this.totoroMesh = MeshFactory3D.createTotoro3D();
-      this.scene.add(this.totoroMesh);
-      if (this.renderer && sc.totoro) {
-        sc.totoro.setAlpha(0.01);
-      }
-    }
   }
 
-  onJump(worldX, worldY, camX) {
-    this.spawnShockwave(worldX - camX, worldY, 0xffe066);
-    this.spawnBurst3D(worldX - camX, worldY, 0xffffff, 5);
-  }
-
-  onBlockBump(b, isHeart, camX) {
+  onBlockBump(b) {
     const entry = this.blockMeshes.get(b);
     if (entry) {
-      entry.bumpVel = 1.6;
+      entry.bumpVel = 1.8;
       if (entry.mesh.userData && entry.mesh.userData.core) {
         entry.mesh.userData.core.material.color.setHex(0x9e8c7a);
-        entry.mesh.userData.core.material.emissiveIntensity = 0;
+        entry.mesh.userData.core.material.emissiveIntensity = 0.1;
       }
     }
-    const sx = b.x + 16 - camX;
-    const sy = b.y;
-    this.spawnShockwave(sx, sy, isHeart ? 0xf25c84 : 0xffcf40);
-    this.spawnBurst3D(sx, sy, isHeart ? 0xf25c84 : 0xffcf40, 10);
-  }
-
-  onStomp(worldX, worldY, camX) {
-    const sx = worldX - camX;
-    this.spawnShockwave(sx, worldY, 0xffd166);
-    this.spawnBurst3D(sx, worldY, 0xe05378, 12);
-  }
-
-  onCollect(worldX, worldY, type, camX) {
-    const sx = worldX - camX;
-    const col = type === "heart" ? 0xf25c84 : type === "kite" ? 0xff8da9 : 0xffcf40;
-    this.spawnShockwave(sx, worldY, col);
-    this.spawnBurst3D(sx, worldY, col, 9);
-  }
-
-  onWin(worldX, worldY, camX) {
-    const sx = worldX - camX;
-    this.spawnShockwave(sx, worldY - 30, 0xf25c84);
-    this.spawnBurst3D(sx, worldY - 40, 0xf25c84, 18);
   }
 
   sync(time, dt) {
@@ -987,9 +774,7 @@ export class Mario3DFX extends BaseGame3DFX {
     if (!sc || !sc.cameras || !sc.cameras.main) return;
     const camX = sc.cameras.main.scrollX;
 
-    this.updateCommonFX(time, dt);
-
-    // 1. Sync 3D Extruded ? Blocks and Brick Platforms in camera frustum
+    // 1. Sync 3D Extruded Blocks with 3D Depth
     for (const [b, entry] of this.blockMeshes.entries()) {
       const sx = b.x + 16 - camX;
       if (sx < -60 || sx > 860) {
@@ -1000,7 +785,7 @@ export class Mario3DFX extends BaseGame3DFX {
 
       if (entry.bumpVel !== 0 || entry.bumpOffset > 0) {
         entry.bumpOffset += entry.bumpVel * dt;
-        entry.bumpVel -= 8.5 * dt;
+        entry.bumpVel -= 9.5 * dt;
         if (entry.bumpOffset <= 0) {
           entry.bumpOffset = 0;
           entry.bumpVel = 0;
@@ -1009,13 +794,13 @@ export class Mario3DFX extends BaseGame3DFX {
           entry.mesh.rotation.y += dt * 10;
         }
       } else if (entry.isQ && !b.used) {
-        entry.mesh.rotation.y = Math.sin(time * 0.003 + b.x * 0.01) * 0.18;
+        entry.mesh.rotation.y = Math.sin(time * 0.0035 + b.x * 0.01) * 0.18;
       }
 
       entry.mesh.position.set(this.toX(sx), this.toY(b.y + 16) + entry.bumpOffset, 0.05);
     }
 
-    // 2. Sync 3D Collectibles (3D Coins, 3D Hearts, 3D Kites)
+    // 2. Sync Luminous 3D Collectibles (Gold Coins, Hearts, Kites)
     const activeItems = new Set(sc.items || []);
     for (const [it, mesh] of this.itemMeshes.entries()) {
       if (!activeItems.has(it) || !it.sprite || !it.sprite.active) {
@@ -1045,14 +830,16 @@ export class Mario3DFX extends BaseGame3DFX {
       mesh.position.set(this.toX(sx), this.toY(it.sprite.y), 0.14);
 
       if (it.type === "kite") {
-        mesh.rotation.z = Math.sin(time * 0.003 + (it.phase || 0)) * 0.22;
-        mesh.rotation.y = Math.cos(time * 0.004 + (it.phase || 0)) * 0.35;
+        mesh.rotation.z = Math.sin(time * 0.0035 + (it.phase || 0)) * 0.22;
+        mesh.rotation.y = Math.cos(time * 0.0045 + (it.phase || 0)) * 0.35;
       } else {
-        mesh.rotation.y = time * 0.0045 + (it.phase || 0);
+        mesh.rotation.y = time * 0.0055 + (it.phase || 0);
+        mesh.rotation.x = Math.sin(time * 0.004 + (it.phase || 0)) * 0.22;
+        mesh.rotation.z = Math.cos(time * 0.003 + (it.phase || 0)) * 0.16;
       }
     }
 
-    // 3. Sync 3D Enemies (3D Spoked Rickshaws, 3D Green CNGs, 3D Flapping Crows)
+    // 3. Sync Luminous 3D Vehicles & Enemies (Rickshaws, CNGs, Flapping Crows)
     const activeEnemies = new Set(sc.enemies || []);
     for (const [e, mesh] of this.enemyMeshes.entries()) {
       if (!activeEnemies.has(e) || !e.sprite || !e.sprite.active) {
@@ -1066,7 +853,7 @@ export class Mario3DFX extends BaseGame3DFX {
       let mesh = this.enemyMeshes.get(e);
       if (!mesh) {
         if (e.isFlyer) mesh = MeshFactory3D.createCrow();
-        else if (e.sprite.texture && e.sprite.texture.key === "cng") mesh = MeshFactory3D.createCNG();
+        else if (e.key === "cng" || (e.sprite.texture && e.sprite.texture.key === "cng")) mesh = MeshFactory3D.createCNG();
         else mesh = MeshFactory3D.createRickshaw();
         this.scene.add(mesh);
         this.enemyMeshes.set(e, mesh);
@@ -1081,42 +868,22 @@ export class Mario3DFX extends BaseGame3DFX {
       mesh.visible = true;
       mesh.position.set(this.toX(sx), this.toY(e.sprite.y), 0.15);
 
-      // Smooth 3D yaw rotation based on travel direction (vx >= 0 faces +X, vx < 0 faces -X)
       const targetYaw = e.vx < 0 ? Math.PI : 0;
       mesh.rotation.y += (targetYaw - mesh.rotation.y) * Math.min(1, dt * 12);
 
-      // Animate 3D wheels or 3D flapping crow wings
       if (mesh.userData.wheels) {
         for (const w of mesh.userData.wheels) {
-          w.rotation.z -= Math.abs(e.vx) * dt * 0.12;
+          w.rotation.z -= Math.abs(e.vx) * dt * 0.14;
         }
       } else if (mesh.userData.wingL && mesh.userData.wingR) {
-        const flap = Math.sin(time * 0.016 + (e.phase || 0)) * 0.65;
+        const flap = Math.sin(time * 0.018 + (e.phase || 0)) * 0.68;
         mesh.userData.wingL.rotation.x = flap;
         mesh.userData.wingR.rotation.x = -flap;
-        mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.1;
+        mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.12;
       }
     }
 
-    // 4. Sync 3D Totoro at the Bus Stop Goal
-    if (this.totoroMesh && sc.totoro) {
-      const sx = sc.totoro.x - camX;
-      if (sx >= -100 && sx <= 900) {
-        this.totoroMesh.visible = true;
-        const winHop = sc.state === "win" ? Math.abs(Math.sin(time * 0.01)) * 0.18 : 0;
-        this.totoroMesh.position.set(this.toX(sx), this.toY(sc.totoro.y) + winHop, 0.16);
-        this.totoroMesh.rotation.y = -0.3 + Math.sin(time * 0.002) * 0.15;
-        const breath = Math.sin(time * 0.003) * 0.04;
-        this.totoroMesh.scale.set(1 + breath, 1 - breath * 0.8, 1 + breath);
-        if (this.totoroMesh.userData.umbrella) {
-          this.totoroMesh.userData.umbrella.rotation.z = Math.sin(time * 0.0025) * 0.1;
-        }
-      } else {
-        this.totoroMesh.visible = false;
-      }
-    }
-
-    // 5. Move 3D PointLight with player
+    // Dynamic light tracking player
     if (sc.p) {
       this.pointLight.position.x = this.toX(sc.p.x - camX);
       this.pointLight.position.y = this.toY(sc.p.y - 20);
