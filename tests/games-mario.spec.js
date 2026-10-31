@@ -39,10 +39,17 @@ test.describe("Game 3: Run to the Bus Stop", () => {
       return s.p.x;
     });
 
-    // Press right using keyboard
+    // Press right using keyboard and touch pad
+    const rightBtn = page.locator('.pad-btn[data-k="right"]');
+    if (await rightBtn.count()) {
+      await rightBtn.dispatchEvent("pointerdown");
+    }
     await page.keyboard.down("ArrowRight");
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(500);
     await page.keyboard.up("ArrowRight");
+    if (await rightBtn.count()) {
+      await rightBtn.dispatchEvent("pointerup");
+    }
 
     // Press jump using on-screen touch pad
     const jumpBtn = page.locator('.pad-btn[data-k="jump"]');

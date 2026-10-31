@@ -222,4 +222,46 @@ test.describe("Soundtrack Audio Engine & Music Player", () => {
     expect(postcardCheck.hasImg).toBe(true);
     expect(postcardCheck.imgSrc).toContain("dhaka-postcard.jpg");
   });
+
+  test("plays 'Afreen Afreen' from 6 seconds always", async ({ page }) => {
+    await page.evaluate(() => window.goTo("screen-final"));
+    await expect(page.locator("#screen-final")).toHaveClass(/active/);
+
+    // Play Afreen Afreen
+    const result = await page.evaluate(async () => {
+      window.player.playSongById("afreen");
+      const audio = window.player.getAudioElement();
+      const song = window.player.getCurrentSong();
+
+      // Wait for metadata / canplay
+      await new Promise(r => setTimeout(r, 150));
+
+      return {
+        songTitle: song?.title,
+        startTime: song?.startTime,
+        audioCurrentTime: audio.currentTime,
+        curDisplay: document.getElementById("t-cur")?.textContent
+      };
+    });
+
+    expect(result.songTitle).toBe("Afreen Afreen");
+    expect(result.startTime).toBe(6);
+    expect(result.audioCurrentTime).toBeGreaterThanOrEqual(6);
+    expect(result.curDisplay).toBe("0:06");
+
+    // Test seek clamping below 6s
+    const seekResult = await page.evaluate(() => {
+      const seek = document.getElementById("seek");
+      seek.value = 0;
+      seek.dispatchEvent(new Event("input", { bubbles: true }));
+      const audio = window.player.getAudioElement();
+      return {
+        audioCurrentTime: audio.currentTime,
+        curDisplay: document.getElementById("t-cur")?.textContent
+      };
+    });
+
+    expect(seekResult.audioCurrentTime).toBeGreaterThanOrEqual(6);
+    expect(seekResult.curDisplay).toBe("0:06");
+  });
 });

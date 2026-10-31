@@ -1188,9 +1188,9 @@
       }
     });
 
-    /* All 11 Audio Files Optimized for Fast Vercel CDN Delivery */
+    /* All 11 Audio Files Optimized for Fast CDN Delivery */
     const SONGS = {
-      afreen:     { title: 'Afreen Afreen',       artist: 'Rahat Fateh Ali Khan & Momina Mustehsan', duration: 405, file: 'audio/Afreen_Afreen.m4a' },
+      afreen:     { title: 'Afreen Afreen',       artist: 'Rahat Fateh Ali Khan & Momina Mustehsan', duration: 405, file: 'audio/Afreen_Afreen.m4a', startTime: 6 },
       amar:       { title: 'Amar Mawte',          artist: 'Lopamudra Mitra',                         duration: 183, file: 'audio/Amar-Mawte.m4a' },
       photograph: { title: 'Photograph',          artist: 'Ed Sheeran',                              duration: 258, file: 'audio/Ed Sheeran - Photograph.m4a' },
       ekhon:      { title: 'Ekhon Onek Raat',     artist: 'Anupam Roy',                              duration: 251, file: 'audio/Ekhon-Onek-Raat.m4a' },
@@ -1664,7 +1664,13 @@
           navigator.mediaSession.setActionHandler('nexttrack', () => go(1));
           navigator.mediaSession.setActionHandler('seekto', details => {
             if (details.seekTime !== undefined && isFinite(details.seekTime)) {
-              audio.currentTime = details.seekTime;
+              const curSong = SONGS[list[i]];
+              const minStart = (curSong && curSong.startTime) ? curSong.startTime : 0;
+              let targetTime = details.seekTime;
+              if (minStart > 0 && targetTime < minStart) {
+                targetTime = minStart;
+              }
+              audio.currentTime = targetTime;
               updateProgress();
             }
           });
@@ -1727,10 +1733,19 @@
         initModernAudioPipeline();
         getAudioContext();
 
+        const curSong = SONGS[list[i]];
+        const startTime = (curSong && curSong.startTime) ? curSong.startTime : 0;
+        if (startTime > 0 && audio.currentTime < startTime) {
+          try { audio.currentTime = startTime; } catch {}
+        }
+
         const p = audio.play();
         if (p && typeof p.then === 'function') {
           p.then(() => {
             if (token !== reqId) return;
+            if (startTime > 0 && audio.currentTime < startTime) {
+              try { audio.currentTime = startTime; } catch {}
+            }
             isAwaitingUnlock = false;
             isPlaying = true;
 
@@ -1796,14 +1811,17 @@
           } catch {}
         }
 
+        const startTime = s.startTime || 0;
+
         // Immediate UI feedback — never stuck at 0:00
         $('song-title').textContent = s.title;
         $('song-artist').textContent = s.artist || 'Picked for your date';
         $('song-reason').textContent = matchedBy[id] ? `Paired with: ${matchedBy[id]}` : 'Curated for your evening in Dhaka';
         $('song-note').innerHTML = '';
-        $('seek').value = 0;
-        fill($('seek'), 0, 0);
-        $('t-cur').textContent = '0:00';
+        const initPct = (s.duration && s.duration > 0) ? Math.min(100, Math.max(0, (startTime / s.duration) * 100)) : 0;
+        $('seek').value = initPct;
+        fill($('seek'), initPct, initPct);
+        $('t-cur').textContent = fmt(startTime);
         $('t-dur').textContent = fmt(s.duration || 0);
 
         renderQueue();
@@ -1825,6 +1843,19 @@
         // Seamless transition without recreating audio element pipeline
         audio.pause();
         audio.src = targetSrc;
+
+        if (startTime > 0) {
+          const applyStartTime = () => {
+            if (audio.currentTime < startTime) {
+              try { audio.currentTime = startTime; } catch {}
+            }
+            updateProgress();
+          };
+          audio.addEventListener('loadedmetadata', applyStartTime, { once: true });
+          if (audio.readyState >= 1) {
+            applyStartTime();
+          }
+        }
 
         if (autoPlay) {
           setBuffering(true);
@@ -1850,6 +1881,10 @@
 
       // Audio event listeners
       audio.addEventListener('play', () => {
+        const curSong = SONGS[list[i]];
+        if (curSong && curSong.startTime && audio.currentTime < curSong.startTime) {
+          try { audio.currentTime = curSong.startTime; } catch {}
+        }
         setBuffering(false);
         syncUI(true);
         $('song-note').innerHTML = '';
@@ -1862,10 +1897,18 @@
         setBuffering(true);
       });
       audio.addEventListener('playing', () => {
+        const curSong = SONGS[list[i]];
+        if (curSong && curSong.startTime && audio.currentTime < curSong.startTime) {
+          try { audio.currentTime = curSong.startTime; } catch {}
+        }
         setBuffering(false);
         syncUI(true);
       });
       audio.addEventListener('canplay', () => {
+        const curSong = SONGS[list[i]];
+        if (curSong && curSong.startTime && audio.currentTime < curSong.startTime) {
+          try { audio.currentTime = curSong.startTime; } catch {}
+        }
         setBuffering(false);
         updateProgress();
       });
@@ -1899,8 +1942,10 @@
       // Controls binding
       $('btn-next').addEventListener('click', () => go(1));
       $('btn-prev').addEventListener('click', () => {
-        if (audio.currentTime > 3) {
-          audio.currentTime = 0;
+        const curSong = SONGS[list[i]];
+        const minStart = (curSong && curSong.startTime) ? curSong.startTime : 0;
+        if (audio.currentTime > minStart + 3) {
+          audio.currentTime = minStart;
           updateProgress();
         } else {
           go(-1);
@@ -1920,7 +1965,12 @@
       $('seek').addEventListener('input', e => {
         const dur = getDuration();
         if (dur > 0) {
-          const targetTime = (e.target.value / 100) * dur;
+          const curSong = SONGS[list[i]];
+          const minStart = (curSong && curSong.startTime) ? curSong.startTime : 0;
+          let targetTime = (e.target.value / 100) * dur;
+          if (minStart > 0 && targetTime < minStart) {
+            targetTime = minStart;
+          }
           audio.currentTime = targetTime;
           $('t-cur').textContent = fmt(targetTime);
         }
@@ -2052,7 +2102,18 @@
         getAnalyserNode: () => analyserNode,
         isWebAudioActive: () => isWebAudioInit,
         pause: () => { audio.pause(); syncUI(false); },
-        play: () => executePlay(++reqId)
+        play: () => executePlay(++reqId),
+        getAudioElement: () => audio,
+        getCurrentSong: () => SONGS[list[i]],
+        playSongById: id => {
+          if (!list.includes(id)) {
+            list.push(id);
+            i = list.length - 1;
+          } else {
+            i = list.indexOf(id);
+          }
+          load(true);
+        }
       };
     })();
 
