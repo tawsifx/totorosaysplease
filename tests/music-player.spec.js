@@ -264,4 +264,29 @@ test.describe("Soundtrack Audio Engine & Music Player", () => {
     expect(seekResult.audioCurrentTime).toBeGreaterThanOrEqual(6);
     expect(seekResult.curDisplay).toBe("0:06");
   });
+
+  test("plays 'Ghum Ghum Chand' from 9 seconds always", async ({ page }) => {
+    await page.evaluate(() => window.goTo("screen-final"));
+    await expect(page.locator("#screen-final")).toHaveClass(/active/);
+
+    const result = await page.evaluate(async () => {
+      window.player.playSongById("ghum");
+      const audio = window.player.getAudioElement();
+      const song = window.player.getCurrentSong();
+
+      await new Promise(r => setTimeout(r, 150));
+
+      return {
+        songTitle: song?.title,
+        startTime: song?.startTime,
+        audioCurrentTime: audio.currentTime,
+        curDisplay: document.getElementById("t-cur")?.textContent
+      };
+    });
+
+    expect(result.songTitle).toBe("Ghum Ghum Chand");
+    expect(result.startTime).toBe(9);
+    expect(result.audioCurrentTime).toBeGreaterThanOrEqual(9);
+    expect(result.curDisplay).toBe("0:09");
+  });
 });
