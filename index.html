@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script>
+    if (window.location.hostname.includes('vercel.app')) {
+      window.location.replace('https://totorosaysplease.pages.dev' + window.location.pathname + window.location.search + window.location.hash);
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="A Date in Dhaka - An interactive retro pixel-art date invitation, mini-games suite, Dhaka vintage postcard, vinyl soundtrack player, and celestial star atlas.">
   <meta name="cdn-base-url" content="">

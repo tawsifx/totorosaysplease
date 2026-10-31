@@ -12,4 +12,4 @@
 - **Code Splitting**: Preserve Rollup chunking configuration in `vite.config.js` (`chunk-storage-db`, `chunk-audio-engine`, `chunk-games-suite`, `chunk-game-configs`).
 - **Storage**: Use the `IndexedDatabase` engine (`TotoroDhakaDB`) in `js/storage/db.js` for persistent game states and user discoveries.
 - **Audio & Media**: Keep audio assets compressed (e.g., AAC/M4A 96kbps or MP3) with background music toggles available in minigames.
-- **Deployment**: Verify production builds (`npm run build`) and maintain zero regression on Lighthouse Accessibility (100) and Best Practices (100).
+- **Deployment**: Verify production builds (`npm run build`) and maintain zero regression on Lighthouse Accessibility (100) and Best Practices (100). The primary production deployment is hosted on **Cloudflare Pages** (`https://totorosaysplease.pages.dev`). All legacy Vercel links (`totorosaysplease.vercel.app`) permanently redirect (HTTP 308 with immutable cache + synchronous client-side guard) to Cloudflare Pages. Deployments to Cloudflare Pages are performed via `npm run deploy:cf`.

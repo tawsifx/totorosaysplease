@@ -8,7 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "playwright test",
-    "test:headed": "playwright test --headed"
+    "test:headed": "playwright test --headed",
+    "deploy:cf": "npm run build && npx wrangler pages deploy dist --project-name=totorosaysplease --branch=main --commit-dirty=true",
+    "deploy:vercel": "vercel --prod --yes",
+    "deploy": "npm run deploy:cf && npm run deploy:vercel"
   },
   "repository": {
     "type": "git",

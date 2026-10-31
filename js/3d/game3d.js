@@ -14,6 +14,112 @@ let _flyingBirdMeshTemplate = null;
 let _flyingBirdAnimationClip = null;
 const _pendingCrowMeshes = new Set();
 
+// External 3D Rickshaw Model (GLB) Asset Loader (Real-time Dhaka Cycle Rickshaw)
+let _rickshawModelTemplate = null;
+const _pendingRickshawMeshes = new Set();
+
+function setupClonedRickshaw(group) {
+  while (group.children.length > 0) {
+    group.remove(group.children[0]);
+  }
+  const model = _rickshawModelTemplate.clone(true);
+  group.add(model);
+  const wheels = [];
+  model.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+      if (child.material) {
+        child.material = child.material.clone();
+        child.material.roughness = Math.min(child.material.roughness, 0.30);
+        child.material.emissiveIntensity = 0.85;
+        if (child.material.metalness > 0.6) {
+          child.material.metalness = 0.45;
+        }
+        child.material.needsUpdate = true;
+      }
+      if (child.name.toLowerCase().includes("wheel") || child.name.toLowerCase().includes("tire")) {
+        wheels.push(child);
+      }
+    }
+  });
+  group.userData.isGltf = true;
+  group.userData.wheels = wheels;
+}
+
+function initExternalRickshawModel() {
+  if (typeof window === "undefined") return;
+  try {
+    const loader = new GLTFLoader();
+    loader.load(
+      "/models/rickshaw.glb",
+      (gltf) => {
+        _rickshawModelTemplate = gltf.scene;
+        for (const grp of _pendingRickshawMeshes) {
+          if (grp && grp.parent) {
+            setupClonedRickshaw(grp);
+          }
+        }
+        _pendingRickshawMeshes.clear();
+      },
+      undefined,
+      (err) => {
+        console.warn("External /models/rickshaw.glb fallback to procedural rickshaw model", err);
+      }
+    );
+  } catch (err) {
+    console.warn("External rickshaw asset initialization skipped:", err);
+  }
+}
+
+// External 3D CNG Auto-Rickshaw Model (GLB) Asset Loader (Dhaka Green Metro Auto-Rickshaw)
+let _cngModelTemplate = null;
+const _pendingCngMeshes = new Set();
+
+function setupClonedCNG(group) {
+  while (group.children.length > 0) {
+    group.remove(group.children[0]);
+  }
+  const model = _cngModelTemplate.clone(true);
+  group.add(model);
+  model.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+  group.userData.isGltf = true;
+  group.userData.wheels = [];
+}
+
+function initExternalCngModel() {
+  if (typeof window === "undefined") return;
+  try {
+    const loader = new GLTFLoader();
+    loader.load(
+      "/models/cng.glb",
+      (gltf) => {
+        _cngModelTemplate = gltf.scene;
+        for (const grp of _pendingCngMeshes) {
+          if (grp && grp.parent) {
+            setupClonedCNG(grp);
+          }
+        }
+        _pendingCngMeshes.clear();
+      },
+      undefined,
+      (err) => {
+        console.warn("External /models/cng.glb fallback to procedural cng model", err);
+      }
+    );
+  } catch (err) {
+    console.warn("External cng asset initialization skipped:", err);
+  }
+}
+
+initExternalRickshawModel();
+initExternalCngModel();
+
 function initExternalCrowModel() {
   if (typeof window === "undefined") return;
   try {
@@ -323,6 +429,14 @@ export const MeshFactory3D = {
   createRickshaw() {
     const group = new THREE.Group();
 
+    // If external 3D Rickshaw GLB model is ready, clone and use it
+    if (_rickshawModelTemplate) {
+      setupClonedRickshaw(group);
+      return group;
+    }
+
+    _pendingRickshawMeshes.add(group);
+
     // Vibrant Dhaka Enamel & Rexine Materials
     const hoodMat = new THREE.MeshPhongMaterial({ color: 0xd81b60, emissive: 0x4a0018, emissiveIntensity: 0.32, specular: 0xffffff, shininess: 130 });
     const hoodStripeOrange = new THREE.MeshPhongMaterial({ color: 0xff9100, emissive: 0x663300, emissiveIntensity: 0.38, specular: 0xffffff, shininess: 160 });
@@ -596,6 +710,14 @@ export const MeshFactory3D = {
 
   createCNG() {
     const group = new THREE.Group();
+
+    // If external 3D CNG Auto-Rickshaw GLB model is ready, clone and use it
+    if (_cngModelTemplate) {
+      setupClonedCNG(group);
+      return group;
+    }
+
+    _pendingCngMeshes.add(group);
 
     // Authentic Dhaka CNG Colors & Materials
     // Deep Dhaka emerald green with glossy clearcoat specular shine
@@ -1458,7 +1580,7 @@ export class Mario3DFX extends BaseGame3DFX {
       const targetYaw = e.vx < 0 ? Math.PI : 0;
       mesh.rotation.y += (targetYaw - mesh.rotation.y) * Math.min(1, dt * 12);
 
-      if (mesh.userData.wheels) {
+      if (mesh.userData.wheels && mesh.userData.wheels.length > 0) {
         for (const w of mesh.userData.wheels) {
           w.rotation.z -= Math.abs(e.vx) * dt * 0.14;
         }
@@ -1469,8 +1591,11 @@ export class Mario3DFX extends BaseGame3DFX {
           const flap = Math.sin(time * 0.018 + (e.phase || 0)) * 0.68;
           mesh.userData.wingL.rotation.x = flap;
           mesh.userData.wingR.rotation.x = -flap;
+          mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.12;
+        } else {
+          // Subtle vehicle engine rumble / tilt
+          mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.03;
         }
-        mesh.rotation.z = Math.cos(time * 0.005 + (e.phase || 0)) * 0.12;
       }
     }
 
